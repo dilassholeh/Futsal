@@ -22,7 +22,7 @@
 
         <form action="" method="POST">
             <div class="form-group-login">
-                <input type="email" name="email" placeholder="Email" required>
+                <input type="tel" name="No tel" placeholder="No Telp" required>
             </div>
 
             <div class="form-group-login">
@@ -32,10 +32,6 @@
 
             <button type="submit">Masuk</button>
         </form>
-
-        <a href="#" class="google-btn-login">
-            <i class="fa-brands fa-google"></i> Masuk dengan Google
-        </a>
 
         <div class="extra-links-login">
             <p>Belum punya akun? <a href="register.php">Daftar di sini</a></p>

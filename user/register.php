@@ -3,6 +3,7 @@
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
     <link rel="stylesheet" href="../assets/css/user/auth.css">
     <script src="https://kit.fontawesome.com/a81368914c.js" crossorigin="anonymous"></script>
 </head>
+
 <body>
     <section class="form-section-register">
         <div class="logo-register">
@@ -24,9 +26,12 @@
             </div>
 
             <div class="form-group-register">
-                <input type="email" name="email" placeholder="Email" required>
+                <input type="text" name="username" placeholder="Username" required>
             </div>
 
+            <div class="form-group-register">
+                <input type="tel" name="tel" placeholder="No tel" required>
+            </div>
             <div class="form-group-register">
                 <input type="password" id="password" name="password" placeholder="Kata Sandi" required>
                 <i class="fa-regular fa-eye toggle-password" id="togglePassword" style="cursor:pointer;"></i>
@@ -34,10 +39,6 @@
 
             <button type="submit">Daftar</button>
         </form>
-
-        <a href="#" class="google-btn-register">
-            <i class="fa-brands fa-google"></i> Daftar dengan Google
-        </a>
 
         <div class="extra-links-register">
             <p>Sudah punya akun? <a href="login.php">Masuk di sini</a></p>
@@ -54,4 +55,5 @@
         });
     </script>
 </body>
+
 </html>

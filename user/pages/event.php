@@ -43,8 +43,8 @@ include '../includes/koneksi.php';
                         </div>
                     </div>
                 <?php else: ?>
-                    <a href="../auth/login.php" class="btn-masuk">Masuk</a>
-                    <a href="../auth/register.php" class="btn-daftar">Daftar</a>
+                    <a href="../login.php" class="btn-masuk">Masuk</a>
+                    <a href="../register.php" class="btn-daftar">Daftar</a>
                 <?php endif; ?>
 
             </div>
