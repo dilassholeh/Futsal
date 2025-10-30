@@ -1,17 +1,17 @@
 <?php
 session_start();
-include '../includes/koneksi.php';
+include '../../includes/koneksi.php'; 
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Event Futsal</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/user/pages.css">
+    <link rel="stylesheet" href="../assets/css/event.css?v=<?php echo filemtime('../assets/css/event.css'); ?>">
 </head>
 
 <body>
@@ -19,7 +19,7 @@ include '../includes/koneksi.php';
         <nav class="nav">
             <div class="logo-container">
                 <a href="../index.php" class="logo-text">
-                    <img src="../assets/image/logo.png" alt="ZonaFutsal Logo" class="logo-img">
+                    <img src="../assets/image/logo_orange.png" alt="ZonaFutsal Logo" class="logo-img">
                     ZonaFutsal
                 </a>
             </div>
@@ -27,7 +27,7 @@ include '../includes/koneksi.php';
                 <ul>
                     <li><a href="../index.php">Beranda</a></li>
                     <li><a href="sewa.php">Penyewaan</a></li>
-                    <li><a href="event.php">Event</a></li>
+                    <li><a href="event.php" class="active">Event</a></li>
                 </ul>
 
                 <?php if (isset($_SESSION['username'])): ?>
@@ -38,7 +38,7 @@ include '../includes/koneksi.php';
                             ⮟
                         </button>
                         <div class="dropdown-content">
-                            <a href="./user/profil.php">Profil Saya</a>
+                            <a href="profil.php">Profil Saya</a>
                             <a href="../auth/logout.php" class="logout">Logout</a>
                         </div>
                     </div>
@@ -46,13 +46,12 @@ include '../includes/koneksi.php';
                     <a href="../login.php" class="btn-masuk">Masuk</a>
                     <a href="../register.php" class="btn-daftar">Daftar</a>
                 <?php endif; ?>
-
             </div>
         </nav>
     </header>
 
     <section class="hero">
-        <img src="../assets/image/bakground.png" alt="ZonaFutsal" class="hero-img">
+        <img src="../assets/image/latar.png" alt="ZonaFutsal" class="hero-img">
         <div class="hero-overlay">
             <h1>Event Futsal Terbaru</h1>
         </div>
@@ -62,70 +61,57 @@ include '../includes/koneksi.php';
         <h2 class="title">Daftar Event Futsal</h2>
 
         <?php
-        $events = [
-            [
-                'title' => 'Futsal Championship 2025',
-                'date' => '25 - 27 Oktober 2025',
-                'place' => 'Victory Arena, Jakarta',
-                'desc' => 'Turnamen futsal paling bergengsi dengan total hadiah Rp10.000.000. Tunjukkan skill terbaikmu dan rebut gelar juara!',
-                'img' => '../assets/image/futsal'
-            ],
-            [
-                'title' => 'Futsal Youth Cup',
-                'date' => '10 - 12 November 2025',
-                'place' => 'SportZone Arena, Bandung',
-                'desc' => 'Kompetisi antar pelajar se-Jawa Barat dengan semangat fair play dan sportivitas tinggi. Siapkan tim terbaikmu!',
-                'img' =>  '../assets/image/futsal'
-            ],
-            [
-                'title' => 'Midnight Futsal League',
-                'date' => '5 Desember 2025',
-                'place' => 'Galaxy Futsal, Surabaya',
-                'desc' => 'Main tengah malam, vibe kompetitif, dan hadiah menarik. Rasakan atmosfer liga malam paling seru di kota!',
-                'img' =>  '../assets/image/futsal'
-            ]
-        ];
+        $query = "
+            SELECT e.*, k.nama AS nama_kategori 
+            FROM event e
+            LEFT JOIN kategori k ON e.kategori_id = k.id
+            ORDER BY e.id DESC
+        ";
+        $result = $conn->query($query);
 
-        foreach ($events as $event):
+        if ($result->num_rows > 0):
+            while ($event = $result->fetch_assoc()):
+                $imgPath = !empty($event['foto']) ? "../admin/uploads/" . $event['foto'] : "../assets/image/default_event.jpg";
         ?>
-            <div class="event-card">
-                <div class="event-img" style="background-image:url('<?php echo $event['img']; ?>');"></div>
-                <div class="event-info">
-                    <h3><?php echo $event['title']; ?></h3>
-                    <div class="event-meta">📅 <?php echo $event['date']; ?> | 📍 <?php echo $event['place']; ?></div>
-                    <div class="event-desc"><?php echo $event['desc']; ?></div>
-                    <a href="#" class="btn">Lihat Detail</a>
+                <div class="event-card">
+                    <div class="event-img" style="background-image:url('<?php echo $imgPath; ?>');"></div>
+                    <div class="event-info">
+                        <h3><?php echo htmlspecialchars($event['nama_event']); ?></h3>
+                        <div class="event-meta">🏷️ <?php echo htmlspecialchars($event['nama_kategori']); ?></div>
+                        <div class="event-desc"><?php echo nl2br(htmlspecialchars($event['deskripsi'])); ?></div>
+                        <a href="#" class="btn">Lihat Detail</a>
+                    </div>
                 </div>
-            </div>
-        <?php endforeach; ?>
+        <?php
+            endwhile;
+        else:
+            echo "<p style='text-align:center;'>Belum ada event futsal yang tersedia.</p>";
+        endif;
+        ?>
     </div>
-
 
     <div class="garis"></div>
 
     <footer>
         <div class="footer-section">
             <h4>Tentang Kami</h4>
-            <p>Booking Futsal adalah platform modern untuk memesan lapangan, melihat jadwal, dan mengikuti event futsal secara online.</p>
+            <p>ZonaFutsal adalah platform modern untuk memesan lapangan, melihat jadwal, dan mengikuti event futsal secara online.</p>
         </div>
 
         <div class="footer-section">
             <h4>Link Cepat</h4>
-            <a href="index.php">Beranda</a>
-            <a href="jadwal.php">Jadwal</a>
+            <a href="../index.php">Beranda</a>
+            <a href="sewa.php">Penyewaan</a>
             <a href="event.php">Event</a>
             <a href="kontak.php">Kontak</a>
         </div>
 
         <div class="footer-section">
             <h4>Hubungi Kami</h4>
-            <p>Email: info@bookingfutsal.id</p>
+            <p>Email: info@zonafutsal.id</p>
             <p>Telp: +62 812 3456 7890</p>
             <p>Alamat: Jl. Raya Sport Center No. 88, Bandung</p>
         </div>
     </footer>
-
-    <!-- <script src="./assets/js/script.js"></script> -->
 </body>
-
 </html>

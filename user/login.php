@@ -8,14 +8,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Masuk Akun - ZonaFutsal</title>
-    <link rel="stylesheet" href="../assets/css/user/auth.css">
+    <link rel="stylesheet" href="./assets/css/auth.css?v=<?php echo filemtime('./assets/css/auth.css'); ?>">
+
     <script src="https://kit.fontawesome.com/a81368914c.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
     <section class="form-section-login">
         <div class="logo-login">
-            <img src="../assets/image/logo.png" alt="Logo Sport Club">
+            <img src="./assets/image/logo_orange.png" alt="Logo Sport Club">
         </div>
 
         <h1>Masuk Akun</h1>
@@ -34,7 +35,7 @@
         </form>
 
         <div class="extra-links-login">
-            <p>Belum punya akun? <a href="register.php">Daftar di sini</a></p>
+            <p>Belum punya akun? <a href="../user/register.php">Daftar di sini</a></p>
         </div>
     </section>
 
@@ -48,4 +49,5 @@
         });
     </script>
 </body>
+
 </html>

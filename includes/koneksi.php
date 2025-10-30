@@ -1,8 +1,8 @@
 <?php
 $host = "localhost";
-$user = "root";      // ganti sesuai user MySQL
-$pass = "";          // ganti sesuai password MySQL
-$db   = "zafutsal";
+$user = "root";     
+$pass = "";          
+$db   = "zonafutsal";
 
 $conn = new mysqli($host, $user, $pass, $db);
 

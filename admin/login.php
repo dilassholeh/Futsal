@@ -7,43 +7,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Akun - ZonaFutsal</title>
-    <link rel="stylesheet" href="./assets/css/auth.css?v=<?php echo filemtime('./assets/css/auth.css'); ?>">
+    <title>Masuk Akun - ZonaFutsal</title>
+    <link rel="stylesheet" href="./assets/css/login.css?v=<?php echo filemtime('./assets/css/login.css'); ?>">
 
     <script src="https://kit.fontawesome.com/a81368914c.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
-    <section class="form-section-register">
-        <div class="logo-register">
+    <section class="form-section-login">
+        <div class="logo-login">
             <img src="./assets/image/logo_orange.png" alt="Logo Sport Club">
         </div>
 
-        <h1>Daftar Akun</h1>
+        <h1>Masuk Akun</h1>
 
         <form action="" method="POST">
-            <div class="form-group-register">
-                <input type="text" name="nama" placeholder="Nama Lengkap" required>
+            <div class="form-group-login">
+                <input type="tel" name="No tel" placeholder="No Telp" required>
             </div>
 
-            <div class="form-group-register">
-                <input type="text" name="username" placeholder="Username" required>
-            </div>
-
-            <div class="form-group-register">
-                <input type="tel" name="tel" placeholder="No tel" required>
-            </div>
-            <div class="form-group-register">
+            <div class="form-group-login">
                 <input type="password" id="password" name="password" placeholder="Kata Sandi" required>
                 <i class="fa-regular fa-eye toggle-password" id="togglePassword" style="cursor:pointer;"></i>
             </div>
 
-            <button type="submit">Daftar</button>
+            <button type="submit">Masuk</button>
         </form>
-
-        <div class="extra-links-register">
-            <p>Sudah punya akun? <a href="../user/login.php">Masuk di sini</a></p>
-        </div>
     </section>
 
     <script>

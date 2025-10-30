@@ -21,7 +21,7 @@
 
     h2 {
         font-size: 24px;
-        color: #007bff;
+        color: #f18807;
         font-weight: 600;
         display: flex;
         align-items: center;
@@ -33,8 +33,8 @@
         content: "";
         flex: 1;
         height: 2px;
-        background: #007bff;
-        opacity: 0.3;
+        background: #333;
+        /* opacity: 0.3; */
         margin-left: 10px;
     }
 
@@ -45,8 +45,8 @@
     }
 
     thead {
-        background-color: #007bff;
-        color: #fff;
+        background-color: #f18807;
+        color: #0b0b0b;
     }
  
     th, td {
@@ -75,12 +75,12 @@
     select:focus,
     textarea:focus {
         outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 5px rgba(0,123,255,0.3);
+        border-color: #333;
+        box-shadow: 0 0 5px rgba(9, 9, 9, 0.3);
     }
 
     .summary-box {
-        background-color: #f8faff;
+        background-color: #ff8c0153;
         border-radius: 10px;
         padding: 15px 25px;
         box-shadow: inset 0 0 8px rgba(0,0,0,0.05);
@@ -97,7 +97,7 @@
 
     .summary-row:last-child {
         font-weight: 700;
-        border-top: 2px solid #007bff;
+        border-top: 2px solid #333;
         margin-top: 10px;
         padding-top: 10px;
     }

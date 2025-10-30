@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../includes/koneksi.php';
+include '../../includes/koneksi.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -9,22 +9,23 @@ include '../includes/koneksi.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZonaFutsal | Booking Lapangan</title>
-       <link rel="stylesheet" href="../assets/css/user/pages.css?v=<?php echo filemtime('../assets/css/user/pages.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/pages.css?v=<?php echo filemtime('../assets/css/pages.css'); ?>">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 
 <body data-loggedin="<?= isset($_SESSION['username']) ? 'true' : 'false' ?>">
 
+    <!-- ===== HEADER / NAV ===== -->
     <header>
         <nav class="nav">
             <div class="logo-container">
                 <a href="../index.php" class="logo-text">
-                    <img src="../assets/image/logo.png" alt="ZonaFutsal Logo" class="logo-img">
+                    <img src="../assets/image/logo_orange.png" alt="ZonaFutsal Logo" class="logo-img">
                     ZonaFutsal
                 </a>
             </div>
             <div class="sub-container">
-                <ul active>
+                <ul>
                     <li><a href="../index.php">Beranda</a></li>
                     <li><a href="sewa.php" class="active">Penyewaan</a></li>
                     <li><a href="event.php">Event</a></li>
@@ -43,22 +44,23 @@ include '../includes/koneksi.php';
                         </div>
                     </div>
                 <?php else: ?>
-                    <a href="../auth/login.php" class="btn-masuk">Masuk</a>
-                    <a href="../auth/register.php" class="btn-daftar">Daftar</a>
+                    <a href="../login.php" class="btn-masuk">Masuk</a>
+                    <a href="../register.php" class="btn-daftar">Daftar</a>
                 <?php endif; ?>
-
             </div>
         </nav>
     </header>
 
+    <!-- ===== HERO ===== -->
     <section class="hero">
-        <img src="../assets/image/bakground.png" alt="ZonaFutsal" class="hero-img">
+        <img src="../assets/image/latar.png" alt="ZonaFutsal" class="hero-img">
         <div class="hero-overlay">
             <h1>Booking Lapangan Futsal Kini Lebih Mudah!</h1>
             <a href="#lapangan">Mulai Booking</a>
         </div>
     </section>
 
+    <!-- ===== FASILITAS ===== -->
     <section class="container" id="fasilitas">
         <h2 class="section-title">Fasilitas Tersedia</h2>
         <div class="fasilitas-tabs">
@@ -72,22 +74,35 @@ include '../includes/koneksi.php';
         </div>
     </section>
 
+    <!-- ===== LAPANGAN ===== -->
     <section class="container" id="lapangan">
+        <h2 class="section-title">Daftar Lapangan</h2>
         <div class="card-grid">
             <?php
-            $lapangan = ['1', '2', '3', '4', '5', '6'];
-            foreach ($lapangan as $l): ?>
+            $query = mysqli_query($conn, "SELECT * FROM lapangan ORDER BY id DESC");
+            if (mysqli_num_rows($query) > 0):
+                while ($row = mysqli_fetch_assoc($query)):
+            ?>
                 <div class="card">
-                    <img src="../assets/image/futsal.png" alt="Lapangan <?php echo $l; ?>">
-                    <h3>Lapangan <?php echo $l; ?></h3>
-                    <a href="booking.php?lapangan=<?php echo $l; ?>" class="btn-book">Booking</a>
+                    <img src="../../uploads/<?php echo htmlspecialchars($row['foto']); ?>" 
+                         alt="<?php echo htmlspecialchars($row['nama_lapangan']); ?>">
+                    <h3><?php echo htmlspecialchars($row['nama_lapangan']); ?></h3>
+                    <p class="harga">Harga Pagi: Rp <?php echo number_format($row['harga_pagi'], 0, ',', '.'); ?></p>
+                    <p class="harga">Harga Malam: Rp <?php echo number_format($row['harga_malam'], 0, ',', '.'); ?></p>
+                    <a href="booking.php?id=<?php echo $row['id']; ?>" class="btn-book">Booking</a>
                 </div>
-            <?php endforeach; ?>
+            <?php
+                endwhile;
+            else:
+            ?>
+                <p class="no-data">Belum ada data lapangan tersedia.</p>
+            <?php endif; ?>
         </div>
     </section>
 
     <div class="garis"></div>
 
+    <!-- ===== FOOTER ===== -->
     <footer>
         <div class="footer-section">
             <h4>Tentang Kami</h4>

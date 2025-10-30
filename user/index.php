@@ -1,5 +1,5 @@
 <?php
-include './includes/koneksi.php';
+include '../includes/koneksi.php';
 ?>
 
 <!DOCTYPE html>
@@ -10,7 +10,7 @@ include './includes/koneksi.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./assets/css/user/style.css?v=<?php echo filemtime('./assets/css/user/style.css'); ?>">
+    <link rel="stylesheet" href="./assets/css/style.css?v=<?php echo filemtime('./assets/css/style.css'); ?>">
 
 </head>
 
@@ -19,7 +19,7 @@ include './includes/koneksi.php';
         <nav class="nav">
             <div class="logo-container">
                 <a href="../index.php" class="logo-text">
-                    <img src="./assets/image/logo.png" alt="ZonaFutsal Logo" class="logo-img">
+                    <img src="./assets/image/logo_orange.png" alt="ZonaFutsal Logo" class="logo-img">
                     ZonaFutsal
                 </a>
             </div>
@@ -43,8 +43,8 @@ include './includes/koneksi.php';
                         </div>
                     </div>
                 <?php else: ?>
-                    <a href="./auth/login.php" class="btn-masuk">Masuk</a>
-                    <a href="./auth/register.php" class="btn-daftar">Daftar</a>
+                    <a href="login.php" class="btn-masuk">Masuk</a>
+                    <a href="register.php" class="btn-daftar">Daftar</a>
                 <?php endif; ?>
 
             </div>
