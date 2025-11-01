@@ -1,7 +1,15 @@
 <?php
 session_start();
-// sementara belum koneksi ke database
-// include '../../includes/koneksi.php';
+include '../../includes/koneksi.php';
+
+// Get upcoming and ongoing events (not ended yet)
+$current_date = date('Y-m-d');
+$query = "SELECT e.*, k.nama as kategori_nama 
+          FROM event e 
+          LEFT JOIN kategori k ON e.kategori_id = k.id 
+          WHERE e.tanggal_berakhir >= '$current_date'
+          ORDER BY e.tanggal_mulai ASC";
+$result = $conn->query($query);
 ?>
 
 <!DOCTYPE html>
@@ -13,6 +21,69 @@ session_start();
     <title>Event Futsal</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/event.css?v=<?php echo filemtime('../assets/css/event.css'); ?>">
+    <style>
+        .event-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 10px 0;
+            color: #666;
+        }
+        .event-meta span {
+            display: inline-block;
+        }
+        .no-events {
+            text-align: center;
+            padding: 40px 20px;
+            background: #f8f8f8;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .no-events p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        .event-desc {
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+        .event-img {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            border-radius: 8px 8px 0 0;
+        }
+        .event-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .event-img {
+            position: relative;
+        }
+        .event-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+        .event-status.upcoming {
+            background-color: #2196F3;
+        }
+        .event-status.ongoing {
+            background-color: #4CAF50;
+        }
+        .no-events {
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+    </style>
 </head>
 
 <body>
@@ -49,36 +120,48 @@ session_start();
     <div class="event-container">
         <h2 class="title">Daftar Event Futsal</h2>
 
-        <!-- Data event statis untuk tampilan awal -->
-        <div class="event-card">
-            <div class="event-img" style="background-image:url('../assets/image/event1.jpg');"></div>
-            <div class="event-info">
-                <h3>Turnamen Antar Sekolah 2025</h3>
-                <div class="event-meta">🏷️ Kategori: Pelajar</div>
-                <div class="event-desc">Kompetisi seru antar sekolah menengah di Bandung. Tunjukkan kemampuan timmu!</div>
-                <a href="#" class="btn">Lihat Detail</a>
-            </div>
-        </div>
+        <?php 
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $tanggal_mulai = date('d M Y', strtotime($row['tanggal_mulai']));
+                $tanggal_berakhir = date('d M Y', strtotime($row['tanggal_berakhir']));
+                
+                $foto_path = !empty($row['foto']) ? "../../uploads/event/{$row['foto']}" : "../assets/image/default-event.jpg";
+                
+                // Add status badge based on dates
+                $status = '';
+                $status_class = '';
+                if (strtotime($current_date) < strtotime($row['tanggal_mulai'])) {
+                    $status = 'Akan Datang';
+                    $status_class = 'upcoming';
+                } else {
+                    $status = 'Sedang Berlangsung';
+                    $status_class = 'ongoing';
+                }
 
-        <div class="event-card">
-            <div class="event-img" style="background-image:url('../assets/image/event2.jpg');"></div>
-            <div class="event-info">
-                <h3>ZonaFutsal Cup</h3>
-                <div class="event-meta">🏷️ Kategori: Umum</div>
-                <div class="event-desc">Event tahunan terbesar ZonaFutsal dengan hadiah total puluhan juta rupiah.</div>
-                <a href="#" class="btn">Lihat Detail</a>
-            </div>
-        </div>
-
-        <div class="event-card">
-            <div class="event-img" style="background-image:url('../assets/image/event3.jpg');"></div>
-            <div class="event-info">
-                <h3>Futsal Ramadhan 2025</h3>
-                <div class="event-meta">🏷️ Kategori: Komunitas</div>
-                <div class="event-desc">Event malam hari selama bulan Ramadhan. Buka bersama lalu bertanding santai!</div>
-                <a href="#" class="btn">Lihat Detail</a>
-            </div>
-        </div>
+                echo "<div class='event-card'>
+                    <div class='event-img'>
+                        <img src='{$foto_path}' alt='{$row['nama_event']}'>
+                        <span class='event-status {$status_class}'>{$status}</span>
+                    </div>
+                    <div class='event-info'>
+                        <h3>{$row['nama_event']}</h3>
+                        <div class='event-meta'>
+                            <span>🏷️ Kategori: {$row['kategori_nama']}</span>
+                            <span>📅 {$tanggal_mulai} - {$tanggal_berakhir}</span>
+                        </div>
+                        <div class='event-desc'>" . nl2br(substr($row['deskripsi'], 0, 150)) . 
+                        (strlen($row['deskripsi']) > 150 ? '...' : '') . "</div>
+                        <a href='detail_event.php?id={$row['id']}' class='btn'>Lihat Detail</a>
+                    </div>
+                </div>";
+            }
+        } else {
+            echo "<div class='no-events'>
+                    <p>Tidak ada event yang sedang berlangsung saat ini.</p>
+                  </div>";
+        }
+        ?>
     </div>
 
     <div class="garis"></div>
