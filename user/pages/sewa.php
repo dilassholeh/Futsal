@@ -25,28 +25,16 @@ session_start();
             <div class="sub-container">
                 <ul>
                     <li><a href="../index.php">Beranda</a></li>
-                    <li><a href="sewa.php" class="active">Penyewaan</a></li>
+                    <li><a href="sewa.php">Penyewaan</a></li>
                     <li><a href="event.php">Event</a></li>
                 </ul>
 
-                <?php if (isset($_SESSION['username'])): ?>
-                    <div class="dropdown">
-                        <button class="btn-profil">
-                            <img src="../assets/image/user.png" alt="Profil" class="profil-img">
-                            <span><?= htmlspecialchars($_SESSION['username']); ?></span>
-                            ⮟
-                        </button>
-                        <div class="dropdown-content">
-                            <a href="./user/profil.php">Profil Saya</a>
-                            <a href="../auth/logout.php" class="logout">Logout</a>
-                        </div>
-                    </div>
-                <?php else: ?>
-                    <a href="../login.php" class="btn-masuk">Masuk</a>
-                    <a href="../register.php" class="btn-daftar">Daftar</a>
-                <?php endif; ?>
+                <!-- Tombol login dan daftar tanpa PHP -->
+                <a href="login.php" class="btn-masuk">Masuk</a>
+                <a href="register.php" class="btn-daftar">Daftar</a>
             </div>
         </nav>
+
     </header>
 
     <section class="hero">
@@ -125,4 +113,5 @@ session_start();
     </footer>
 
 </body>
+
 </html>

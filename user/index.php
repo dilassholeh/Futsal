@@ -50,25 +50,11 @@ if (empty($sliders)) {
                     <li><a href="./pages/event.php">Event</a></li>
                 </ul>
 
-                <?php if (isset($_SESSION['username'])): ?>
-                    <div class="dropdown">
-                        <button class="btn-profil">
-                            <img src="../assets/img/user.jpg" alt="Profil" class="profil-img">
-                            <span><?= htmlspecialchars($_SESSION['username']); ?></span>
-                            ⮟
-                        </button>
-                        <div class="dropdown-content">
-                            <a href="./user/profil.php">Profil Saya</a>
-                            <a href="./auth/logout.php" class="logout">Logout</a>
-                        </div>
-                    </div>
-                <?php else: ?>
-                    <a href="login.php" class="btn-masuk">Masuk</a>
-                    <a href="register.php" class="btn-daftar">Daftar</a>
-                <?php endif; ?>
-
+                <a href="login.php" class="btn-masuk">Masuk</a>
+                <a href="register.php" class="btn-daftar">Daftar</a>
             </div>
         </nav>
+
     </header>
 
     <section class="hero" id="hero" style="background: url('<?= $sliders[0]['foto']; ?>') center/cover no-repeat;">

@@ -17,7 +17,7 @@ session_start();
 
 <body>
     <header>
-        <nav class="nav">
+          <nav class="nav">
             <div class="logo-container">
                 <a href="../index.php" class="logo-text">
                     <img src="../assets/image/logo_orange.png" alt="ZonaFutsal Logo" class="logo-img">
@@ -28,27 +28,15 @@ session_start();
                 <ul>
                     <li><a href="../index.php">Beranda</a></li>
                     <li><a href="sewa.php">Penyewaan</a></li>
-                    <li><a href="event.php" class="active">Event</a></li>
+                    <li><a href="event.php">Event</a></li>
                 </ul>
 
-                <?php if (isset($_SESSION['username'])): ?>
-                    <div class="dropdown">
-                        <button class="btn-profil">
-                            <img src="../assets/image/user.png" alt="Profil" class="profil-img">
-                            <span><?= htmlspecialchars($_SESSION['username']); ?></span>
-                            ⮟
-                        </button>
-                        <div class="dropdown-content">
-                            <a href="profil.php">Profil Saya</a>
-                            <a href="../auth/logout.php" class="logout">Logout</a>
-                        </div>
-                    </div>
-                <?php else: ?>
-                    <a href="../login.php" class="btn-masuk">Masuk</a>
-                    <a href="../register.php" class="btn-daftar">Daftar</a>
-                <?php endif; ?>
+                <!-- Tombol login dan daftar tanpa PHP -->
+                <a href="login.php" class="btn-masuk">Masuk</a>
+                <a href="register.php" class="btn-daftar">Daftar</a>
             </div>
         </nav>
+
     </header>
 
     <section class="hero">
@@ -117,4 +105,5 @@ session_start();
         </div>
     </footer>
 </body>
+
 </html>
