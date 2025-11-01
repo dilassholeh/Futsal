@@ -1,42 +1,78 @@
 <?php
+session_start();
 include '../../includes/koneksi.php';
 include 'sidebar.php';
 
-// ====== Tambah Data ======
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: ../login.php");
+    exit;
+}
+
+// Fungsi buat ID otomatis SR01, SR02, dst
+function generateSliderID($conn) {
+    $result = $conn->query("SELECT id FROM slider ORDER BY id DESC LIMIT 1");
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $lastID = $row['id'];
+        $num = (int)substr($lastID, 2) + 1;
+        return 'SR' . str_pad($num, 2, '0', STR_PAD_LEFT);
+    } else {
+        return 'SR01';
+    }
+}
+
+// Tambah Slider
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
     $nama_slider = $_POST['nama_slider'];
     $foto = $_FILES['foto']['name'];
     $tmp = $_FILES['foto']['tmp_name'];
     $folder = '../../uploads/slider/' . $foto;
 
-    // Buat folder kalau belum ada
+    // Pastikan folder uploads/slider ada
     if (!file_exists('../../uploads/slider')) {
         mkdir('../../uploads/slider', 0777, true);
     }
 
+    // Pindahkan file
     if (move_uploaded_file($tmp, $folder)) {
-        $id = uniqid('SL');
+        $id = generateSliderID($conn);
         $query = "INSERT INTO slider (id, nama_slider, foto) VALUES ('$id', '$nama_slider', '$foto')";
-        mysqli_query($conn, $query);
-        echo "<script>alert('Slider berhasil ditambahkan!'); window.location='slider.php';</script>";
+        if ($conn->query($query)) {
+            echo "<script>alert('Slider berhasil ditambahkan!'); window.location='slider.php';</script>";
+        } else {
+            echo "<script>alert('Gagal menambahkan slider: " . $conn->error . "');</script>";
+        }
+    } else {
+        echo "<script>alert('Gagal mengupload foto!');</script>";
     }
 }
 
-// ====== Hapus Data ======
+// Hapus Slider
 if (isset($_GET['hapus'])) {
     $id = $_GET['hapus'];
-    mysqli_query($conn, "DELETE FROM slider WHERE id='$id'");
-    echo "<script>alert('Data slider berhasil dihapus!'); window.location='slider.php';</script>";
+    $getFoto = $conn->query("SELECT foto FROM slider WHERE id='$id'");
+    if ($getFoto->num_rows > 0) {
+        $fotoData = $getFoto->fetch_assoc();
+        $fotoPath = '../../uploads/slider/' . $fotoData['foto'];
+        if (file_exists($fotoPath)) {
+            unlink($fotoPath);
+        }
+    }
+
+    $conn->query("DELETE FROM slider WHERE id='$id'");
+    echo "<script>alert('Slider berhasil dihapus!'); window.location='slider.php';</script>";
 }
 
-// ====== Edit Data ======
+// Edit Slider
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     $id = $_POST['id'];
     $nama_slider = $_POST['nama_slider'];
 
     if ($_FILES['foto']['name'] == "") {
+        // Jika tidak ubah foto
         $query = "UPDATE slider SET nama_slider='$nama_slider' WHERE id='$id'";
     } else {
+        // Jika ubah foto
         $foto = $_FILES['foto']['name'];
         $tmp = $_FILES['foto']['tmp_name'];
         $folder = '../../uploads/slider/' . $foto;
@@ -44,15 +80,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
         $query = "UPDATE slider SET nama_slider='$nama_slider', foto='$foto' WHERE id='$id'";
     }
 
-    mysqli_query($conn, $query);
-    echo "<script>alert('Data slider berhasil diperbarui!'); window.location='slider.php';</script>";
+    if ($conn->query($query)) {
+        echo "<script>alert('Data slider berhasil diperbarui!'); window.location='slider.php';</script>";
+    } else {
+        echo "<script>alert('Gagal memperbarui slider: " . $conn->error . "');</script>";
+    }
 }
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -65,17 +102,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     <main class="main">
         <div class="header">
             <div class="header-left">
-                <h1>Data Slider</h1>
+                <h1>Slider</h1>
             </div>
             <div class="header-right">
                 <div class="notif"><i class='bx bxs-bell'></i></div>
                 <div class="profile">
-                    <img src="https://i.pravatar.cc/100" alt="Profile">
-                    <span>Admin</span>
+                    <img src="../../uploads/<?php echo $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
+                        alt="Profile"
+                        style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                    <span><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
+                    <a href="../logout.php" title="Keluar" style="margin-left:10px; color:#f00;">
+                        <i class='bx bx-log-out'></i>
+                    </a>
                 </div>
             </div>
         </div>
-
 
         <div class="table-actions">
             <div class="search-box">
@@ -84,7 +125,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
             </div>
             <button class="btn-tambah" id="openModal"><i class='bx bx-plus'></i>Tambah</button>
         </div>
-
 
         <div class="table-wrapper">
             <div class="table-container">
@@ -103,22 +143,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
                         if (mysqli_num_rows($result) > 0) {
                             while ($row = mysqli_fetch_assoc($result)) {
                                 echo "
-                        <tr>
-                            <td>{$row['id']}</td>
-                            <td>{$row['nama_slider']}</td>
-                            <td><img src='../uploads/{$row['foto']}' width='80'></td>
-                            <td>
-                                <a href='#' class='edit-btn' 
-                                   data-id='{$row['id']}' 
-                                   data-nama='{$row['nama_slider']}'
-                                   data-foto='{$row['foto']}'>
-                                   <i class='bx bx-edit' style='color:blue; font-size:20px;'></i>
-                                </a>
-                                <a href='slider.php?hapus={$row['id']}' onclick=\"return confirm('Yakin ingin hapus data ini?');\">
-                                   <i class='bx bx-trash' style='color:red; font-size:20px;'></i>
-                                </a>
-                            </td>
-                        </tr>";
+                                <tr>
+                                    <td>{$row['id']}</td>
+                                    <td>{$row['nama_slider']}</td>
+                                    <td><img src='../../uploads/slider/{$row['foto']}' width='100' style='border-radius:5px; object-fit:cover;'></td>
+                                    <td>
+                                        <a href='#' class='edit-btn' 
+                                           data-id='{$row['id']}' 
+                                           data-nama='{$row['nama_slider']}'>
+                                           <i class='bx bx-edit' style='color:blue; font-size:20px;'></i>
+                                        </a>
+                                        <a href='slider.php?hapus={$row['id']}' onclick=\"return confirm('Yakin ingin hapus data ini?');\">
+                                           <i class='bx bx-trash' style='color:red; font-size:20px;'></i>
+                                        </a>
+                                    </td>
+                                </tr>";
                             }
                         } else {
                             echo "<tr><td colspan='4'>Belum ada data slider.</td></tr>";
@@ -194,7 +233,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
             });
         });
     </script>
-
 </body>
-
 </html>

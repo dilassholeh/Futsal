@@ -1,17 +1,24 @@
 <?php
+session_start();
 include '../../includes/koneksi.php';
 include 'sidebar.php';
 
-// Pagination
-$limit = 10; // jumlah data per halaman
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1; // halaman sekarang
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: ../login.php");
+    exit;
+}
+
+
+
+$limit = 10;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
-// Ambil total data
+
 $total_data = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM transaksi"));
 $total_pages = ceil($total_data / $limit);
 
-// Query data dengan limit & offset
+
 $query = mysqli_query($conn, "SELECT * FROM transaksi ORDER BY created_at DESC LIMIT $limit OFFSET $offset");
 ?>
 <!DOCTYPE html>
@@ -31,16 +38,21 @@ $query = mysqli_query($conn, "SELECT * FROM transaksi ORDER BY created_at DESC L
     <main class="main">
         <div class="header">
             <div class="header-left">
-                <h1>Data Transaksi</h1>
+                <h1>Dashboard</h1>
             </div>
             <div class="header-right">
                 <div class="notif"><i class='bx bxs-bell'></i></div>
                 <div class="profile">
-                    <img src="https://i.pravatar.cc/100" alt="Profile">
-                    <span>Admin</span>
+                    <img
+                        src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
+                        alt="Profile"
+                        style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                    <span><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
                 </div>
             </div>
         </div>
+
+
 
         <div class="table-actions">
             <div class="search-box">

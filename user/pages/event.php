@@ -1,6 +1,7 @@
 <?php
 session_start();
-include '../../includes/koneksi.php'; 
+// sementara belum koneksi ke database
+// include '../../includes/koneksi.php';
 ?>
 
 <!DOCTYPE html>
@@ -60,34 +61,36 @@ include '../../includes/koneksi.php';
     <div class="event-container">
         <h2 class="title">Daftar Event Futsal</h2>
 
-        <?php
-        $query = "
-            SELECT e.*, k.nama AS nama_kategori 
-            FROM event e
-            LEFT JOIN kategori k ON e.kategori_id = k.id
-            ORDER BY e.id DESC
-        ";
-        $result = $conn->query($query);
+        <!-- Data event statis untuk tampilan awal -->
+        <div class="event-card">
+            <div class="event-img" style="background-image:url('../assets/image/event1.jpg');"></div>
+            <div class="event-info">
+                <h3>Turnamen Antar Sekolah 2025</h3>
+                <div class="event-meta">🏷️ Kategori: Pelajar</div>
+                <div class="event-desc">Kompetisi seru antar sekolah menengah di Bandung. Tunjukkan kemampuan timmu!</div>
+                <a href="#" class="btn">Lihat Detail</a>
+            </div>
+        </div>
 
-        if ($result->num_rows > 0):
-            while ($event = $result->fetch_assoc()):
-                $imgPath = !empty($event['foto']) ? "../admin/uploads/" . $event['foto'] : "../assets/image/default_event.jpg";
-        ?>
-                <div class="event-card">
-                    <div class="event-img" style="background-image:url('<?php echo $imgPath; ?>');"></div>
-                    <div class="event-info">
-                        <h3><?php echo htmlspecialchars($event['nama_event']); ?></h3>
-                        <div class="event-meta">🏷️ <?php echo htmlspecialchars($event['nama_kategori']); ?></div>
-                        <div class="event-desc"><?php echo nl2br(htmlspecialchars($event['deskripsi'])); ?></div>
-                        <a href="#" class="btn">Lihat Detail</a>
-                    </div>
-                </div>
-        <?php
-            endwhile;
-        else:
-            echo "<p style='text-align:center;'>Belum ada event futsal yang tersedia.</p>";
-        endif;
-        ?>
+        <div class="event-card">
+            <div class="event-img" style="background-image:url('../assets/image/event2.jpg');"></div>
+            <div class="event-info">
+                <h3>ZonaFutsal Cup</h3>
+                <div class="event-meta">🏷️ Kategori: Umum</div>
+                <div class="event-desc">Event tahunan terbesar ZonaFutsal dengan hadiah total puluhan juta rupiah.</div>
+                <a href="#" class="btn">Lihat Detail</a>
+            </div>
+        </div>
+
+        <div class="event-card">
+            <div class="event-img" style="background-image:url('../assets/image/event3.jpg');"></div>
+            <div class="event-info">
+                <h3>Futsal Ramadhan 2025</h3>
+                <div class="event-meta">🏷️ Kategori: Komunitas</div>
+                <div class="event-desc">Event malam hari selama bulan Ramadhan. Buka bersama lalu bertanding santai!</div>
+                <a href="#" class="btn">Lihat Detail</a>
+            </div>
+        </div>
     </div>
 
     <div class="garis"></div>

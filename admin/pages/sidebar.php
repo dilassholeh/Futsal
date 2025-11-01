@@ -4,6 +4,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,6 +42,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <a href="user.php" class="<?php echo ($current_page == 'user.php') ? 'active' : ''; ?>">
                 <i class='bx bx-group'></i> <span>User</span>
             </a>
+
+            <!-- MENU BANK -->
+            <a href="bank.php" class="<?php echo ($current_page == 'bank.php') ? 'active' : ''; ?>">
+                <i class='bx bxs-bank'></i> <span>Bank</span>
+            </a>
+
             <div class="log">
                 <a href="../logout.php">
                     <i class='bx bx-log-out'></i> <span>Logout</span>
@@ -50,23 +57,24 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </aside>
 
     <script>
-    const sidebar = document.getElementById('sidebar');
-    const toggleBtn = document.getElementById('toggle-btn');
-    const toggleIcon = toggleBtn.querySelector('i');
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggle-btn');
+        const toggleIcon = toggleBtn.querySelector('i');
 
-    // cek status awal
-    if (localStorage.getItem('sidebar-collapsed') === 'true') {
-        sidebar.classList.add('collapsed');
-        toggleIcon.classList.replace('bx-chevron-left', 'bx-chevron-right');
-    }
+        // cek status awal
+        if (localStorage.getItem('sidebar-collapsed') === 'true') {
+            sidebar.classList.add('collapsed');
+            toggleIcon.classList.replace('bx-chevron-left', 'bx-chevron-right');
+        }
 
-    toggleBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-        const collapsed = sidebar.classList.contains('collapsed');
-        localStorage.setItem('sidebar-collapsed', collapsed);
-        toggleIcon.classList.toggle('bx-chevron-left', !collapsed);
-        toggleIcon.classList.toggle('bx-chevron-right', collapsed);
-    });
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            const collapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebar-collapsed', collapsed);
+            toggleIcon.classList.toggle('bx-chevron-left', !collapsed);
+            toggleIcon.classList.toggle('bx-chevron-right', collapsed);
+        });
     </script>
 </body>
+
 </html>

@@ -1,6 +1,26 @@
 <?php
 include '../includes/koneksi.php';
+session_start();
+
+// Ambil data slider dari database
+$querySlider = mysqli_query($conn, "SELECT * FROM slider ORDER BY id DESC");
+$sliders = [];
+
+while ($row = mysqli_fetch_assoc($querySlider)) {
+    $sliders[] = [
+        'nama' => $row['nama_slider'],
+        'foto' => "../uploads/slider/" . $row['foto']
+    ];
+}
+
+if (empty($sliders)) {
+    $sliders[] = [
+        'nama' => 'Zona Futsal',
+        'foto' => 'assets/image/futsal.png'
+    ];
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -51,14 +71,12 @@ include '../includes/koneksi.php';
         </nav>
     </header>
 
-    <section class="hero">
+    <section class="hero" id="hero" style="background: url('<?= $sliders[0]['foto']; ?>') center/cover no-repeat;">
         <div class="overlay"></div>
         <div class="hero-content">
-            <h1>ZonaFutsal</h1>
-            <p></p>
+            <h1><?= htmlspecialchars($sliders[0]['nama']); ?></h1>
         </div>
     </section>
-
     <div class="search-section">
         <div class="search-box">
             <div class="info-item">
@@ -108,7 +126,6 @@ include '../includes/koneksi.php';
                     olahraga yang menyenangkan bagi semua kalangan — baik pertandingan santai maupun turnamen profesional.
                 </p>
 
-                <!-- Tambahan Card Harga -->
                 <div class="price-cards">
                     <div class="price-card">
                         <h3>Harga Sewa Siang</h3>
@@ -194,7 +211,16 @@ include '../includes/koneksi.php';
         </div>
     </footer>
 
+    <script>
+        const sliders = <?= json_encode($sliders); ?>;
+        let index = 0;
 
+        setInterval(() => {
+            const hero = document.getElementById('hero');
+            hero.style.background = `url('${sliders[index].foto}') center/cover no-repeat`;
+            index = (index + 1) % sliders.length;
+        }, 4000);
+    </script>
     <!-- <script src="./assets/js/script.js"></script> -->
 </body>
 

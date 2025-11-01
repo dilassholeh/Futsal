@@ -1,8 +1,15 @@
 <?php
+session_start();
 include '../../includes/koneksi.php';
 include 'sidebar.php';
 
-// ====== Tambah Data ======
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: ../login.php");
+    exit;
+}
+
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
     $nama_lapangan = $_POST['nama_lapangan'];
     $harga_pagi = $_POST['harga_pagi'];
@@ -10,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
 
     $foto = $_FILES['foto']['name'];
     $tmp = $_FILES['foto']['tmp_name'];
-    $folder = '../../uploads/' . $foto; // ✅ path ke root/uploads
+    $folder = '../../uploads/' . $foto;
 
     if (move_uploaded_file($tmp, $folder)) {
         $id = uniqid('LP');
@@ -21,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
     }
 }
 
-// ====== Hapus Data ======
+
 if (isset($_GET['hapus'])) {
     $id = $_GET['hapus'];
     mysqli_query($conn, "DELETE FROM lapangan WHERE id='$id'");
@@ -75,16 +82,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     <main class="main">
         <div class="header">
             <div class="header-left">
-                <h1>Data Lapangan</h1>
+                <h1>Dashboard</h1>
             </div>
             <div class="header-right">
                 <div class="notif"><i class='bx bxs-bell'></i></div>
                 <div class="profile">
-                    <img src="https://i.pravatar.cc/100" alt="Profile">
-                    <span>Admin</span>
+                    <img
+                        src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
+                        alt="Profile"
+                        style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                    <span><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
                 </div>
             </div>
         </div>
+
 
         <div class="table-actions">
             <div class="search-box">

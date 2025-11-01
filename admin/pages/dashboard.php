@@ -1,6 +1,12 @@
 <?php
+session_start();
 include '../../includes/koneksi.php';
 include 'sidebar.php';
+
+if (!isset($_SESSION['admin_id'])) {
+  header("Location: ../login.php");
+  exit;
+}
 
 $totalLapangan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM lapangan"))['total'];
 $totalKategori = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM kategori"))['total'];
@@ -8,15 +14,12 @@ $totalSlider   = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS tota
 $totalEvent    = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM event"))['total'];
 $totalUser     = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM user"))['total'];
 
-// Total Pendapatan (Semua Transaksi)
 $qTotal = mysqli_fetch_assoc(mysqli_query($conn, "SELECT SUM(subtotal) AS total FROM transaksi"));
 $totalPendapatan = $qTotal['total'] ?? 0;
 
-// Omzet Hari Ini Default
 $qHari = mysqli_query($conn, "SELECT SUM(subtotal) AS total FROM transaksi WHERE DATE(created_at)=CURDATE()");
 $omzetHari = mysqli_fetch_assoc($qHari)['total'] ?? 0;
 
-// Grafik default: Tahun ini
 $grafikQuery = mysqli_query($conn, "
     SELECT MONTH(created_at) AS bulan, SUM(subtotal) AS total
     FROM transaksi
@@ -44,8 +47,6 @@ $totalJSON = json_encode($totalArr);
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="../assets/css/dashboard.css?v=<?php echo filemtime('../assets/css/dashboard.css'); ?>">
-
-
 </head>
 
 <body>
@@ -58,8 +59,11 @@ $totalJSON = json_encode($totalArr);
       <div class="header-right">
         <div class="notif"><i class='bx bxs-bell'></i></div>
         <div class="profile">
-          <img src="https://i.pravatar.cc/100" alt="Profile">
-          <span>Admin</span>
+          <img
+            src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
+            alt="Profile"
+            style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+          <span><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
         </div>
       </div>
     </div>
@@ -88,10 +92,7 @@ $totalJSON = json_encode($totalArr);
       </div>
     </div>
 
-    <!-- BOTTOM SECTION -->
     <div class="bottom-section">
-
-      <!-- LEFT: GRAFIK -->
       <div class="chart-container" style="flex:2;">
         <div class="chart-header" style="display:flex; justify-content:space-between;">
           <h2>Grafik Transaksi</h2>
@@ -108,10 +109,7 @@ $totalJSON = json_encode($totalArr);
         <canvas id="barChart"></canvas>
       </div>
 
-      <!-- RIGHT PANEL -->
       <div style="flex:1; display:flex; flex-direction:column; gap:20px;">
-
-        <!-- TOTAL PENDAPATAN -->
         <div class="total-card">
           <i class='bx bx-wallet'></i>
           <h3>Total Pendapatan</h3>
@@ -120,7 +118,6 @@ $totalJSON = json_encode($totalArr);
           </p>
         </div>
 
-        <!-- OMZET CARD + FILTER -->
         <div class="omzet-card">
           <i class='bx bx-money'></i>
           <h3>Omzet</h3>
@@ -134,11 +131,8 @@ $totalJSON = json_encode($totalArr);
 
           <p id="omzet-value"><strong>Rp <?= number_format($omzetHari, 0, ',', '.'); ?></strong></p>
         </div>
-
       </div>
-
     </div>
-
   </main>
 
   <script>
@@ -170,7 +164,6 @@ $totalJSON = json_encode($totalArr);
       }
     });
 
-    // Filter Grafik
     document.getElementById('filterSelect').addEventListener('change', function() {
       fetch("get_grafik.php?type=" + this.value)
         .then(res => res.json())
@@ -181,7 +174,6 @@ $totalJSON = json_encode($totalArr);
         });
     });
 
-    // Filter Omzet
     document.querySelectorAll('.omzet-filter span').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.omzet-filter span').forEach(b => b.classList.remove('active'));
@@ -195,7 +187,6 @@ $totalJSON = json_encode($totalArr);
       });
     });
   </script>
-
 </body>
 
 </html>

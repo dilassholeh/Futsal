@@ -1,6 +1,13 @@
 <?php
+session_start();
 include '../../includes/koneksi.php';
 include 'sidebar.php';
+
+if (!isset($_SESSION['admin_id'])) {
+  header("Location: ../login.php");
+  exit;
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -18,16 +25,21 @@ include 'sidebar.php';
   <main class="main">
     <div class="header">
       <div class="header-left">
-        <h1>Data User</h1>
+        <h1>Dashboard</h1>
       </div>
       <div class="header-right">
         <div class="notif"><i class='bx bxs-bell'></i></div>
         <div class="profile">
-          <img src="https://i.pravatar.cc/100" alt="Profile">
-          <span>Admin</span>
+          <img
+            src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
+            alt="Profile"
+            style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+          <span><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
         </div>
       </div>
     </div>
+
+
 
 
     <div class="table-actions">

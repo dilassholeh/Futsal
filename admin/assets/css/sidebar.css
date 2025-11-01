@@ -1,4 +1,3 @@
-/* RESET */
 * {
     margin: 0;
     padding: 0;
@@ -6,7 +5,6 @@
     font-family: "Poppins", sans-serif;
 }
 
-/* BODY */
 body {
     background: #f2f2f2;
     display: flex;
@@ -15,14 +13,11 @@ body {
     color: #222;
 }
 
-/* --- SIDEBAR --- */
 .sidebar {
     width: 230px;
     background: #fff;
     display: flex;
-    margin: 15px;
     border: 1px solid #e0e0e0;
-    border-radius: 10px;
     flex-direction: column;
     padding: 15px;
     transition: width 0.3s ease, box-shadow 0.3s ease;
@@ -35,7 +30,6 @@ body {
     align-items: center;
 }
 
-/* LOGO */
 .logo-container {
     display: flex;
     justify-content: center;
@@ -91,17 +85,19 @@ body {
     align-items: center;
     gap: 12px;
     color: #333;
-    border-radius: 10px;
     padding: 10px 14px;
     text-decoration: none;
     border-right: 4px solid transparent;
     font-size: 13px;
     transition: all 0.3s ease;
-    min-height: 45px;
+    width: calc(100% + 30px);
+    margin-left: -15px;
+    box-sizing: border-box;
 }
 
 .menu a i {
     font-size: 18px;
+    margin-left: 30px;
 }
 
 .menu a.active {
@@ -161,6 +157,19 @@ body {
     margin-left: 260px;
 }
 
-.sidebar.collapsed ~ .main-content {
+.sidebar.collapsed~.main-content {
     margin-left: 110px;
+}
+.sidebar.collapsed .menu a.active {
+    background: rgba(255, 123, 0, 0.15); 
+    border-right: none; 
+    border-radius: 10px;
+    color: #ff7b00; 
+}
+
+.sidebar.collapsed .menu a.active i {
+    color: #1a1a1a;
+}
+.sidebar.collapsed .menu a i {
+    margin-left: 0; 
 }

@@ -1,7 +1,11 @@
 <?php
 session_start();
-if (!isset($_SESSION['admin_username'])) {
-    header('Location:login.php');
-    exit;
-}
+
+// Hapus semua data session
+session_unset();
+session_destroy();
+
+// Arahkan kembali ke halaman login
+header("Location: login.php");
+exit;
 ?>

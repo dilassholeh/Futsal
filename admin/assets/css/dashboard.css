@@ -44,7 +44,6 @@ body {
   font-weight: 700;
 }
 
-/* RIGHT PROFILE */
 .header-right {
   display: flex;
   align-items: center;
@@ -116,7 +115,6 @@ body {
 
 .card:hover {
   border-color: var(--primary);
-  /* transform: translateY(-3px); */
 }
 
 .card i {
@@ -198,9 +196,8 @@ body {
 }
 
 .total-card {
-  background: #FF6D00;
+  background: linear-gradient(10deg, #ff7b00, #1a1a1a);
   color: #fff;
-  text-align: center;
   border-radius: 12px;
   padding: 20px;
 }
@@ -208,17 +205,14 @@ body {
 .total-card i {
   font-size: 42px;
   margin-bottom: 8px;
-  color: #111;
+  color: #ffff;
 }
 
-/* .total-card h3{
-  color: #111;
-} */
+
 .omzet-card {
   border-radius: 12px;
   padding: 18px;
   background: #fff;
-  text-align: center;
   border: 1px solid #eee;
 }
 
@@ -267,7 +261,6 @@ canvas {
   width: 100% !important;
   height: auto !important;
   max-height: 350px;
-  /* bebas ubah sesuai kebutuhan */
 }
 
 

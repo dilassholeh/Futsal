@@ -1,6 +1,5 @@
 <?php
 session_start();
-include '../../includes/koneksi.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,7 +14,6 @@ include '../../includes/koneksi.php';
 
 <body data-loggedin="<?= isset($_SESSION['username']) ? 'true' : 'false' ?>">
 
-    <!-- ===== HEADER / NAV ===== -->
     <header>
         <nav class="nav">
             <div class="logo-container">
@@ -51,7 +49,6 @@ include '../../includes/koneksi.php';
         </nav>
     </header>
 
-    <!-- ===== HERO ===== -->
     <section class="hero">
         <img src="../assets/image/latar.png" alt="ZonaFutsal" class="hero-img">
         <div class="hero-overlay">
@@ -60,7 +57,6 @@ include '../../includes/koneksi.php';
         </div>
     </section>
 
-    <!-- ===== FASILITAS ===== -->
     <section class="container" id="fasilitas">
         <h2 class="section-title">Fasilitas Tersedia</h2>
         <div class="fasilitas-tabs">
@@ -74,39 +70,42 @@ include '../../includes/koneksi.php';
         </div>
     </section>
 
-    <!-- ===== LAPANGAN ===== -->
     <section class="container" id="lapangan">
         <h2 class="section-title">Daftar Lapangan</h2>
         <div class="card-grid">
-            <?php
-            $query = mysqli_query($conn, "SELECT * FROM lapangan ORDER BY id DESC");
-            if (mysqli_num_rows($query) > 0):
-                while ($row = mysqli_fetch_assoc($query)):
-            ?>
-                <div class="card">
-                    <img src="../../uploads/<?php echo htmlspecialchars($row['foto']); ?>" 
-                         alt="<?php echo htmlspecialchars($row['nama_lapangan']); ?>">
-                    <h3><?php echo htmlspecialchars($row['nama_lapangan']); ?></h3>
-                    <p class="harga">Harga Pagi: Rp <?php echo number_format($row['harga_pagi'], 0, ',', '.'); ?></p>
-                    <p class="harga">Harga Malam: Rp <?php echo number_format($row['harga_malam'], 0, ',', '.'); ?></p>
-                    <a href="booking.php?id=<?php echo $row['id']; ?>" class="btn-book">Booking</a>
-                </div>
-            <?php
-                endwhile;
-            else:
-            ?>
-                <p class="no-data">Belum ada data lapangan tersedia.</p>
-            <?php endif; ?>
+            <!-- Data statis (dummy) sementara tanpa database -->
+            <div class="card">
+                <img src="../assets/image/lap1.jpg" alt="Lapangan A">
+                <h3>Lapangan A</h3>
+                <p class="harga">Harga Pagi: Rp 100.000</p>
+                <p class="harga">Harga Malam: Rp 150.000</p>
+                <a href="booking.php?id=1" class="btn-book">Booking</a>
+            </div>
+
+            <div class="card">
+                <img src="../assets/image/lap2.jpg" alt="Lapangan B">
+                <h3>Lapangan B</h3>
+                <p class="harga">Harga Pagi: Rp 120.000</p>
+                <p class="harga">Harga Malam: Rp 170.000</p>
+                <a href="booking.php?id=2" class="btn-book">Booking</a>
+            </div>
+
+            <div class="card">
+                <img src="../assets/image/lap3.jpg" alt="Lapangan C">
+                <h3>Lapangan C</h3>
+                <p class="harga">Harga Pagi: Rp 90.000</p>
+                <p class="harga">Harga Malam: Rp 130.000</p>
+                <a href="booking.php?id=3" class="btn-book">Booking</a>
+            </div>
         </div>
     </section>
 
     <div class="garis"></div>
 
-    <!-- ===== FOOTER ===== -->
     <footer>
         <div class="footer-section">
             <h4>Tentang Kami</h4>
-            <p>Booking Futsal adalah platform modern untuk memesan lapangan, melihat jadwal, dan mengikuti event futsal secara online.</p>
+            <p>ZonaFutsal adalah platform modern untuk memesan lapangan, melihat jadwal, dan mengikuti event futsal secara online.</p>
         </div>
 
         <div class="footer-section">
@@ -119,7 +118,7 @@ include '../../includes/koneksi.php';
 
         <div class="footer-section">
             <h4>Hubungi Kami</h4>
-            <p>Email: info@bookingfutsal.id</p>
+            <p>Email: info@zonafutsal.id</p>
             <p>Telp: +62 812 3456 7890</p>
             <p>Alamat: Jl. Raya Sport Center No. 88, Bandung</p>
         </div>
