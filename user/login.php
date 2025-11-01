@@ -1,5 +1,38 @@
 <?php
+session_start();
+include '../includes/koneksi.php'; // pastikan path koneksi benar
 
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Ambil data dari form
+    $username = mysqli_real_escape_string($conn, $_POST['username']);
+    $password = $_POST['password'];
+
+    // Cek data user berdasarkan username
+    $query = "SELECT * FROM user WHERE username = '$username' LIMIT 1";
+    $result = mysqli_query($conn, $query);
+
+    if ($result && mysqli_num_rows($result) > 0) {
+        $user = mysqli_fetch_assoc($result);
+
+        // Verifikasi password (pastikan saat register pakai password_hash)
+        if (password_verify($password, $user['password'])) {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['username'] = $user['username'];
+            $_SESSION['nama'] = $user['name'] ?? '';
+            $_SESSION['id_grup'] = $user['id_grup'] ?? '';
+
+            // Arahkan ke halaman utama
+            header("Location: index.php");
+            exit;
+        } else {
+            echo "<script>alert('Password salah!'); window.history.back();</script>";
+            exit;
+        }
+    } else {
+        echo "<script>alert('Username tidak ditemukan!'); window.history.back();</script>";
+        exit;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -9,7 +42,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Masuk Akun - ZonaFutsal</title>
     <link rel="stylesheet" href="./assets/css/auth.css?v=<?php echo filemtime('./assets/css/auth.css'); ?>">
-
     <script src="https://kit.fontawesome.com/a81368914c.js" crossorigin="anonymous"></script>
 </head>
 
@@ -23,7 +55,7 @@
 
         <form action="" method="POST">
             <div class="form-group-login">
-                <input type="tel" name="No tel" placeholder="No Telp" required>
+                <input type="text" name="username" placeholder="Username" required>
             </div>
 
             <div class="form-group-login">
