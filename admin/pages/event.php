@@ -8,7 +8,6 @@ if (!isset($_SESSION['admin_id'])) {
   exit;
 }
 
-// Handle Insert
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
     $nama_event = $_POST['nama_event'];
     $deskripsi = $_POST['deskripsi'];
@@ -21,7 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
     $folder = '../../uploads/event/' . $foto;
 
     if (move_uploaded_file($tmp, $folder)) {
-        // Generate a shorter ID that fits varchar(10)
         $id = 'EV' . substr(uniqid(), -7);
         $query = "INSERT INTO event (id, nama_event, deskripsi, kategori_id, foto, tanggal_mulai, tanggal_berakhir)
                   VALUES ('$id', '$nama_event', '$deskripsi', '$kategori_id', '$foto', '$tanggal_mulai', '$tanggal_berakhir')";
@@ -35,11 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
     }
 }
 
-// Handle Delete
 if (isset($_GET['hapus'])) {
     $id = $_GET['hapus'];
     
-    // Get image filename before deleting record
     $query = "SELECT foto FROM event WHERE id = '$id'";
     $result = mysqli_query($conn, $query);
     if($row = mysqli_fetch_assoc($result)) {
@@ -53,7 +49,6 @@ if (isset($_GET['hapus'])) {
         }
     }
 
-    // Delete database record
     if(mysqli_query($conn, "DELETE FROM event WHERE id='$id'")) {
         header("Location: event.php?status=deleted");
         exit;
@@ -63,7 +58,6 @@ if (isset($_GET['hapus'])) {
     }
 }
 
-// Handle Update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     $id = $_POST['id'];
     $nama_event = $_POST['nama_event'];
@@ -212,8 +206,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     </div>
   </main>
 
-  <!-- POPUP TAMBAH EVENT -->
-  <!-- Modal Tambah -->
   <div class="modal" id="modal">
     <div class="modal-content">
       <span class="close-btn" id="closeModal">&times;</span>
@@ -248,7 +240,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
         <input type="date" name="tanggal_berakhir" required>
 
         <script>
-            // Set min date for date inputs to today
             const todayAdd = new Date().toISOString().split('T')[0];
             const startDateAdd = document.querySelector('#modal [name="tanggal_mulai"]');
             const endDateAdd = document.querySelector('#modal [name="tanggal_berakhir"]');
@@ -256,7 +247,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
             startDateAdd.min = todayAdd;
             endDateAdd.min = todayAdd;
 
-            // Ensure end date is not before start date
             startDateAdd.addEventListener('change', function() {
                 endDateAdd.min = this.value;
                 if (endDateAdd.value && endDateAdd.value < this.value) {
@@ -264,7 +254,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
                 }
             });
 
-            // Ensure start date is not after end date
             endDateAdd.addEventListener('change', function() {
                 if (startDateAdd.value && this.value < startDateAdd.value) {
                     alert('Tanggal berakhir tidak boleh lebih awal dari tanggal mulai!');
@@ -278,7 +267,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     </div>
   </div>
 
-  <!-- Modal Edit -->
   <div class="modal" id="editModal">
     <div class="modal-content">
       <span class="close-btn" id="closeEdit">&times;</span>
@@ -317,7 +305,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
             const startDateEdit = document.querySelector('#editModal [name="tanggal_mulai"]');
             const endDateEdit = document.querySelector('#editModal [name="tanggal_berakhir"]');
 
-            // Ensure end date is not before start date
             startDateEdit.addEventListener('change', function() {
                 endDateEdit.min = this.value;
                 if (endDateEdit.value && endDateEdit.value < this.value) {
@@ -325,7 +312,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
                 }
             });
 
-            // Ensure start date is not after end date
             endDateEdit.addEventListener('change', function() {
                 if (startDateEdit.value && this.value < startDateEdit.value) {
                     alert('Tanggal berakhir tidak boleh lebih awal dari tanggal mulai!');
@@ -340,7 +326,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
   </div>
 
   <script>
-    // Search functionality
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('keyup', function() {
         const keyword = this.value.toLowerCase();
@@ -366,7 +351,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
         if (e.target === editModal) editModal.classList.remove('active');
     }
 
-    // Edit Modal Functionality
     document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -380,7 +364,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
         });
     });
 
-    // Date validation function
     function validateDates(e) {
         const form = e.target.closest('form');
         const startDate = form.querySelector('[name="tanggal_mulai"]').value;
@@ -393,7 +376,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
         return true;
     }
 
-    // Handle status messages
     const urlParams = new URLSearchParams(window.location.search);
     const status = urlParams.get('status');
     if (status) {
@@ -414,7 +396,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
         }
         if (message) {
             alert(message);
-            // Remove status from URL without refreshing
             window.history.replaceState({}, document.title, window.location.pathname);
         }
     }

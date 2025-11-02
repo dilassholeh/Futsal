@@ -35,14 +35,12 @@ if (isset($_GET['hapus'])) {
     echo "<script>alert('Data lapangan berhasil dihapus!'); window.location='lapangan.php';</script>";
 }
 
-// ====== Edit Data ======
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     $id = $_POST['id'];
     $nama_lapangan = $_POST['nama_lapangan'];
     $harga_pagi = $_POST['harga_pagi'];
     $harga_malam = $_POST['harga_malam'];
 
-    // Update tanpa ganti foto
     if ($_FILES['foto']['name'] == "") {
         $query = "UPDATE lapangan SET 
                   nama_lapangan='$nama_lapangan', 
@@ -52,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     } else {
         $foto = $_FILES['foto']['name'];
         $tmp = $_FILES['foto']['tmp_name'];
-        $folder = '../../uploads/' . $foto; // ✅ path benar
+        $folder = '../../uploads/' . $foto;
         move_uploaded_file($tmp, $folder);
         $query = "UPDATE lapangan SET 
                   nama_lapangan='$nama_lapangan', 
@@ -156,7 +154,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
         </div>
     </main>
 
-    <!-- Modal Tambah -->
     <div class="modal" id="modal">
         <div class="modal-content">
             <span class="close-btn" id="closeModal">&times;</span>
@@ -180,7 +177,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
         </div>
     </div>
 
-    <!-- Modal Edit -->
     <div class="modal" id="editModal">
         <div class="modal-content">
             <span class="close-btn" id="closeEdit">&times;</span>
@@ -207,7 +203,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     </div>
 
     <script>
-        // === SEARCH FUNCTION ===
         const searchInput = document.getElementById('searchInput');
         searchInput.addEventListener('keyup', function() {
             const keyword = this.value.toLowerCase();
@@ -233,7 +228,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
             if (e.target === editModal) editModal.classList.remove('active');
         }
 
-        // === Edit Modal ===
         document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();

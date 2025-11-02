@@ -8,7 +8,6 @@ if (!isset($_SESSION['admin_id'])) {
     exit;
 }
 
-// Fungsi buat ID otomatis SR01, SR02, dst
 function generateSliderID($conn) {
     $result = $conn->query("SELECT id FROM slider ORDER BY id DESC LIMIT 1");
     if ($result->num_rows > 0) {
@@ -21,19 +20,16 @@ function generateSliderID($conn) {
     }
 }
 
-// Tambah Slider
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
     $nama_slider = $_POST['nama_slider'];
     $foto = $_FILES['foto']['name'];
     $tmp = $_FILES['foto']['tmp_name'];
     $folder = '../../uploads/slider/' . $foto;
 
-    // Pastikan folder uploads/slider ada
     if (!file_exists('../../uploads/slider')) {
         mkdir('../../uploads/slider', 0777, true);
     }
 
-    // Pindahkan file
     if (move_uploaded_file($tmp, $folder)) {
         $id = generateSliderID($conn);
         $query = "INSERT INTO slider (id, nama_slider, foto) VALUES ('$id', '$nama_slider', '$foto')";
@@ -47,7 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
     }
 }
 
-// Hapus Slider
 if (isset($_GET['hapus'])) {
     $id = $_GET['hapus'];
     $getFoto = $conn->query("SELECT foto FROM slider WHERE id='$id'");
@@ -63,16 +58,13 @@ if (isset($_GET['hapus'])) {
     echo "<script>alert('Slider berhasil dihapus!'); window.location='slider.php';</script>";
 }
 
-// Edit Slider
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     $id = $_POST['id'];
     $nama_slider = $_POST['nama_slider'];
 
     if ($_FILES['foto']['name'] == "") {
-        // Jika tidak ubah foto
         $query = "UPDATE slider SET nama_slider='$nama_slider' WHERE id='$id'";
     } else {
-        // Jika ubah foto
         $foto = $_FILES['foto']['name'];
         $tmp = $_FILES['foto']['tmp_name'];
         $folder = '../../uploads/slider/' . $foto;
@@ -169,7 +161,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
         </div>
     </main>
 
-    <!-- Modal Tambah -->
     <div class="modal" id="modal">
         <div class="modal-content">
             <span class="close-btn" id="closeModal">&times;</span>
@@ -188,7 +179,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
         </div>
     </div>
 
-    <!-- Modal Edit -->
     <div class="modal" id="editModal">
         <div class="modal-content">
             <span class="close-btn" id="closeEdit">&times;</span>

@@ -43,7 +43,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <i class='bx bx-group'></i> <span>User</span>
             </a>
 
-            <!-- MENU BANK -->
             <a href="bank.php" class="<?php echo ($current_page == 'bank.php') ? 'active' : ''; ?>">
                 <i class='bx bxs-bank'></i> <span>Bank</span>
             </a>
@@ -61,7 +60,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
         const toggleBtn = document.getElementById('toggle-btn');
         const toggleIcon = toggleBtn.querySelector('i');
 
-        // cek status awal
         if (localStorage.getItem('sidebar-collapsed') === 'true') {
             sidebar.classList.add('collapsed');
             toggleIcon.classList.replace('bx-chevron-left', 'bx-chevron-right');

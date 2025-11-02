@@ -2,16 +2,13 @@
 session_start();
 include '../../includes/koneksi.php';
 
-// Get event ID from URL
 $id = isset($_GET['id']) ? $_GET['id'] : '';
 
-// If no ID provided, redirect back to events page
 if (empty($id)) {
     header("Location: event.php");
     exit;
 }
 
-// Get event details
 $query = "SELECT e.*, k.nama as kategori_nama 
           FROM event e 
           LEFT JOIN kategori k ON e.kategori_id = k.id 
@@ -23,17 +20,14 @@ $stmt->execute();
 $result = $stmt->get_result();
 $event = $result->fetch_assoc();
 
-// If event not found, redirect back to events page
 if (!$event) {
     header("Location: event.php");
     exit;
 }
 
-// Format dates
 $tanggal_mulai = date('d M Y', strtotime($event['tanggal_mulai']));
 $tanggal_berakhir = date('d M Y', strtotime($event['tanggal_berakhir']));
 
-// Determine event status
 $current_date = date('Y-m-d');
 $status = '';
 $status_class = '';
@@ -189,7 +183,6 @@ if (strtotime($current_date) < strtotime($event['tanggal_mulai'])) {
                     <li><a href="event.php">Event</a></li>
                 </ul>
 
-                <!-- Tombol login dan daftar -->
                 <a href="login.php" class="btn-masuk">Masuk</a>
                 <a href="register.php" class="btn-daftar">Daftar</a>
             </div>
