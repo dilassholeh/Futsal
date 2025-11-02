@@ -2,19 +2,16 @@
 include __DIR__ . '/../includes/koneksi.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Ambil data dari form
     $nama = mysqli_real_escape_string($conn, $_POST['nama'] ?? '');
     $username = mysqli_real_escape_string($conn, $_POST['username'] ?? '');
     $no_hp = mysqli_real_escape_string($conn, $_POST['tel'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    // Validasi input
     if (empty($nama) || empty($username) || empty($no_hp) || empty($password)) {
         echo "<script>alert('Semua field harus diisi!'); window.history.back();</script>";
         exit;
     }
 
-    // Cek apakah username sudah digunakan
     $cek_user = mysqli_query($conn, "SELECT id FROM user WHERE username = '$username' LIMIT 1");
     if (mysqli_num_rows($cek_user) > 0) {
         echo "<script>
@@ -24,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Buat ID unik (USR001, USR002, dst)
     $result_last = mysqli_query($conn, "SELECT id FROM user WHERE id LIKE 'USR%' ORDER BY id DESC LIMIT 1");
     if ($result_last && mysqli_num_rows($result_last) > 0) {
         $last_id = mysqli_fetch_assoc($result_last)['id'];
@@ -34,13 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = 'USR001';
     }
 
-    // Grup default: user biasa
     $id_grup = '00002';
 
-    // Hash password
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // Simpan ke database
     $query = "INSERT INTO user (id, id_grup, name, username, password, no_hp)
               VALUES ('$id', '$id_grup', '$nama', '$username', '$hashed_password', '$no_hp')";
 

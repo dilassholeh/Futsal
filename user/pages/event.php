@@ -2,7 +2,7 @@
 session_start();
 include '../../includes/koneksi.php';
 
-// Get upcoming and ongoing events (not ended yet)
+
 $current_date = date('Y-m-d');
 $query = "SELECT e.*, k.nama as kategori_nama 
           FROM event e 
@@ -90,7 +90,7 @@ $result = $conn->query($query);
     <header>
           <nav class="nav">
             <div class="logo-container">
-                <a href="../index.php" class="logo-text">
+                <a href="company.php" class="logo-text">
                     <img src="../assets/image/logo_orange.png" alt="ZonaFutsal Logo" class="logo-img">
                     ZonaFutsal
                 </a>
@@ -102,7 +102,6 @@ $result = $conn->query($query);
                     <li><a href="event.php">Event</a></li>
                 </ul>
 
-                <!-- Tombol login dan daftar tanpa PHP -->
                 <a href="login.php" class="btn-masuk">Masuk</a>
                 <a href="register.php" class="btn-daftar">Daftar</a>
             </div>
@@ -128,7 +127,6 @@ $result = $conn->query($query);
                 
                 $foto_path = !empty($row['foto']) ? "../../uploads/event/{$row['foto']}" : "../assets/image/default-event.jpg";
                 
-                // Add status badge based on dates
                 $status = '';
                 $status_class = '';
                 if (strtotime($current_date) < strtotime($row['tanggal_mulai'])) {

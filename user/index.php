@@ -2,7 +2,6 @@
 include '../includes/koneksi.php';
 session_start();
 
-// Ambil data slider dari database
 $querySlider = mysqli_query($conn, "SELECT * FROM slider ORDER BY id DESC");
 $sliders = [];
 
@@ -38,7 +37,7 @@ if (empty($sliders)) {
     <header>
         <nav class="nav">
             <div class="logo-container">
-                <a href="../index.php" class="logo-text">
+                <a href="./pages/company.php" class="logo-text">
                     <img src="./assets/image/logo_orange.png" alt="ZonaFutsal Logo" class="logo-img">
                     ZonaFutsal
                 </a>

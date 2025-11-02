@@ -17,7 +17,7 @@ session_start();
     <header>
         <nav class="nav">
             <div class="logo-container">
-                <a href="../index.php" class="logo-text">
+                <a href="company.php" class="logo-text">
                     <img src="../assets/image/logo_orange.png" alt="ZonaFutsal Logo" class="logo-img">
                     ZonaFutsal
                 </a>
@@ -29,7 +29,6 @@ session_start();
                     <li><a href="event.php">Event</a></li>
                 </ul>
 
-                <!-- Tombol login dan daftar tanpa PHP -->
                 <a href="login.php" class="btn-masuk">Masuk</a>
                 <a href="register.php" class="btn-daftar">Daftar</a>
             </div>
@@ -61,7 +60,6 @@ session_start();
     <section class="container" id="lapangan">
         <h2 class="section-title">Daftar Lapangan</h2>
         <div class="card-grid">
-            <!-- Data statis (dummy) sementara tanpa database -->
             <div class="card">
                 <img src="../assets/image/lap1.jpg" alt="Lapangan A">
                 <h3>Lapangan A</h3>
