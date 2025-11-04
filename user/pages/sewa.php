@@ -1,115 +1,95 @@
 <?php
-session_start();
+include '../../includes/koneksi.php'; // file koneksi database
+
+// Ambil semua data lapangan dari database
+$result = mysqli_query($conn, "SELECT * FROM lapangan ORDER BY id ASC");
 ?>
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZonaFutsal | Booking Lapangan</title>
-    <link rel="stylesheet" href="../assets/css/pages.css?v=<?php echo filemtime('../assets/css/pages.css'); ?>">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZonaFutsal | Booking Lapangan</title>
+  <link rel="stylesheet" href="../assets/css/pages.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
+<body>
 
-<body data-loggedin="<?= isset($_SESSION['username']) ? 'true' : 'false' ?>">
+  <!-- Header -->
+  <nav class="nav">
+    <div class="logo-container">
+      <a href="../index.html" class="logo-text">
+        <img src="../assets/image/logo_orange.png" alt="ZonaFutsal" style="height:40px; vertical-align:middle;">
+        ZonaFutsal
+      </a>
+    </div>
+    <ul>
+      <li><a href="../index.html">Beranda</a></li>
+      <li><a href="sewa.php" class="active">Penyewaan</a></li>
+      <li><a href="event.html">Event</a></li>
+    </ul>
+  </nav>
 
-    <header>
-        <nav class="nav">
-            <div class="logo-container">
-                <a href="company.php" class="logo-text">
-                    <img src="../assets/image/logo_orange.png" alt="ZonaFutsal Logo" class="logo-img">
-                    ZonaFutsal
-                </a>
+  <!-- Hero -->
+  <section class="hero">
+    <img src="../assets/image/latar.png" alt="ZonaFutsal" class="hero-img">
+    <div class="hero-overlay">
+      <h1>Booking Lapangan Futsal Kini Lebih Mudah!</h1>
+      <a href="#lapangan">Mulai Booking</a>
+    </div>
+  </section>
+
+  <!-- Daftar Lapangan -->
+  <section class="container" id="lapangan">
+    <h2 class="section-title">Daftar Lapangan</h2>
+    <div class="card-grid">
+      <?php
+      if (mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_assoc($result)) {
+          // Buat path foto
+          $fotoPath = "../../uploads/lapangan/" . $row['foto'];
+          if (!file_exists($fotoPath) || empty($row['foto'])) {
+            $fotoPath = "../assets/image/noimage.png"; // fallback jika foto tidak ada
+          }
+          ?>
+          <div class="card">
+            <img src="<?php echo $fotoPath; ?>" alt="<?php echo htmlspecialchars($row['nama_lapangan']); ?>">
+            <div style="padding:15px;">
+              <h3><?php echo htmlspecialchars($row['nama_lapangan']); ?></h3>
+              <p>Harga Pagi: <b>Rp <?php echo number_format($row['harga_pagi'], 0, ',', '.'); ?></b></p>
+              <p>Harga Malam: <b>Rp <?php echo number_format($row['harga_malam'], 0, ',', '.'); ?></b></p>
+              <a href="booking.php?id=<?php echo urlencode($row['id']); ?>" class="btn-book">Booking</a>
             </div>
-            <div class="sub-container">
-                <ul>
-                    <li><a href="../index.php">Beranda</a></li>
-                    <li><a href="sewa.php">Penyewaan</a></li>
-                    <li><a href="event.php">Event</a></li>
-                </ul>
+          </div>
+          <?php
+        }
+      } else {
+        echo "<p style='text-align:center;'>Belum ada data lapangan tersedia.</p>";
+      }
+      ?>
+    </div>
+  </section>
 
-                <a href="login.php" class="btn-masuk">Masuk</a>
-                <a href="register.php" class="btn-daftar">Daftar</a>
-            </div>
-        </nav>
-
-    </header>
-
-    <section class="hero">
-        <img src="../assets/image/latar.png" alt="ZonaFutsal" class="hero-img">
-        <div class="hero-overlay">
-            <h1>Booking Lapangan Futsal Kini Lebih Mudah!</h1>
-            <a href="#lapangan">Mulai Booking</a>
-        </div>
-    </section>
-
-    <section class="container" id="fasilitas">
-        <h2 class="section-title">Fasilitas Tersedia</h2>
-        <div class="fasilitas-tabs">
-            <button class="tab-item active">Semua</button>
-            <button class="tab-item">Bola Futsal</button>
-            <button class="tab-item">Ruang Ganti</button>
-            <button class="tab-item">Parkir</button>
-            <button class="tab-item">Kantin</button>
-            <button class="tab-item">Wi-Fi</button>
-            <button class="tab-item">Pencahayaan</button>
-        </div>
-    </section>
-
-    <section class="container" id="lapangan">
-        <h2 class="section-title">Daftar Lapangan</h2>
-        <div class="card-grid">
-            <div class="card">
-                <img src="../assets/image/lap1.jpg" alt="Lapangan A">
-                <h3>Lapangan A</h3>
-                <p class="harga">Harga Pagi: Rp 100.000</p>
-                <p class="harga">Harga Malam: Rp 150.000</p>
-                <a href="booking.php?id=1" class="btn-book">Booking</a>
-            </div>
-
-            <div class="card">
-                <img src="../assets/image/lap2.jpg" alt="Lapangan B">
-                <h3>Lapangan B</h3>
-                <p class="harga">Harga Pagi: Rp 120.000</p>
-                <p class="harga">Harga Malam: Rp 170.000</p>
-                <a href="booking.php?id=2" class="btn-book">Booking</a>
-            </div>
-
-            <div class="card">
-                <img src="../assets/image/lap3.jpg" alt="Lapangan C">
-                <h3>Lapangan C</h3>
-                <p class="harga">Harga Pagi: Rp 90.000</p>
-                <p class="harga">Harga Malam: Rp 130.000</p>
-                <a href="booking.php?id=3" class="btn-book">Booking</a>
-            </div>
-        </div>
-    </section>
-
-    <div class="garis"></div>
-
-    <footer>
-        <div class="footer-section">
-            <h4>Tentang Kami</h4>
-            <p>ZonaFutsal adalah platform modern untuk memesan lapangan, melihat jadwal, dan mengikuti event futsal secara online.</p>
-        </div>
-
-        <div class="footer-section">
-            <h4>Link Cepat</h4>
-            <a href="../index.php">Beranda</a>
-            <a href="jadwal.php">Jadwal</a>
-            <a href="event.php">Event</a>
-            <a href="kontak.php">Kontak</a>
-        </div>
-
-        <div class="footer-section">
-            <h4>Hubungi Kami</h4>
-            <p>Email: info@zonafutsal.id</p>
-            <p>Telp: +62 812 3456 7890</p>
-            <p>Alamat: Jl. Raya Sport Center No. 88, Bandung</p>
-        </div>
-    </footer>
+  <!-- Footer -->
+  <footer>
+    <div class="footer-section">
+      <h4>Tentang Kami</h4>
+      <p>ZonaFutsal adalah platform modern untuk memesan lapangan dan mengikuti event futsal secara online.</p>
+    </div>
+    <div class="footer-section">
+      <h4>Link Cepat</h4>
+      <a href="../index.html">Beranda</a>
+      <a href="jadwal.html">Jadwal</a>
+      <a href="event.html">Event</a>
+      <a href="kontak.html">Kontak</a>
+    </div>
+    <div class="footer-section">
+      <h4>Hubungi Kami</h4>
+      <p>Email: info@zonafutsal.id</p>
+      <p>Telp: +62 812 3456 7890</p>
+      <p>Alamat: Jl. Raya Sport Center No. 88, Bandung</p>
+    </div>
+  </footer>
 
 </body>
-
 </html>

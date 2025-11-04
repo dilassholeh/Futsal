@@ -8,7 +8,18 @@ if (!isset($_SESSION['admin_id'])) {
     exit;
 }
 
-
+// Fungsi untuk generate ID lapangan
+function generateLapanganID($conn) {
+    $result = $conn->query("SELECT id FROM lapangan ORDER BY id DESC LIMIT 1");
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $lastID = $row['id'];
+        $num = (int)substr($lastID, 2) + 1;
+        return 'LP' . str_pad($num, 5, '0', STR_PAD_LEFT);
+    } else {
+        return 'LP00001';
+    }
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
     $nama_lapangan = $_POST['nama_lapangan'];
@@ -17,20 +28,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
 
     $foto = $_FILES['foto']['name'];
     $tmp = $_FILES['foto']['tmp_name'];
-    $folder = '../../uploads/' . $foto;
+    
+    // Pastikan folder uploads/lapangan ada
+    $upload_dir = '../../uploads/lapangan/';
+    if (!file_exists($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
+    }
+    
+    // Generate nama file unik untuk menghindari konflik
+    $file_ext = pathinfo($foto, PATHINFO_EXTENSION);
+    $new_filename = uniqid('lapangan_') . '.' . $file_ext;
+    $folder = $upload_dir . $new_filename;
 
     if (move_uploaded_file($tmp, $folder)) {
-        $id = uniqid('LP');
+        $id = generateLapanganID($conn);
         $query = "INSERT INTO lapangan (id, nama_lapangan, harga_pagi, harga_malam, foto)
-                  VALUES ('$id', '$nama_lapangan', '$harga_pagi', '$harga_malam', '$foto')";
-        mysqli_query($conn, $query);
-        echo "<script>alert('Lapangan berhasil ditambahkan!'); window.location='lapangan.php';</script>";
+                  VALUES ('$id', '$nama_lapangan', '$harga_pagi', '$harga_malam', '$new_filename')";
+        if(mysqli_query($conn, $query)) {
+            echo "<script>alert('Lapangan berhasil ditambahkan!'); window.location='lapangan.php';</script>";
+        } else {
+            echo "<script>alert('Gagal menambahkan lapangan!'); window.location='lapangan.php';</script>";
+        }
     }
 }
 
-
 if (isset($_GET['hapus'])) {
     $id = $_GET['hapus'];
+    
+    // Ambil nama foto sebelum dihapus
+    $getFoto = mysqli_query($conn, "SELECT foto FROM lapangan WHERE id='$id'");
+    if($row = mysqli_fetch_assoc($getFoto)) {
+        $foto_path = '../../uploads/lapangan/' . $row['foto'];
+        if(file_exists($foto_path)) {
+            unlink($foto_path); // Hapus file foto
+        }
+    }
+    
     mysqli_query($conn, "DELETE FROM lapangan WHERE id='$id'");
     echo "<script>alert('Data lapangan berhasil dihapus!'); window.location='lapangan.php';</script>";
 }
@@ -48,15 +81,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
                   harga_malam='$harga_malam'
                   WHERE id='$id'";
     } else {
+        // Hapus foto lama
+        $getFoto = mysqli_query($conn, "SELECT foto FROM lapangan WHERE id='$id'");
+        if($row = mysqli_fetch_assoc($getFoto)) {
+            $old_foto = '../../uploads/lapangan/' . $row['foto'];
+            if(file_exists($old_foto)) {
+                unlink($old_foto);
+            }
+        }
+        
+        // Upload foto baru
         $foto = $_FILES['foto']['name'];
         $tmp = $_FILES['foto']['tmp_name'];
-        $folder = '../../uploads/' . $foto;
+        $file_ext = pathinfo($foto, PATHINFO_EXTENSION);
+        $new_filename = uniqid('lapangan_') . '.' . $file_ext;
+        $folder = '../../uploads/lapangan/' . $new_filename;
+        
         move_uploaded_file($tmp, $folder);
+        
         $query = "UPDATE lapangan SET 
                   nama_lapangan='$nama_lapangan', 
                   harga_pagi='$harga_pagi', 
                   harga_malam='$harga_malam', 
-                  foto='$foto'
+                  foto='$new_filename'
                   WHERE id='$id'";
     }
 
@@ -94,7 +141,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
             </div>
         </div>
 
-
         <div class="table-actions">
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="Cari...">
@@ -102,7 +148,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
             </div>
             <button class="btn-tambah" id="openModal"><i class='bx bx-plus'></i>Tambah</button>
         </div>
-
 
         <div class="table-wrapper">
             <div class="table-container">
@@ -128,7 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
                             <td>{$row['nama_lapangan']}</td>
                             <td>Rp " . number_format($row['harga_pagi'], 0, ',', '.') . "</td>
                             <td>Rp " . number_format($row['harga_malam'], 0, ',', '.') . "</td>
-                            <td><img src='../../uploads/{$row['foto']}' width='70' height='50' style='object-fit:cover; border-radius:6px;'></td>
+                            <td><img src='../../uploads/lapangan/{$row['foto']}' width='70' height='50' style='object-fit:cover; border-radius:6px;' onerror=\"this.src='../../uploads/no-image.png'\"></td>
                             <td>
                                 <a href='#' class='edit-btn' 
                                    data-id='{$row['id']}' 
@@ -242,4 +287,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
 
 </body>
 
-</html>
+</html> 
