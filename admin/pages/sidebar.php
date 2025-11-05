@@ -16,7 +16,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
 <body>
     <aside class="sidebar" id="sidebar">
         <div class="logo-container">
-            <img src="../assets/image/logo_orange.png" alt="Logo" class="logo-img">
+            <img src="../assets/image/logo.png" alt="Logo" class="logo-img">
+            <h2>ZOFA</h2>
         </div>
         <button id="toggle-btn"><i class='bx bx-chevron-left'></i></button>
 

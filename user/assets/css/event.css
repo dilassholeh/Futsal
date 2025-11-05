@@ -23,10 +23,10 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 50px;
+    padding: 7px 50px;
     font-weight: bold;
     z-index: 1000;
-    line-height: 1;
+    /* line-height: 1; */
     border-bottom: none;
 }
 
@@ -81,7 +81,7 @@ header {
 .btn-daftar {
     text-decoration: none;
     color: #333;
-    padding: 7px 12px;
+    padding: 1px 9px;
     border-radius: 7px;
     font-weight: bold;
 }

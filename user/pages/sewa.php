@@ -19,8 +19,8 @@ $result = mysqli_query($conn, "SELECT * FROM lapangan ORDER BY id ASC");
           <nav class="nav">
             <div class="logo-container">
                 <a href="company.php" class="logo-text">
-                    <img src="../assets/image/logo_orange.png" alt="ZonaFutsal Logo" class="logo-img">
-                    ZonaFutsal
+                    <img src="../assets/image/logo.png" alt="ZonaFutsal Logo" class="logo-img">
+                    ZOFA
                 </a>
             </div>
             <div class="sub-container">

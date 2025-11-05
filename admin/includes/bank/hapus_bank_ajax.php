@@ -8,6 +8,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("s", $id);
     $stmt->execute();
 
-    echo "<script>alert('Data berhasil dihapus!');window.location.href='bank.php';</script>";
+    echo "<script>alert('Data berhasil dihapus!');window.location.href='../../pages/bank.php';</script>";
 }
 ?>

@@ -8,7 +8,8 @@ if (!isset($_SESSION['admin_id'])) {
     exit;
 }
 
-function generateSliderID($conn) {
+function generateSliderID($conn)
+{
     $result = $conn->query("SELECT id FROM slider ORDER BY id DESC LIMIT 1");
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
@@ -82,6 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -94,47 +96,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     <main class="main">
         <div class="header">
             <div class="header-left">
-                <h1>Slider</h1>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Cari...">
+                    <i class='bx bx-search'></i>
+                </div>
             </div>
             <div class="header-right">
                 <div class="notif"><i class='bx bxs-bell'></i></div>
                 <div class="profile">
-                    <img src="../../uploads/<?php echo $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
+                    <img
+                        src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
                         alt="Profile"
                         style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
                     <span><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
-                    <a href="../logout.php" title="Keluar" style="margin-left:10px; color:#f00;">
-                        <i class='bx bx-log-out'></i>
-                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="table-actions">
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Cari...">
-                <i class='bx bx-search'></i>
-            </div>
-            <button class="btn-tambah" id="openModal"><i class='bx bx-plus'></i>Tambah</button>
-        </div>
 
-        <div class="table-wrapper">
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nama Slider</th>
-                            <th>Foto</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $result = mysqli_query($conn, "SELECT * FROM slider ORDER BY id DESC");
-                        if (mysqli_num_rows($result) > 0) {
-                            while ($row = mysqli_fetch_assoc($result)) {
-                                echo "
+        <div class="latar">
+            <div class="table-actions">
+
+                <h1>Data Slider</h1>
+
+                <button class="btn-tambah" id="openModal"><i class='bx bx-plus'></i>Tambah</button>
+            </div>
+
+            <div class="table-wrapper">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nama Slider</th>
+                                <th>Foto</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $result = mysqli_query($conn, "SELECT * FROM slider ORDER BY id DESC");
+                            if (mysqli_num_rows($result) > 0) {
+                                while ($row = mysqli_fetch_assoc($result)) {
+                                    echo "
                                 <tr>
                                     <td>{$row['id']}</td>
                                     <td>{$row['nama_slider']}</td>
@@ -150,13 +154,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
                                         </a>
                                     </td>
                                 </tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='4'>Belum ada data slider.</td></tr>";
                             }
-                        } else {
-                            echo "<tr><td colspan='4'>Belum ada data slider.</td></tr>";
-                        }
-                        ?>
-                    </tbody>
-                </table>
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
@@ -224,4 +229,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
         });
     </script>
 </body>
+
 </html>

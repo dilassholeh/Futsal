@@ -11,6 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("ssss", $nama, $atas, $rek, $id);
     $stmt->execute();
 
-    echo "<script>alert('Data berhasil diperbarui!');window.location.href='bank.php';</script>";
+    echo "<script>alert('Data berhasil diperbarui!');window.location.href='../../pages/bank.php';</script>";
 }
 ?>

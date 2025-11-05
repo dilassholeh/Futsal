@@ -8,8 +8,8 @@ if (!isset($_SESSION['admin_id'])) {
     exit;
 }
 
-// Fungsi untuk generate ID lapangan
-function generateLapanganID($conn) {
+function generateLapanganID($conn)
+{
     $result = $conn->query("SELECT id FROM lapangan ORDER BY id DESC LIMIT 1");
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
@@ -28,14 +28,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
 
     $foto = $_FILES['foto']['name'];
     $tmp = $_FILES['foto']['tmp_name'];
-    
-    // Pastikan folder uploads/lapangan ada
+
     $upload_dir = '../../uploads/lapangan/';
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0777, true);
     }
-    
-    // Generate nama file unik untuk menghindari konflik
+
     $file_ext = pathinfo($foto, PATHINFO_EXTENSION);
     $new_filename = uniqid('lapangan_') . '.' . $file_ext;
     $folder = $upload_dir . $new_filename;
@@ -44,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
         $id = generateLapanganID($conn);
         $query = "INSERT INTO lapangan (id, nama_lapangan, harga_pagi, harga_malam, foto)
                   VALUES ('$id', '$nama_lapangan', '$harga_pagi', '$harga_malam', '$new_filename')";
-        if(mysqli_query($conn, $query)) {
+        if (mysqli_query($conn, $query)) {
             echo "<script>alert('Lapangan berhasil ditambahkan!'); window.location='lapangan.php';</script>";
         } else {
             echo "<script>alert('Gagal menambahkan lapangan!'); window.location='lapangan.php';</script>";
@@ -54,16 +52,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
 
 if (isset($_GET['hapus'])) {
     $id = $_GET['hapus'];
-    
-    // Ambil nama foto sebelum dihapus
+
     $getFoto = mysqli_query($conn, "SELECT foto FROM lapangan WHERE id='$id'");
-    if($row = mysqli_fetch_assoc($getFoto)) {
+    if ($row = mysqli_fetch_assoc($getFoto)) {
         $foto_path = '../../uploads/lapangan/' . $row['foto'];
-        if(file_exists($foto_path)) {
-            unlink($foto_path); // Hapus file foto
+        if (file_exists($foto_path)) {
+            unlink($foto_path);
         }
     }
-    
+
     mysqli_query($conn, "DELETE FROM lapangan WHERE id='$id'");
     echo "<script>alert('Data lapangan berhasil dihapus!'); window.location='lapangan.php';</script>";
 }
@@ -81,24 +78,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
                   harga_malam='$harga_malam'
                   WHERE id='$id'";
     } else {
-        // Hapus foto lama
         $getFoto = mysqli_query($conn, "SELECT foto FROM lapangan WHERE id='$id'");
-        if($row = mysqli_fetch_assoc($getFoto)) {
+        if ($row = mysqli_fetch_assoc($getFoto)) {
             $old_foto = '../../uploads/lapangan/' . $row['foto'];
-            if(file_exists($old_foto)) {
+            if (file_exists($old_foto)) {
                 unlink($old_foto);
             }
         }
-        
-        // Upload foto baru
+
         $foto = $_FILES['foto']['name'];
         $tmp = $_FILES['foto']['tmp_name'];
         $file_ext = pathinfo($foto, PATHINFO_EXTENSION);
         $new_filename = uniqid('lapangan_') . '.' . $file_ext;
         $folder = '../../uploads/lapangan/' . $new_filename;
-        
+
         move_uploaded_file($tmp, $folder);
-        
+
         $query = "UPDATE lapangan SET 
                   nama_lapangan='$nama_lapangan', 
                   harga_pagi='$harga_pagi', 
@@ -127,7 +122,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     <main class="main">
         <div class="header">
             <div class="header-left">
-                <h1>Dashboard</h1>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Cari...">
+                    <i class='bx bx-search'></i>
+                </div>
             </div>
             <div class="header-right">
                 <div class="notif"><i class='bx bxs-bell'></i></div>
@@ -141,33 +139,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
             </div>
         </div>
 
-        <div class="table-actions">
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Cari...">
-                <i class='bx bx-search'></i>
-            </div>
-            <button class="btn-tambah" id="openModal"><i class='bx bx-plus'></i>Tambah</button>
-        </div>
+        <div class="latar">
+            <div class="table-actions">
+                <h1>Data Lapangan</h1>
 
-        <div class="table-wrapper">
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nama Lapangan</th>
-                            <th>Harga Pagi</th>
-                            <th>Harga Malam</th>
-                            <th>Foto</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $result = mysqli_query($conn, "SELECT * FROM lapangan ORDER BY id DESC");
-                        if (mysqli_num_rows($result) > 0) {
-                            while ($row = mysqli_fetch_assoc($result)) {
-                                echo "
+                <button class="btn-tambah" id="openModal"><i class='bx bx-plus'></i>Tambah</button>
+            </div>
+
+            <div class="table-wrapper">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nama Lapangan</th>
+                                <th>Harga Pagi</th>
+                                <th>Harga Malam</th>
+                                <th>Foto</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $result = mysqli_query($conn, "SELECT * FROM lapangan ORDER BY id DESC");
+                            if (mysqli_num_rows($result) > 0) {
+                                while ($row = mysqli_fetch_assoc($result)) {
+                                    echo "
                         <tr>
                             <td>{$row['id']}</td>
                             <td>{$row['nama_lapangan']}</td>
@@ -188,13 +185,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
                                 </a>
                             </td>
                         </tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='6'>Belum ada data lapangan.</td></tr>";
                             }
-                        } else {
-                            echo "<tr><td colspan='6'>Belum ada data lapangan.</td></tr>";
-                        }
-                        ?>
-                    </tbody>
-                </table>
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
@@ -287,4 +285,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
 
 </body>
 
-</html> 
+</html>

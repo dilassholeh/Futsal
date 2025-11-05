@@ -5,33 +5,53 @@
     font-family: "Poppins", sans-serif;
 }
 
+:root {
+    --primary: #1a1a1a;
+    --background: #ffffff;
+    --text: #1a1a1a;
+    --white: #ffffff;
+    --gray-border: #e0e0e0;
+}
+
 body {
-    background: #f2f2f2;
+    background: var(--background);
     display: flex;
     height: 100vh;
-    overflow-y: auto;
-    color: #222;
+    overflow: hidden;
+    color: var(--text);
 }
 
 .main {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 25px;
+    padding: 15px;
     gap: 20px;
-    overflow-y: auto;
+    /* height: 100vh; */
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .header {
     display: flex;
+    background: #f4f4f4;
+    padding: 10px;
     justify-content: space-between;
     align-items: center;
+    border-radius: 10px;
     margin-bottom: 5px;
 }
 
 .header-left h1 {
     font-size: 26px;
     font-weight: 700;
+}
+
+.latar{
+    background: #f5f5f5;
+    height: 100vh;
+    padding: 10px;
+    border-radius: 10px;
 }
 
 .header-right {
@@ -41,8 +61,8 @@ body {
 }
 
 .notif {
-    background: #fff3e0;
     padding: 8px;
+    background: #a3ff99;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
@@ -52,11 +72,11 @@ body {
 }
 
 .notif:hover {
-    background: #ffd699;
+    background: #a3ff99;
 }
 
 .notif i {
-    color: #ff7b00;
+    color: #117139;
     font-size: 18px;
 }
 
@@ -65,20 +85,21 @@ body {
     align-items: center;
     gap: 10px;
     background: #fff;
-    padding: 5px 12px;
+    padding: 2px 10px;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .profile img {
-    width: 35px;
-    height: 35px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     object-fit: cover;
 }
 
 .profile span {
     font-weight: 600;
+    font-size: 15px;
 }
 
 .table-actions {
@@ -119,8 +140,8 @@ body {
 }
 
 .btn-tambah {
-    background: #ff7b00;
-    color: #333;
+    background: #117139;
+    color: #ffff;
     border: none;
     border-radius: 6px;
     padding: 8px 14px;
@@ -133,7 +154,8 @@ body {
 }
 
 .btn-tambah:hover {
-    background: #fb891f;
+    background: #117139;
+
 }
 
 
@@ -268,11 +290,9 @@ table img {
 .modal {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
     justify-content: center;
     align-items: center;
     z-index: 1000;
@@ -284,148 +304,105 @@ table img {
 
 .modal-content {
     background: #fff;
-    padding: 25px;
+    padding: 20px;
     border-radius: 12px;
     width: 100%;
-    max-width: 90%;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    max-width: 700px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
     position: relative;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
 .modal-content h3 {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     color: #ff7b00;
 }
 
-.modal-content label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+.close-btn {
+    position: absolute;
+    top: 10px; right: 15px;
+    font-size: 22px;
+    cursor: pointer;
+    color: #555;
 }
 
-.modal-content input,
-.modal-content select,
-.modal-content textarea,
-.modal-content button {
+.modal-form-custom {
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    gap: 15px;
+}
+
+.modal-form-custom .nama,
+.modal-form-custom .kategori,
+.modal-form-custom .deskripsi,
+.modal-form-custom .status {
+    width: 100%;
+}
+
+.modal-form-custom .gambar,
+.modal-form-custom .submit {
+    grid-column: span 2;
+}
+
+.modal-form-custom .tanggal {
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    gap: 10px;
+}
+
+.modal-form-custom .tanggal div {
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-form-custom label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.modal-form-custom input,
+.modal-form-custom select,
+.modal-form-custom textarea {
     width: 100%;
     padding: 10px;
-    margin-bottom: 15px;
     border-radius: 8px;
     border: 1px solid #ccc;
     font-size: 16px;
 }
 
-.modal-content input:focus,
-.modal-content select:focus,
-.modal-content textarea:focus {
-    border-color: #ff7b00;
+.modal-form-custom input:focus,
+.modal-form-custom select:focus,
+.modal-form-custom textarea:focus {
     outline: none;
-    box-shadow: 0 0 5px rgba(255, 123, 0, 0.3);
+    border-color: #ff7b00;
+    box-shadow: 0 0 5px rgba(255,123,0,0.3);
 }
 
-.modal-content button {
+.modal-form-custom button {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
     background-color: #ff7b00;
     color: #fff;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
     transition: 0.3s;
 }
 
-.modal-content button:hover {
+.modal-form-custom button:hover {
     background-color: #e06500;
 }
 
-/* CLOSE BUTTON */
-.close-btn {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 20px;
-    cursor: pointer;
-    color: #555;
-    font-weight: bold;
-}
-
-/* === GRID FORM CUSTOM UNTUK EVENT === */
-.modal-form-custom {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-        "nama kategori"
-        "deskripsi tanggal"
-        "gambar gambar"
-        "status status"
-        "submit submit";
-    gap: 15px;
-}
-
-.modal-form-custom .nama {
-    grid-area: nama;
-}
-
-.modal-form-custom .kategori {
-    grid-area: kategori;
-}
-
-.modal-form-custom .deskripsi {
-    grid-area: deskripsi;
-}
-
-.modal-form-custom .tanggal {
-    grid-area: tanggal;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.modal-form-custom .gambar {
-    grid-area: gambar;
-    border: 2px dashed #ccc;
-    padding: 10px;
-    border-radius: 8px;
-}
-
-.modal-form-custom .status {
-    grid-area: status;
-}
-
-.modal-form-custom .submit {
-    grid-area: submit;
-}
-
-/* RESPONSIVE */
 @media screen and (max-width: 600px) {
-
-    table th,
-    table td {
-        padding: 8px;
-        font-size: 14px;
-    }
-
-    .btn-tambah {
-        padding: 8px 12px;
-        font-size: 14px;
-    }
-
-    .modal-content {
-        padding: 15px;
-    }
-
-    .header-left h1 {
-        font-size: 20px;
-    }
-
     .modal-form-custom {
         grid-template-columns: 1fr;
-        grid-template-areas:
-            "nama"
-            "kategori"
-            "deskripsi"
-            "tanggal"
-            "gambar"
-            "status"
-            "submit";
+    }
+
+    .modal-form-custom .gambar,
+    .modal-form-custom .submit {
+        grid-column: span 1;
     }
 
     .modal-form-custom .tanggal {
