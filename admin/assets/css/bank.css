@@ -47,8 +47,8 @@ body {
     font-weight: 700;
 }
 
-.latar{
-    background: #f5f5f5;
+.bot {
+    background: #f4f4f4;
     height: 100vh;
     padding: 10px;
     border-radius: 10px;
@@ -61,8 +61,8 @@ body {
 }
 
 .notif {
-    padding: 8px;
     background: #a3ff99;
+    padding: 8px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
@@ -72,6 +72,7 @@ body {
 }
 
 .notif:hover {
+
     background: #a3ff99;
 
 }
@@ -111,6 +112,12 @@ body {
     padding: 0 5px;
 }
 
+.latar{
+    background: #f5f5f5;
+    height: 100vh;
+    padding: 10px;
+    border-radius: 10px;
+}
 .search-box {
     display: flex;
     align-items: center;
@@ -141,8 +148,8 @@ body {
 }
 
 .btn-tambah {
-    color: #ffff;
     background: #117139;
+    color: #ffff;
     border: none;
     border-radius: 6px;
     padding: 8px 14px;
@@ -156,9 +163,13 @@ body {
 
 .btn-tambah:hover {
     background: #117139;
-
 }
 
+
+.table-wrapper {
+    margin-top: 10px;
+    overflow-x: auto;
+}
 
 .table-container {
     width: 100%;
@@ -283,22 +294,16 @@ table img {
     object-fit: cover;
 }
 
-
-.product-img {
-    width: 60px;
-    height: 45px;
-    border-radius: 8px;
-    object-fit: cover;
-}
-
-/* MODAL */
 .modal {
     display: none;
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;
-    background: rgba(0, 0, 0, .55);
     z-index: 1000;
 }
 
@@ -306,75 +311,208 @@ table img {
     display: flex;
 }
 
-/* MODAL CONTENT */
 .modal-content {
     background: #fff;
-    width: 430px;
-    max-width: 95%;
     padding: 25px;
-    border-radius: 14px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 90%;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     position: relative;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    animation: fadeScale .3s ease;
-}
-
-@keyframes fadeScale {
-    0% {
-        opacity: 0;
-        transform: scale(.9);
-    }
-
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
 }
 
 .modal-content h3 {
+    margin-bottom: 20px;
     color: #ff7b00;
-    margin-bottom: 18px;
-    font-weight: 700;
 }
 
-/* FORM INPUT */
+.modal-content label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
 .modal-content input,
+.modal-content select,
+.modal-content textarea,
 .modal-content button {
     width: 100%;
     padding: 10px;
-    margin-bottom: 12px;
-    border-radius: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
     border: 1px solid #ccc;
+    font-size: 16px;
 }
 
-.modal-content input:focus {
+.modal-content input:focus,
+.modal-content select:focus,
+.modal-content textarea:focus {
     border-color: #ff7b00;
     outline: none;
-    box-shadow: 0 0 5px rgba(255, 123, 0, 0.4);
+    box-shadow: 0 0 5px rgba(255, 123, 0, 0.3);
 }
 
 .modal-content button {
-    background: #ff7b00;
-    color: white;
-    font-weight: bold;
+    background-color: #ff7b00;
+    color: #fff;
+    border: none;
     cursor: pointer;
-    transition: .25s;
+    font-weight: bold;
+    transition: 0.3s;
 }
 
 .modal-content button:hover {
-    background: #e06500;
+    background-color: #e06500;
 }
 
 /* CLOSE BUTTON */
 .close-btn {
     position: absolute;
-    top: 12px;
-    right: 16px;
-    font-size: 24px;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
     cursor: pointer;
-    font-weight: 700;
     color: #555;
+    font-weight: bold;
 }
 
-.close-btn:hover {
-    color: #000;
+/* === GRID FORM CUSTOM UNTUK EVENT === */
+.modal-form-custom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+        "nama kategori"
+        "deskripsi tanggal"
+        "gambar gambar"
+        "status status"
+        "submit submit";
+    gap: 15px;
+}
+
+.modal-form-custom .nama {
+    grid-area: nama;
+}
+
+.modal-form-custom .kategori {
+    grid-area: kategori;
+}
+
+.modal-form-custom .deskripsi {
+    grid-area: deskripsi;
+}
+
+.modal-form-custom .tanggal {
+    grid-area: tanggal;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.modal-form-custom .gambar {
+    grid-area: gambar;
+    border: 2px dashed #ccc;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.modal-form-custom .status {
+    grid-area: status;
+}
+
+.modal-form-custom .submit {
+    grid-area: submit;
+}
+
+/* RESPONSIVE */
+@media screen and (max-width: 600px) {
+
+    table th,
+    table td {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .btn-tambah {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+    .modal-content {
+        padding: 15px;
+    }
+
+    .header-left h1 {
+        font-size: 20px;
+    }
+
+    .modal-form-custom {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "nama"
+            "kategori"
+            "deskripsi"
+            "tanggal"
+            "gambar"
+            "status"
+            "submit";
+    }
+
+    .modal-form-custom .tanggal {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    max-width: 90%;
+}
+
+.close-btn {
+    float: right;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.btn {
+    cursor: pointer;
+}
+
+.modal-form-custom input {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 8px;
+}
+
+.submit button {
+    width: 100%;
+    padding: 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.submit button:hover {
+    background: #0056b3;
 }

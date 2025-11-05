@@ -54,7 +54,10 @@ $totalJSON = json_encode($totalArr);
   <main class="main">
     <div class="header">
       <div class="header-left">
-        <h1>Dashboard</h1>
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Cari...">
+          <i class='bx bx-search'></i>
+        </div>
       </div>
       <div class="header-right">
         <div class="notif"><i class='bx bxs-bell'></i></div>
@@ -68,68 +71,106 @@ $totalJSON = json_encode($totalArr);
       </div>
     </div>
 
+    <div class="bot">
+      <h1>Dashboard</h1>
+      <p>Selamat Datang di Perencanaan</p>
 
-    <div class="cards">
-      <div class="card"><i class='bx bx-football'></i>
-        <h3>Lapangan</h3>
-        <p><?= $totalLapangan ?></p>
-      </div>
-      <div class="card"><i class='bx bx-category'></i>
-        <h3>Kategori</h3>
-        <p><?= $totalKategori ?></p>
-      </div>
-      <div class="card"><i class='bx bx-slideshow'></i>
-        <h3>Slider</h3>
-        <p><?= $totalSlider ?></p>
-      </div>
-      <div class="card"><i class='bx bx-calendar-event'></i>
-        <h3>Event</h3>
-        <p><?= $totalEvent ?></p>
-      </div>
-      <div class="card"><i class='bx bx-user'></i>
-        <h3>User</h3>
-        <p><?= $totalUser ?></p>
-      </div>
-    </div>
-
-    <div class="bottom-section">
-      <div class="chart-container" style="flex:2;">
-        <div class="chart-header" style="display:flex; justify-content:space-between;">
-          <h2>Grafik Transaksi</h2>
-          <div class="filter-box">
-            <i class='bx bx-filter-alt'></i>
-            <select id="filterSelect">
-              <option value="tahun">Tahun Ini</option>
-              <option value="bulan">Bulan Ini</option>
-              <option value="minggu">Minggu Ini</option>
-              <option value="hari">Hari Ini</option>
-            </select>
-          </div>
-        </div>
-        <canvas id="barChart"></canvas>
-      </div>
-
-      <div style="flex:1; display:flex; flex-direction:column; gap:20px;">
-        <div class="total-card">
-          <i class='bx bx-wallet'></i>
-          <h3>Total Pendapatan</h3>
-          <p style="font-size:20px; margin-top:10px;">
-            <strong>Rp <?= number_format($totalPendapatan, 0, ',', '.'); ?></strong>
-          </p>
-        </div>
-
-        <div class="omzet-card">
-          <i class='bx bx-money'></i>
-          <h3>Omzet</h3>
-
-          <div class="omzet-filter" style="margin:10px 0;">
-            <span class="active" data-target="hari">Hari</span>
-            <span data-target="minggu">Minggu</span>
-            <span data-target="bulan">Bulan</span>
-            <span data-target="tahun">Tahun</span>
+      <div class="cards">
+        <div class="card">
+          <div class="card-top">
+            <h3>Lapangan</h3>
+            <i class='bx bx-football'></i>
           </div>
 
-          <p id="omzet-value"><strong>Rp <?= number_format($omzetHari, 0, ',', '.'); ?></strong></p>
+          <div class="card-info">
+            <p><?= $totalLapangan ?></p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-top">
+            <h3>Kategori</h3>
+            <i class='bx bx-category'></i>
+          </div>
+
+          <div class="card-info">
+            <p><?= $totalKategori ?></p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-top">
+            <h3>Slider</h3>
+            <i class='bx bx-slideshow'></i>
+
+          </div>
+          <div class="card-info">
+            <p><?= $totalSlider ?></p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-top">
+            <h3>Event</h3>
+            <i class='bx bx-calendar-event'></i>
+
+          </div>
+          <div class="card-info">
+            <p><?= $totalEvent ?></p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-top">
+            <h3>User</h3>
+            <i class='bx bx-user'></i>
+
+          </div>
+          <div class="card-info">
+            <p><?= $totalUser ?></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-section">
+        <div class="chart-container" style="flex:2;">
+          <div class="chart-header" style="display:flex; justify-content:space-between;">
+            <h2>Grafik Transaksi</h2>
+            <div class="filter-box">
+              <i class='bx bx-filter-alt'></i>
+              <select id="filterSelect">
+                <option value="tahun">Tahun Ini</option>
+                <option value="bulan">Bulan Ini</option>
+                <option value="minggu">Minggu Ini</option>
+                <option value="hari">Hari Ini</option>
+              </select>
+            </div>
+          </div>
+          <canvas id="barChart"></canvas>
+        </div>
+
+        <div style="flex:1; display:flex; flex-direction:column; gap:20px;">
+          <div class="total-card">
+            <i class='bx bx-wallet'></i>
+            <div class="card-info">
+              <h3>Total Pendapatan</h3>
+              <p style="font-size:20px; margin-top:10px;">
+                <strong>Rp <?= number_format($totalPendapatan, 0, ',', '.'); ?></strong>
+              </p>
+            </div>
+          </div>
+
+          <div class="omzet-card">
+            <i class='bx bx-money'></i>
+            <div class="card-info">
+              <h3>Omzet</h3>
+
+              <div class="omzet-filter" style="margin:10px 0;">
+                <span class="active" data-target="hari">Hari</span>
+                <span data-target="minggu">Minggu</span>
+                <span data-target="bulan">Bulan</span>
+                <span data-target="tahun">Tahun</span>
+              </div>
+
+              <p id="omzet-value"><strong>Rp <?= number_format($omzetHari, 0, ',', '.'); ?></strong></p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -146,7 +187,7 @@ $totalJSON = json_encode($totalArr);
         labels: bulan,
         datasets: [{
           data: total,
-          backgroundColor: '#FF6D00',
+          backgroundColor: '#117139',
           borderRadius: 8
         }]
       },

@@ -30,7 +30,7 @@ body {
 
 h1 {
     font-size: 20px;
-    color: orange;
+    color: #117139;
     margin-bottom: 15px;
 }
 
@@ -43,7 +43,7 @@ h1 {
     width: 100%;
     padding: 8px 35px 8px 10px;
     border: 1px solid #ccc;
-    border-radius: 25px;
+    border-radius: 10px;
     font-size: 14px;
 }
 
@@ -62,7 +62,7 @@ button {
     background: #333;
     color: #fff;
     border: none;
-    border-radius: 25px;
+    border-radius: 10px;
     padding: 8px;
     font-size: 14px;
     font-weight: 600;
