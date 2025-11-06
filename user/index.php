@@ -49,8 +49,16 @@ if (empty($sliders)) {
                     <li><a href="./pages/event.php">Event</a></li>
                 </ul>
 
-                <a href="login.php" class="btn-masuk">Masuk</a>
-                <a href="register.php" class="btn-daftar">Daftar</a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <div class="user-menu">
+                        <span class="user-name">👋 <?= htmlspecialchars($_SESSION['nama']); ?></span>
+                        <a href="logout.php" class="btn-logout">Keluar</a>
+                    </div>
+                <?php else: ?>
+                    <a href="login.php" class="btn-masuk">Masuk</a>
+                    <a href="register.php" class="btn-daftar">Daftar</a>
+                <?php endif; ?>
+
             </div>
         </nav>
 
@@ -110,21 +118,30 @@ if (empty($sliders)) {
                     pencahayaan LED modern, serta fasilitas yang nyaman dan bersih. Kami berkomitmen menghadirkan suasana
                     olahraga yang menyenangkan bagi semua kalangan — baik pertandingan santai maupun turnamen profesional.
                 </p>
-
-                <div class="price-cards">
-                    <div class="price-card">
-                        <h3>Harga Sewa Siang</h3>
-                        <p>Rp 40.000 / jam</p>
-                    </div>
-                    <div class="price-card">
-                        <h3>Harga Sewa Malam</h3>
-                        <p>Rp 80.000 / jam</p>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
 
+    <section class="funding-section">
+        <div class="funding-left">
+            <div class="funding-card invested">
+                <h3>Rp40.000</h3>
+                <p>Pagi!</p>
+            </div>
+
+            <div class="funding-card investing">
+                <h3>Rp80.000</h3>
+                <p>Malam!</p>
+            </div>
+        </div>
+
+        <div class="funding-right">
+            <h2>Main Pagi Lebih Hemat, Malam Lebih Seru!</h2>
+            <p>
+                Nikmati harga sewa lapangan dengan tarif berbeda untuk pagi dan malam. Sewa pagi lebih hemat, malam lebih fleksibel — sesuaikan jadwal bermainmu dengan harga terbaik
+            </p>
+        </div>
+    </section>
 
 
     <section class="facilities-section">

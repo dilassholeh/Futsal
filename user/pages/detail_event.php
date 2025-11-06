@@ -57,6 +57,7 @@ if (strtotime($current_date) < strtotime($event['tanggal_mulai'])) {
             max-width: 1200px;
             margin: 40px auto;
             padding: 0 20px;
+            margin-top: 100px;
         }
 
         .event-detail {
@@ -172,7 +173,7 @@ if (strtotime($current_date) < strtotime($event['tanggal_mulai'])) {
         <nav class="nav">
             <div class="logo-container">
                 <a href="../index.php" class="logo-text">
-                    <img src="../assets/image/logo_orange.png" alt="ZonaFutsal Logo" class="logo-img">
+                    <img src="../assets/image/logo.png" alt="ZonaFutsal Logo" class="logo-img">
                     ZonaFutsal
                 </a>
             </div>

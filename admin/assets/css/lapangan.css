@@ -331,12 +331,11 @@ table img {
 }
 
 .modal-content h3 {
-    color: #ff7b00;
+    color: #117139;
     margin-bottom: 18px;
     font-weight: 700;
 }
 
-/* FORM INPUT */
 .modal-content input,
 .modal-content button {
     width: 100%;
@@ -347,13 +346,13 @@ table img {
 }
 
 .modal-content input:focus {
-    border-color: #ff7b00;
+    border-color: #117139;
     outline: none;
     box-shadow: 0 0 5px rgba(255, 123, 0, 0.4);
 }
 
 .modal-content button {
-    background: #ff7b00;
+    background: #117139;
     color: white;
     font-weight: bold;
     cursor: pointer;
@@ -361,10 +360,9 @@ table img {
 }
 
 .modal-content button:hover {
-    background: #e06500;
+    background: #117139;
 }
 
-/* CLOSE BUTTON */
 .close-btn {
     position: absolute;
     top: 12px;
