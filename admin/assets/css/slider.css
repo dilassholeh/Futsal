@@ -282,7 +282,6 @@ table img {
     object-fit: cover;
 }
 
-/* === MODAL === */
 .modal {
     display: none;
     position: fixed;
@@ -300,7 +299,6 @@ table img {
     display: flex;
 }
 
-/* Modal content */
 .modal-content {
     background: #fff;
     padding: 25px;
@@ -313,7 +311,7 @@ table img {
 
 .modal-content h3 {
     margin-bottom: 20px;
-    color: #ff7b00;
+    color: #117139;
 }
 
 .modal-content label {
@@ -335,13 +333,13 @@ table img {
 
 .modal-content input:focus,
 .modal-content select:focus {
-    border-color: #ff7b00;
+    border-color: #117139;
     outline: none;
     box-shadow: 0 0 5px rgba(255, 123, 0, 0.3);
 }
 
 .modal-content button {
-    background-color: #ff7b00;
+    background-color: #117139;
     color: #fff;
     border: none;
     cursor: pointer;
@@ -350,10 +348,9 @@ table img {
 }
 
 .modal-content button:hover {
-    background-color: #e06500;
+    background-color: #117139;
 }
 
-/* Close button modal */
 .close-btn {
     position: absolute;
     top: 10px;

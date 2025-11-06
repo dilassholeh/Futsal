@@ -316,7 +316,7 @@ table img {
 
 .modal-content h3 {
     margin-bottom: 15px;
-    color: #ff7b00;
+    color: #117139;
 }
 
 .close-btn {
@@ -375,7 +375,7 @@ table img {
 .modal-form-custom select:focus,
 .modal-form-custom textarea:focus {
     outline: none;
-    border-color: #ff7b00;
+    border-color: #117139;
     box-shadow: 0 0 5px rgba(255,123,0,0.3);
 }
 
@@ -386,13 +386,13 @@ table img {
     border: none;
     font-weight: bold;
     cursor: pointer;
-    background-color: #ff7b00;
+    background-color: #117139;
     color: #fff;
     transition: 0.3s;
 }
 
 .modal-form-custom button:hover {
-    background-color: #e06500;
+    background-color: #117139;
 }
 
 @media screen and (max-width: 600px) {

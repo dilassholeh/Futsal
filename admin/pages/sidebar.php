@@ -38,7 +38,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <i class='bx bx-slideshow'></i> <span>Slider</span>
             </a>
             <a href="event.php" class="<?php echo ($current_page == 'event.php') ? 'active' : ''; ?>">
-                <i class='bx bx-category'></i> <span>Event</span>
+                <i class='bx bx-calendar-event'></i> <span>Event</span>
+            </a>
+              <a href="kategori.php" class="<?php echo ($current_page == 'kategori.php') ? 'active' : ''; ?>">
+                <i class='bx bx-category'></i> <span>Kategori</span>
             </a>
             <a href="user.php" class="<?php echo ($current_page == 'user.php') ? 'active' : ''; ?>">
                 <i class='bx bx-group'></i> <span>User</span>

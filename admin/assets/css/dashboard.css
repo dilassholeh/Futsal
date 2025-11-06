@@ -103,7 +103,8 @@ body {
 }
 
 .notif {
-  background: #fff3e0;
+  background: #b5fcad;
+
   padding: 8px;
   border-radius: 50%;
   cursor: pointer;
@@ -114,11 +115,12 @@ body {
 }
 
 .notif:hover {
-  background: #ffd699;
+  background: #a3ff99;
+
 }
 
 .notif i {
-  color: #ff7b00;
+  color: #117139;
   font-size: 18px;
 }
 
