@@ -79,7 +79,8 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
   <div class="container">
     <h2>Booking Lapangan: <?= htmlspecialchars($lapangan['nama_lapangan']); ?></h2>
 
-    <form action="../includes/booking/transaksi_proses.php" method="POST">
+    <form action="../includes/booking/invoice_redirect.php" method="POST">
+
       <table>
         <thead>
           <tr>
@@ -97,7 +98,8 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
             <td><?= htmlspecialchars($lapangan['nama_lapangan']); ?></td>
             <td id="harga">Rp 0</td>
             <td>
-              <input type="date" name="tanggal" min="<?= date('Y-m-d'); ?>" required>
+              <input type="date" id="tanggal" name="tanggal" min="<?= date('Y-m-d'); ?>" required>
+
             </td>
 
             <td>
@@ -141,6 +143,36 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
       </div>
     </form>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const lapanganId = "<?= $lapangan['id']; ?>";
+      const tanggalInput = document.getElementById('tanggal');
+      const jamSelect = document.getElementById('jamMulai');
+
+      
+      function loadJamTersedia() {
+        const tanggal = tanggalInput.value;
+        if (!lapanganId || !tanggal) return;
+
+        fetch('../includes/booking/get_available_jam.php?lapangan_id=${lapanganId}&tanggal=${tanggal}')
+          .then(res => res.json())
+          .then(data => {
+            jamSelect.innerHTML = '<option selected disabled>- Pilih Jam -</option>';
+            data.forEach(j => {
+              const opt = document.createElement('option');
+              opt.value = j;
+              opt.textContent = j;
+              jamSelect.appendChild(opt);
+            });
+          })
+          .catch(err => console.error('Error memuat jam:', err));
+      }
+
+      tanggalInput.addEventListener('change', loadJamTersedia);
+    });
+  </script>
+
 </body>
 
 </html>
