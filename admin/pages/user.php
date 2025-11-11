@@ -25,10 +25,8 @@ if (!isset($_SESSION['admin_id'])) {
   <main class="main">
     <div class="header">
       <div class="header-left">
-        <div class="search-box">
-          <input type="text" id="searchInput" placeholder="Cari...">
-          <i class='bx bx-search'></i>
-        </div>
+        <h1>Data User</h1>
+
       </div>
       <div class="header-right">
         <div class="notif"><i class='bx bxs-bell'></i></div>
@@ -45,40 +43,42 @@ if (!isset($_SESSION['admin_id'])) {
 
     <div class="latar">
 
-    <div class="table-actions">
+      <div class="table-actions">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Cari...">
+          <i class='bx bx-search'></i>
+        </div>
 
-      <h1>Data User</h1>
+        <button class="btn-tambah" id="openModal"><i class='bx bx-plus'></i>Tambah</button>
+      </div>
 
-      <button class="btn-tambah" id="openModal"><i class='bx bx-plus'></i>Tambah</button>
-    </div>
+      <div class="table-container">
+        <div class="table-contaier">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nama</th>
+                <th>Username</th>
+                <th>No HP</th>
+                <th>Group</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
 
-    <div class="table-container">
-      <div class="table-contaier">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nama</th>
-              <th>Username</th>
-              <th>No HP</th>
-              <th>Group</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-
-            <?php
-            $query = "
+              <?php
+              $query = "
             SELECT u.*, g.nama_grup 
             FROM user u 
             LEFT JOIN user_grup g ON u.id_grup = g.id_grup
             ORDER BY u.id DESC
           ";
-            $result = $conn->query($query);
+              $result = $conn->query($query);
 
-            if ($result->num_rows > 0) {
-              while ($row = $result->fetch_assoc()) {
-                echo "
+              if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                  echo "
               <tr>
                 <td>{$row['id']}</td>
                 <td>{$row['name']}</td>
@@ -90,16 +90,16 @@ if (!isset($_SESSION['admin_id'])) {
                   <a href='hapus_user.php?id={$row['id']}' onclick=\"return confirm('Hapus user ini?')\"><i class='bx bx-trash' style='color:#dc3545; font-size:18px;'></i></a>
                 </td>
               </tr>";
+                }
+              } else {
+                echo "<tr><td colspan='6' style='text-align:center;'>Belum ada user</td></tr>";
               }
-            } else {
-              echo "<tr><td colspan='6' style='text-align:center;'>Belum ada user</td></tr>";
-            }
-            ?>
+              ?>
 
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
     </div>
   </main>
 

@@ -57,6 +57,7 @@ body {
   padding: 5px 10px;
   width: 230px;
   transition: 0.3s;
+  margin-bottom: 10px;
 }
 
 .search-box input {

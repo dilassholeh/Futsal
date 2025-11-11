@@ -20,17 +20,15 @@ try {
     $result = $detail->get_result();
 
     while ($row = $result->fetch_assoc()) {
-        // Misal: tulis ke tabel log pembatalan
+        // 
         // $conn->query("INSERT INTO log_pembatalan (id_lapangan, tanggal, jam_mulai, jam_selesai, id_transaksi) 
-        // VALUES ('{$row['id_lapangan']}', '{$row['tanggal']}', '{$row['jam_mulai']}', '{$row['jam_selesai']}', '$id')");
+        //  ('{$row['id_lapangan']}', '{$row['tanggal']}', '{$row['jam_mulai']}', '{$row['jam_selesai']}', '$id')");
     }
 
-    // Hapus detail transaksi agar jam kembali tersedia
     $delete_detail = $conn->prepare("DELETE FROM transaksi_detail WHERE id_transaksi = ?");
     $delete_detail->bind_param("s", $id);
     $delete_detail->execute();
 
-    // Update status transaksi menjadi dibatalkan
     $update = $conn->prepare("UPDATE transaksi SET status_pembayaran = 'dibatalkan' WHERE id = ?");
     $update->bind_param("s", $id);
     $update->execute();

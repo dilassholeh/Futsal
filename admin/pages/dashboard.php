@@ -54,10 +54,8 @@ $totalJSON = json_encode($totalArr);
   <main class="main">
     <div class="header">
       <div class="header-left">
-        <div class="search-box">
-          <input type="text" id="searchInput" placeholder="Cari...">
-          <i class='bx bx-search'></i>
-        </div>
+        <h1>Dashboard</h1>
+        <p>Selamat Datang di Perencanaan</p>
       </div>
       <div class="header-right">
         <div class="notif"><i class='bx bxs-bell'></i></div>
@@ -72,9 +70,11 @@ $totalJSON = json_encode($totalArr);
     </div>
 
     <div class="bot">
-      <h1>Dashboard</h1>
-      <p>Selamat Datang di Perencanaan</p>
 
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Cari...">
+        <i class='bx bx-search'></i>
+      </div>
       <div class="cards">
         <div class="card">
           <div class="card-top">

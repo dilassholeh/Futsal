@@ -1,6 +1,5 @@
 <?php
-// keuangan.php
-include '../../includes/koneksi.php'; // opsional kalau kamu sudah punya koneksi database
+include '../../includes/koneksi.php'; 
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 
@@ -182,7 +181,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </div>
         </div>
 
-        <!-- TAB 2: LAPORAN BULANAN -->
         <div class="tab-content" id="bulanan">
             <h2>📊 Laporan Bulanan</h2>
             <?php
@@ -216,7 +214,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </table>
         </div>
 
-        <!-- TAB 3: GRAFIK KEUANGAN -->
         <div class="tab-content" id="grafik">
             <h2>📈 Grafik Arus Kas</h2>
             <canvas id="financeChart"></canvas>
@@ -224,7 +221,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </main>
 
     <script>
-        // Tab functionality
         const buttons = document.querySelectorAll('.tab-btn');
         const contents = document.querySelectorAll('.tab-content');
         buttons.forEach(btn => {

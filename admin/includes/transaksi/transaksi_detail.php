@@ -2,20 +2,17 @@
 session_start();
 include '../../../includes/koneksi.php';
 
-// Pastikan admin login
 if (!isset($_SESSION['admin_id'])) {
     header("Location: ../../login.php");
     exit;
 }
 
-// Pastikan ID transaksi dikirim
 if (!isset($_GET['id'])) {
     die("ID transaksi tidak ditemukan!");
 }
 
 $id = mysqli_real_escape_string($conn, $_GET['id']);
 
-// Ambil data transaksi
 $transaksi = mysqli_fetch_assoc(mysqli_query($conn, "
     SELECT t.*, u.name AS nama_user
     FROM transaksi t
@@ -26,7 +23,6 @@ if (!$transaksi) {
     die("Transaksi tidak ditemukan!");
 }
 
-// Ambil detail transaksi
 $detail = mysqli_query($conn, "
     SELECT td.*, l.nama_lapangan
     FROM transaksi_detail td
