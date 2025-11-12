@@ -20,7 +20,7 @@ $result = mysqli_query($conn, "SELECT * FROM lapangan ORDER BY id ASC");
   <header>
     <nav class="nav">
       <div class="logo-container">
-        <a href="../index.php" class="logo-text">
+        <a href="company.php" class="logo-text">
           <img src="../assets/image/logo.png" alt="ZonaFutsal Logo" class="logo-img">
           ZOFA
         </a>
@@ -72,8 +72,8 @@ $result = mysqli_query($conn, "SELECT * FROM lapangan ORDER BY id ASC");
               <h3><?= htmlspecialchars($row['nama_lapangan']); ?></h3>
 
               <p>
-                <!-- <b>Harga Pagi:</b> Rp <?= number_format($row['harga_pagi'], 0, ',', '.'); ?><br>
-                <b>Harga Malam:</b> Rp <?= number_format($row['harga_malam'], 0, ',', '.'); ?> -->
+                <b>Pagi:</b> Rp <?= number_format($row['harga_pagi'], 0, ',', '.'); ?>/
+                <b>Malam:</b> Rp <?= number_format($row['harga_malam'], 0, ',', '.'); ?>
               </p>
 
               <a href="booking.php?id=<?= urlencode($row['id']); ?>" class="btn-book">Booking</a>

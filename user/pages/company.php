@@ -11,7 +11,7 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tentang Perusahaan | ZonaFutsal</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/style.css?v=<?php echo filemtime('../assets/css/style.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/company.css?v=<?php echo filemtime('../assets/css/company.css'); ?>">
 </head>
 
 <body>
@@ -19,8 +19,8 @@ session_start();
         <nav class="nav">
             <div class="logo-container">
                 <a href="company.php" class="logo-text">
-                    <img src="../assets/image/logo_orange.png" alt="ZonaFutsal Logo" class="logo-img">
-                    ZonaFutsal
+                    <img src="../assets/image/logo.png" alt="ZonaFutsal Logo" class="logo-img">
+                    ZOFA
                 </a>
             </div>
             <div class="sub-container">

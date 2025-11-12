@@ -13,7 +13,7 @@ $query = "SELECT e.*, k.nama as kategori_nama
           FROM event e 
           LEFT JOIN kategori k ON e.kategori_id = k.id 
           WHERE e.id = ?";
-          
+
 $stmt = $conn->prepare($query);
 $stmt->bind_param("s", $id);
 $stmt->execute();
@@ -49,7 +49,8 @@ if (strtotime($current_date) < strtotime($event['tanggal_mulai'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($event['nama_event']) ?> - Detail Event</title>
+    <title><?= htmlspecialchars($event['nama_event'] ?? '') ?> - Detail Event</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/event.css?v=<?php echo filemtime('../assets/css/event.css'); ?>">
     <style>
@@ -63,7 +64,7 @@ if (strtotime($current_date) < strtotime($event['tanggal_mulai'])) {
         .event-detail {
             background: #fff;
             border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
@@ -89,9 +90,17 @@ if (strtotime($current_date) < strtotime($event['tanggal_mulai'])) {
             font-weight: 500;
         }
 
-        .event-status-badge.upcoming { background-color: #2196F3; }
-        .event-status-badge.ongoing { background-color: #4CAF50; }
-        .event-status-badge.ended { background-color: #757575; }
+        .event-status-badge.upcoming {
+            background-color: #2196F3;
+        }
+
+        .event-status-badge.ongoing {
+            background-color: #4CAF50;
+        }
+
+        .event-status-badge.ended {
+            background-color: #757575;
+        }
 
         .event-content {
             padding: 30px;
@@ -195,18 +204,19 @@ if (strtotime($current_date) < strtotime($event['tanggal_mulai'])) {
 
         <div class="event-detail">
             <div class="event-header">
-                <img src="<?= !empty($event['foto']) ? "../../uploads/event/{$event['foto']}" : "../assets/image/default-event.jpg" ?>" 
-                     alt="<?= htmlspecialchars($event['nama_event']) ?>">
+                <img src="<?= !empty($event['foto']) ? "../../uploads/event/{$event['foto']}" : "../assets/image/default-event.jpg" ?>"
+                    alt="<?= htmlspecialchars($event['nama_event'] ?? '') ?>">
+
                 <span class="event-status-badge <?= $status_class ?>"><?= $status ?></span>
             </div>
 
             <div class="event-content">
-                <h1 class="event-title"><?= htmlspecialchars($event['nama_event']) ?></h1>
+                <h1 class="event-title"><?= htmlspecialchars($event['nama_event'] ?? '') ?></h1>
 
                 <div class="event-meta-detail">
                     <div class="meta-item">
                         <span class="meta-label">Kategori</span>
-                        <span class="meta-value">🏷️ <?= htmlspecialchars($event['kategori_nama']) ?></span>
+                        <span class="meta-value">🏷️ <?= htmlspecialchars($event['kategori_nama'] ?? '') ?></span>
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">Tanggal Mulai</span>
@@ -221,10 +231,10 @@ if (strtotime($current_date) < strtotime($event['tanggal_mulai'])) {
                         <span class="meta-value"><?= $status ?></span>
                     </div>
                 </div>
-
                 <div class="event-description">
-                    <?= nl2br(htmlspecialchars($event['deskripsi'])) ?>
+                    <?= nl2br(htmlspecialchars($event['deskripsi'] ?? 'Tidak ada deskripsi.')) ?>
                 </div>
+
             </div>
         </div>
     </div>

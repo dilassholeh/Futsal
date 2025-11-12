@@ -4,7 +4,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,64 +18,80 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <img src="../assets/image/logo.png" alt="Logo" class="logo-img">
             <h2>ZOFA</h2>
         </div>
-        <button id="toggle-btn"><i class='bx bx-chevron-left'></i></button>
 
         <nav class="menu">
             <a href="dashboard.php" class="<?php echo ($current_page == 'dashboard.php') ? 'active' : ''; ?>">
-                <i class='bx bxs-dashboard'></i> <span>Dashboard</span>
-            </a>
-            <a href="../../user/index.php" target="_blank">
-                <i class='bx bx-globe'></i> <span>Lihat Website</span>
-            </a>
-            <a href="transaksi.php" class="<?php echo ($current_page == 'transaksi.php') ? 'active' : ''; ?>">
-                <i class='bx bx-transfer-alt'></i> <span>Transaksi</span>
-            </a>
-            <a href="lapangan.php" class="<?php echo ($current_page == 'lapangan.php') ? 'active' : ''; ?>">
-                <i class='bx bx-football'></i> <span>Lapangan</span>
-            </a>
-            <a href="slider.php" class="<?php echo ($current_page == 'slider.php') ? 'active' : ''; ?>">
-                <i class='bx bx-slideshow'></i> <span>Slider</span>
-            </a>
-            <a href="event.php" class="<?php echo ($current_page == 'event.php') ? 'active' : ''; ?>">
-                <i class='bx bx-calendar-event'></i> <span>Event</span>
-            </a>
-              <a href="kategori.php" class="<?php echo ($current_page == 'kategori.php') ? 'active' : ''; ?>">
-                <i class='bx bx-category'></i> <span>Kategori</span>
-            </a>
-            <a href="user.php" class="<?php echo ($current_page == 'user.php') ? 'active' : ''; ?>">
-                <i class='bx bx-group'></i> <span>User</span>
+                <i class='bx bxs-dashboard'></i><span>Dashboard</span>
             </a>
 
-            <a href="bank.php" class="<?php echo ($current_page == 'bank.php') ? 'active' : ''; ?>">
-                <i class='bx bxs-bank'></i> <span>Bank</span>
+            <a href="../../user/index.php" target="_blank">
+                <i class='bx bx-globe'></i><span>Lihat Website</span>
+            </a>
+
+            <div class="menu-group <?php echo in_array($current_page, ['lapangan.php','kategori.php','event.php','slider.php']) ? 'open' : ''; ?>">
+                <div class="group-header">
+                    <div class="left">
+                        <i class='bx bx-football'></i>
+                        <span>Lapangan</span>
+                    </div>
+                    <i class='bx bx-chevron-down arrow'></i>
+                </div>
+                <div class="submenu">
+                    <a href="lapangan.php" class="<?php echo ($current_page == 'lapangan.php') ? 'active' : ''; ?>">
+                        <i class='bx bx-square'></i><span>Lapangan</span>
+                    </a>
+                    <a href="kategori.php" class="<?php echo ($current_page == 'kategori.php') ? 'active' : ''; ?>">
+                        <i class='bx bx-category'></i><span>Kategori</span>
+                    </a>
+                    <a href="event.php" class="<?php echo ($current_page == 'event.php') ? 'active' : ''; ?>">
+                        <i class='bx bx-calendar-event'></i><span>Event</span>
+                    </a>
+                    <a href="slider.php" class="<?php echo ($current_page == 'slider.php') ? 'active' : ''; ?>">
+                        <i class='bx bx-slideshow'></i><span>Slider</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="menu-group <?php echo in_array($current_page, ['transaksi.php','bank.php','keuangan.php']) ? 'open' : ''; ?>">
+                <div class="group-header">
+                    <div class="left">
+                        <i class='bx bx-wallet'></i>
+                        <span>Keuangan</span>
+                    </div>
+                    <i class='bx bx-chevron-down arrow'></i>
+                </div>
+                <div class="submenu">
+                    <a href="transaksi.php" class="<?php echo ($current_page == 'transaksi.php') ? 'active' : ''; ?>">
+                        <i class='bx bx-transfer-alt'></i><span>Transaksi</span>
+                    </a>
+                    <a href="bank.php" class="<?php echo ($current_page == 'bank.php') ? 'active' : ''; ?>">
+                        <i class='bx bxs-bank'></i><span>Bank</span>
+                    </a>
+                    <a href="keuangan.php" class="<?php echo ($current_page == 'keuangan.php') ? 'active' : ''; ?>">
+                        <i class='bx bx-bar-chart-alt-2'></i><span>Laporan Keuangan</span>
+                    </a>
+                </div>
+            </div>
+
+            <a href="user.php" class="<?php echo ($current_page == 'user.php') ? 'active' : ''; ?>">
+                <i class='bx bx-group'></i><span>User</span>
             </a>
 
             <div class="log">
                 <a href="../logout.php">
-                    <i class='bx bx-log-out'></i> <span>Logout</span>
+                    <i class='bx bx-log-out'></i><span>Logout</span>
                 </a>
             </div>
         </nav>
     </aside>
 
     <script>
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('toggle-btn');
-        const toggleIcon = toggleBtn.querySelector('i');
-
-        if (localStorage.getItem('sidebar-collapsed') === 'true') {
-            sidebar.classList.add('collapsed');
-            toggleIcon.classList.replace('bx-chevron-left', 'bx-chevron-right');
-        }
-
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-            const collapsed = sidebar.classList.contains('collapsed');
-            localStorage.setItem('sidebar-collapsed', collapsed);
-            toggleIcon.classList.toggle('bx-chevron-left', !collapsed);
-            toggleIcon.classList.toggle('bx-chevron-right', collapsed);
+        document.querySelectorAll('.group-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const group = header.parentElement;
+                group.classList.toggle('open');
+            });
         });
     </script>
 </body>
-
 </html>

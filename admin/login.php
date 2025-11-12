@@ -3,10 +3,9 @@ session_start();
 include '../includes/koneksi.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
 
-    
     $query = $conn->prepare("SELECT * FROM user WHERE username = ?");
     $query->bind_param("s", $username);
     $query->execute();
@@ -14,25 +13,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = $result->fetch_assoc();
 
     if ($data) {
-        
-        if ($password === $data['password']) {
-            
-            $_SESSION['admin_id'] = $data['id'];
-            $_SESSION['admin_nama'] = $data['name'];
-            $_SESSION['admin_username'] = $data['username'];
-            $_SESSION['admin_nohp'] = $data['no_hp'];
-
-            header("Location: ./pages/dashboard.php");
-
-            exit;
+        if ($data['id_grup'] !== '00001') {
+            echo "<script>alert('Akses ditolak! Hanya admin yang bisa login di halaman ini.');</script>";
         } else {
-            echo "<script>alert('Password salah!');</script>";
+            if (password_verify($password, $data['password']) || $password === $data['password']) {
+                $_SESSION['admin_id'] = $data['id'];
+                $_SESSION['admin_nama'] = $data['name'];
+                $_SESSION['admin_username'] = $data['username'];
+                $_SESSION['admin_nohp'] = $data['no_hp'];
+                $_SESSION['admin_grup'] = $data['id_grup'];
+
+                header("Location: ./pages/dashboard.php");
+                exit;
+            } else {
+                echo "<script>alert('Password salah!');</script>";
+            }
         }
     } else {
         echo "<script>alert('Username tidak ditemukan!');</script>";
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="id">
