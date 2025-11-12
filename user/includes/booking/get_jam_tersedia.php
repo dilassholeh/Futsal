@@ -35,4 +35,4 @@ while ($row = mysqli_fetch_assoc($result)) {
 $available = array_values(array_diff($allJam, $bookedJam));
 
 echo json_encode($available);
-?> -->
+?> 

@@ -1,5 +1,6 @@
 <?php
 include '../../../includes/koneksi.php';
+date_default_timezone_set('Asia/Jakarta');
 
 $id_lapangan = $_GET['lapangan_id'] ?? '';
 $tanggal = $_GET['tanggal'] ?? '';
@@ -11,7 +12,7 @@ if (empty($id_lapangan) || empty($tanggal)) {
 $all_slots = [];
 $q_all = $conn->query("SELECT jam FROM jam ORDER BY jam ASC");
 while ($row = $q_all->fetch_assoc()) {
-    $all_slots[] = substr($row['jam'], 0, 5);
+    $all_slots[] = str_pad(substr($row['jam'], 0, 5), 5, '0', STR_PAD_LEFT);
 }
 
 $sql = "
@@ -36,17 +37,14 @@ while ($r = $res->fetch_assoc()) {
     ];
 }
 
-
 $available_slots = array_filter($all_slots, function($slot) use ($booked_slots) {
     foreach ($booked_slots as $b) {
         if ($slot >= $b['jam_mulai'] && $slot < $b['jam_selesai']) {
             return false;
-
         }
     }
     return true;
 });
-
 
 $today = date('Y-m-d');
 $currentHour = date('H:i');
@@ -61,7 +59,5 @@ if (empty($available_slots)) {
     exit;
 }
 
-// Kirim hasil
 echo json_encode(array_values($available_slots));
 ?>
-

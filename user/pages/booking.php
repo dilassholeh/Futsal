@@ -30,10 +30,7 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
     <h2>Booking Lapangan: <?= htmlspecialchars($lapangan['nama_lapangan']); ?></h2>
 
     <form action="../includes/booking/invoice_redirect.php" method="POST">
-<<<<<<< HEAD
-=======
 
->>>>>>> eb5d623141e5a5ebeed802122f20c580a2280be0
       <table>
         <thead>
           <tr>
@@ -52,10 +49,7 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
             <td id="harga">Rp 0</td>
             <td>
               <input type="date" id="tanggal" name="tanggal" min="<?= date('Y-m-d'); ?>" required>
-<<<<<<< HEAD
-=======
 
->>>>>>> eb5d623141e5a5ebeed802122f20c580a2280be0
             </td>
             <td>
               <select id="jamMulai" name="jam_mulai" required>
@@ -96,120 +90,87 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
       </div>
     </form>
   </div>
-<<<<<<< HEAD
-=======
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const lapanganId = "<?= $lapangan['id']; ?>";
-      const tanggalInput = document.getElementById('tanggal');
-      const jamSelect = document.getElementById('jamMulai');
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const hargaPagi = <?= (int)$lapangan['harga_pagi']; ?>;
+    const hargaMalam = <?= (int)$lapangan['harga_malam']; ?>;
+    const hargaDisplay = document.getElementById('harga');
+    const totalDisplay = document.getElementById('total');
+    const subtotalDisplay = document.getElementById('subtotal');
+    const grandDisplay = document.getElementById('grandtotal');
+    const hargaValue = document.getElementById('hargaValue');
+    const totalValue = document.getElementById('totalValue');
+    const jamMulai = document.getElementById('jamMulai');
+    const durasi = document.getElementById('durasi');
+    const jamSelesai = document.getElementById('jamSelesai');
+    const jamMulaiValue = document.getElementById('jamMulaiValue');
+    const durasiValue = document.getElementById('durasiValue');
+    const jamSelesaiValue = document.getElementById('jamSelesaiValue');
 
-      
-      function loadJamTersedia() {
-        const tanggal = tanggalInput.value;
-        if (!lapanganId || !tanggal) return;
+    const lapanganId = "<?= $lapangan['id']; ?>";
+    const tanggalInput = document.getElementById('tanggal');
 
-        fetch('../includes/booking/get_available_jam.php?lapangan_id=${lapanganId}&tanggal=${tanggal}')
-          .then(res => res.json())
-          .then(data => {
-            jamSelect.innerHTML = '<option selected disabled>- Pilih Jam -</option>';
-            data.forEach(j => {
-              const opt = document.createElement('option');
-              opt.value = j;
-              opt.textContent = j;
-              jamSelect.appendChild(opt);
-            });
-          })
-          .catch(err => console.error('Error memuat jam:', err));
-      }
+    function hitung() {
+      const jm = jamMulai.value;
+      const dr = parseInt(durasi.value);
+      if (!jm || isNaN(dr)) return;
 
-      tanggalInput.addEventListener('change', loadJamTersedia);
-    });
-  </script>
+      const jamMulaiInt = parseInt(jm.split(':')[0]);
+      const jamSelesaiInt = jamMulaiInt + dr;
+      const jamSelesaiStr = (jamSelesaiInt < 10 ? '0' : '') + jamSelesaiInt + ':00';
+      jamSelesai.textContent = jamSelesaiStr;
+      jamSelesaiValue.value = jamSelesaiStr;
 
-</body>
->>>>>>> eb5d623141e5a5ebeed802122f20c580a2280be0
+      const hargaPerJam = jamMulaiInt < 18 ? hargaPagi : hargaMalam;
+      hargaDisplay.textContent = 'Rp ' + hargaPerJam.toLocaleString('id-ID');
+      hargaValue.value = hargaPerJam;
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const hargaPagi = <?= (int)$lapangan['harga_pagi']; ?>;
-      const hargaMalam = <?= (int)$lapangan['harga_malam']; ?>;
-      const hargaDisplay = document.getElementById('harga');
-      const totalDisplay = document.getElementById('total');
-      const subtotalDisplay = document.getElementById('subtotal');
-      const grandDisplay = document.getElementById('grandtotal');
-      const hargaValue = document.getElementById('hargaValue');
-      const totalValue = document.getElementById('totalValue');
-      const jamMulai = document.getElementById('jamMulai');
-      const durasi = document.getElementById('durasi');
-      const jamSelesai = document.getElementById('jamSelesai');
-      const jamMulaiValue = document.getElementById('jamMulaiValue');
-      const durasiValue = document.getElementById('durasiValue');
-      const jamSelesaiValue = document.getElementById('jamSelesaiValue');
+      const total = hargaPerJam * dr;
+      totalDisplay.textContent = 'Rp ' + total.toLocaleString('id-ID');
+      subtotalDisplay.textContent = 'Rp ' + total.toLocaleString('id-ID');
+      grandDisplay.textContent = 'Rp ' + total.toLocaleString('id-ID');
+      totalValue.value = total;
 
-      const lapanganId = "<?= $lapangan['id']; ?>";
-      const tanggalInput = document.getElementById('tanggal');
+      jamMulaiValue.value = jm;
+      durasiValue.value = dr;
+    }
 
-      function hitung() {
-        const jm = jamMulai.value;
-        const dr = parseInt(durasi.value);
-        if (!jm || isNaN(dr)) return;
+    function loadJamTersedia() {
+      const tanggal = tanggalInput.value;
+      if (!lapanganId || !tanggal) return;
 
-        const jamMulaiInt = parseInt(jm.split(':')[0]);
-        const jamSelesaiInt = jamMulaiInt + dr;
-        const jamSelesaiStr = (jamSelesaiInt < 10 ? '0' : '') + jamSelesaiInt + ':00';
-        jamSelesai.textContent = jamSelesaiStr;
-        jamSelesaiValue.value = jamSelesaiStr;
+      jamMulai.innerHTML = '<option selected disabled>Memuat jam...</option>';
 
-        const hargaPerJam = jamMulaiInt < 18 ? hargaPagi : hargaMalam;
-        hargaDisplay.textContent = 'Rp ' + hargaPerJam.toLocaleString('id-ID');
-        hargaValue.value = hargaPerJam;
-
-        const total = hargaPerJam * dr;
-        totalDisplay.textContent = 'Rp ' + total.toLocaleString('id-ID');
-        subtotalDisplay.textContent = 'Rp ' + total.toLocaleString('id-ID');
-        grandDisplay.textContent = 'Rp ' + total.toLocaleString('id-ID');
-        totalValue.value = total;
-
-        jamMulaiValue.value = jm;
-        durasiValue.value = dr;
-      }
-
-      function loadJamTersedia() {
-        const tanggal = tanggalInput.value;
-        if (!lapanganId || !tanggal) return;
-
-        jamMulai.innerHTML = '<option selected disabled>Memuat jam...</option>';
-
-        fetch(`../includes/booking/get_available_jam.php?lapangan_id=${lapanganId}&tanggal=${tanggal}`)
-          .then(res => res.json())
-          .then(data => {
-            jamMulai.innerHTML = '<option selected disabled>- Pilih Jam -</option>';
-            if (data.length === 0) {
-              const opt = document.createElement('option');
-              opt.disabled = true;
-              opt.textContent = 'Semua jam sudah penuh';
-              jamMulai.appendChild(opt);
-              return;
-            }
-            data.forEach(j => {
-              const opt = document.createElement('option');
-              opt.value = j;
-              opt.textContent = j;
-              jamMulai.appendChild(opt);
-            });
-          })
-          .catch(err => {
-            console.error('Error memuat jam:', err);
-            jamMulai.innerHTML = '<option disabled>Gagal memuat jam</option>';
+      fetch(`../includes/booking/get_available_jam.php?lapangan_id=${lapanganId}&tanggal=${tanggal}`)
+        .then(res => res.json())
+        .then(data => {
+          jamMulai.innerHTML = '<option selected disabled>- Pilih Jam -</option>';
+          if (data.length === 0) {
+            const opt = document.createElement('option');
+            opt.disabled = true;
+            opt.textContent = 'Semua jam sudah penuh';
+            jamMulai.appendChild(opt);
+            return;
+          }
+          data.forEach(j => {
+            const opt = document.createElement('option');
+            opt.value = j;
+            opt.textContent = j;
+            jamMulai.appendChild(opt);
           });
-      }
+        })
+        .catch(err => {
+          console.error('Error memuat jam:', err);
+          jamMulai.innerHTML = '<option disabled>Gagal memuat jam</option>';
+        });
+    }
 
-      tanggalInput.addEventListener('change', loadJamTersedia);
-      jamMulai.addEventListener('change', hitung);
-      durasi.addEventListener('input', hitung);
-    });
-  </script>
+    tanggalInput.addEventListener('change', loadJamTersedia);
+    jamMulai.addEventListener('change', hitung);
+    durasi.addEventListener('input', hitung);
+  });
+</script>
+
 </body>
 </html>
