@@ -14,4 +14,8 @@ $_SESSION['booking'] = [
 ];
 
 header("Location: ../../pages/invoice.php");
+<<<<<<< HEAD
 exit;
+=======
+exit;
+>>>>>>> eb5d623141e5a5ebeed802122f20c580a2280be0

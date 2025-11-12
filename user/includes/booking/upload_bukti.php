@@ -2,10 +2,12 @@
 session_start();
 include '../../../includes/koneksi.php';
 
+// 🔒 Pastikan user login
 if (!isset($_SESSION['user_id'])) {
     die("User belum login!");
 }
 
+// 🔒 Pastikan ada file bukti yang diupload
 if (!isset($_FILES['bukti'])) {
     die("Tidak ada file yang diupload!");
 }

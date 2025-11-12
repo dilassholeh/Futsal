@@ -30,6 +30,10 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
     <h2>Booking Lapangan: <?= htmlspecialchars($lapangan['nama_lapangan']); ?></h2>
 
     <form action="../includes/booking/invoice_redirect.php" method="POST">
+<<<<<<< HEAD
+=======
+
+>>>>>>> eb5d623141e5a5ebeed802122f20c580a2280be0
       <table>
         <thead>
           <tr>
@@ -48,6 +52,10 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
             <td id="harga">Rp 0</td>
             <td>
               <input type="date" id="tanggal" name="tanggal" min="<?= date('Y-m-d'); ?>" required>
+<<<<<<< HEAD
+=======
+
+>>>>>>> eb5d623141e5a5ebeed802122f20c580a2280be0
             </td>
             <td>
               <select id="jamMulai" name="jam_mulai" required>
@@ -88,6 +96,40 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
       </div>
     </form>
   </div>
+<<<<<<< HEAD
+=======
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const lapanganId = "<?= $lapangan['id']; ?>";
+      const tanggalInput = document.getElementById('tanggal');
+      const jamSelect = document.getElementById('jamMulai');
+
+      
+      function loadJamTersedia() {
+        const tanggal = tanggalInput.value;
+        if (!lapanganId || !tanggal) return;
+
+        fetch('../includes/booking/get_available_jam.php?lapangan_id=${lapanganId}&tanggal=${tanggal}')
+          .then(res => res.json())
+          .then(data => {
+            jamSelect.innerHTML = '<option selected disabled>- Pilih Jam -</option>';
+            data.forEach(j => {
+              const opt = document.createElement('option');
+              opt.value = j;
+              opt.textContent = j;
+              jamSelect.appendChild(opt);
+            });
+          })
+          .catch(err => console.error('Error memuat jam:', err));
+      }
+
+      tanggalInput.addEventListener('change', loadJamTersedia);
+    });
+  </script>
+
+</body>
+>>>>>>> eb5d623141e5a5ebeed802122f20c580a2280be0
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {

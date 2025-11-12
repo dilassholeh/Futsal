@@ -36,15 +36,17 @@ while ($r = $res->fetch_assoc()) {
     ];
 }
 
-// Filter slot yang masih tersedia
+
 $available_slots = array_filter($all_slots, function($slot) use ($booked_slots) {
     foreach ($booked_slots as $b) {
         if ($slot >= $b['jam_mulai'] && $slot < $b['jam_selesai']) {
             return false;
+
         }
     }
     return true;
 });
+
 
 $today = date('Y-m-d');
 $currentHour = date('H:i');
@@ -62,3 +64,4 @@ if (empty($available_slots)) {
 // Kirim hasil
 echo json_encode(array_values($available_slots));
 ?>
+

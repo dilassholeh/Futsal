@@ -1,6 +1,10 @@
 <?php
+<<<<<<< HEAD
 // keuangan.php
 include '../../includes/koneksi.php'; // opsional kalau kamu sudah punya koneksi database
+=======
+include '../../includes/koneksi.php'; 
+>>>>>>> eb5d623141e5a5ebeed802122f20c580a2280be0
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 
@@ -182,7 +186,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </div>
         </div>
 
+<<<<<<< HEAD
         <!-- TAB 2: LAPORAN BULANAN -->
+=======
+>>>>>>> eb5d623141e5a5ebeed802122f20c580a2280be0
         <div class="tab-content" id="bulanan">
             <h2>📊 Laporan Bulanan</h2>
             <?php
@@ -216,7 +223,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </table>
         </div>
 
+<<<<<<< HEAD
         <!-- TAB 3: GRAFIK KEUANGAN -->
+=======
+>>>>>>> eb5d623141e5a5ebeed802122f20c580a2280be0
         <div class="tab-content" id="grafik">
             <h2>📈 Grafik Arus Kas</h2>
             <canvas id="financeChart"></canvas>
@@ -224,7 +234,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </main>
 
     <script>
+<<<<<<< HEAD
         // Tab functionality
+=======
+>>>>>>> eb5d623141e5a5ebeed802122f20c580a2280be0
         const buttons = document.querySelectorAll('.tab-btn');
         const contents = document.querySelectorAll('.tab-content');
         buttons.forEach(btn => {

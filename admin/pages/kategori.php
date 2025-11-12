@@ -24,10 +24,8 @@ if (!isset($_SESSION['admin_id'])) {
   <main class="main">
     <div class="header">
       <div class="header-left">
-        <div class="search-box">
-          <input type="text" id="searchInput" placeholder="Cari...">
-          <i class='bx bx-search'></i>
-        </div>
+        <h1>Data Kategori</h1>
+      
       </div>
       <div class="header-right">
         <div class="notif"><i class='bx bxs-bell'></i></div>
@@ -41,7 +39,10 @@ if (!isset($_SESSION['admin_id'])) {
 
     <div class="latar">
       <div class="table-actions">
-        <h1>Data Kategori</h1>
+          <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Cari...">
+          <i class='bx bx-search'></i>
+        </div>
         <button class="btn-tambah" id="openAddModal"><i class='bx bx-plus'></i>Tambah</button>
       </div>
 
