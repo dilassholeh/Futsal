@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <section class="form-section-register">
         <div class="logo-register">
-            <img src="./assets/image/logo_orange.png" alt="Logo Sport Club">
+            <img src="./assets/image/logo.png" alt="Logo Sport Club">
         </div>
 
         <h1>Daftar Akun</h1>

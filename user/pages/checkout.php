@@ -9,7 +9,6 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-
 if (isset($_POST['selected_ids']) && !empty($_POST['selected_ids'])) {
     $selected_ids = array_map('intval', $_POST['selected_ids']);
     $id_list = implode(',', $selected_ids);
@@ -37,7 +36,6 @@ if (mysqli_num_rows($query) === 0) {
     </p>");
 }
 
-
 $totalKeseluruhan = 0;
 $keranjang = [];
 while ($row = mysqli_fetch_assoc($query)) {
@@ -51,116 +49,106 @@ while ($b = mysqli_fetch_assoc($bankQuery)) {
     $banks[] = $b;
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <title>Checkout Booking | ZonaFutsal</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f8f8f8;
-            padding: 20px;
-        }
-
-        .invoice-box {
-            background: #fff;
-            padding: 25px;
-            border-radius: 8px;
-            max-width: 850px;
-            margin: auto;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 25px;
-        }
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-        }
-
-        th {
-            background: #007bff;
-            color: white;
-        }
-
-        tr:nth-child(even) {
-            background: #f9f9f9;
-        }
-
-        .total-box {
-            background: #f4f4f4;
-            padding: 12px 15px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 6px;
-            text-align: right;
-            margin-bottom: 25px;
-        }
-
-        .bank-box {
-            background: #eef6ff;
-            padding: 15px;
-            border-left: 5px solid #007bff;
-            border-radius: 6px;
-            margin-bottom: 25px;
-        }
-
-        .upload-box {
-            border: 2px dashed #aaa;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        button {
-            background: #28a745;
-            padding: 12px 25px;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 6px;
-            font-size: 16px;
-        }
-
-        button:hover {
-            opacity: 0.9;
-        }
-
-        .back-btn {
-            background: #dc3545;
-            margin-top: 10px;
-        }
-
-        ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-
-        li {
-            margin-bottom: 10px;
-        }
-
-        .no-bank {
-            color: #777;
-            font-style: italic;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Checkout Booking | ZonaFutsal</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+.invoice-box {
+    background: #fff;
+    border-radius: 20px;
+    max-width: 900px;
+    width: 100%;
+    padding: 30px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+}
+h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #27ae60;
+    font-size: 28px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 25px;
+}
+th, td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+th {
+    background-color: #27ae60;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) { background: #f2f9f2; }
+.total-box {
+    background: #eafaf1;
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 10px;
+    text-align: right;
+    margin-bottom: 25px;
+}
+.bank-box {
+    background: #eafaf1;
+    padding: 20px;
+    border-left: 5px solid #27ae60;
+    border-radius: 12px;
+    margin-bottom: 25px;
+}
+.upload-box {
+    border: 2px dashed #aaa;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 20px;
+    background: #f9fff9;
+}
+button {
+    background: #27ae60;
+    padding: 12px 25px;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    margin-right: 10px;
+    transition: 0.2s;
+}
+button:hover { background: #1e8449; }
+.back-btn { background: #c0392b; }
+.back-btn:hover { background: #922b21; }
+ul { list-style: none; padding-left: 0; }
+li { margin-bottom: 10px; }
+.no-bank { color: #555; font-style: italic; }
+@media(max-width: 768px){
+    .invoice-box { padding: 20px; }
+    th, td { padding: 8px; font-size: 14px; }
+    .total-box { font-size: 16px; }
+}
+</style>
 </head>
 <body>
 
 <div class="invoice-box">
-    <h2>Invoice Booking Lapangan</h2>
+    <h2>Checkout Booking Lapangan</h2>
 
     <table>
         <tr>
@@ -201,7 +189,6 @@ while ($b = mysqli_fetch_assoc($bankQuery)) {
         <?php else: ?>
             <p class="no-bank">Belum ada data rekening bank yang tersedia.</p>
         <?php endif; ?>
-
         <p><em>Setelah transfer, unggah bukti pembayaran di bawah ini.</em></p>
     </div>
 
@@ -216,10 +203,7 @@ while ($b = mysqli_fetch_assoc($bankQuery)) {
         <?php endforeach; ?>
 
         <button type="submit">Kirim Bukti Pembayaran</button>
-    </form>
-
-    <form action="keranjang.php" method="get">
-        <button type="submit" class="back-btn">Kembali ke Keranjang</button>
+        <a href="keranjang.php"><button type="button" class="back-btn">Kembali ke Keranjang</button></a>
     </form>
 </div>
 

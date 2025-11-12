@@ -3,7 +3,6 @@ include '../../../includes/koneksi.php';
 
 session_start();
 
-// Pastikan user sudah login
 if (!isset($_SESSION['user_id'])) {
     echo json_encode([
         'status' => 'error',
@@ -12,7 +11,6 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Ambil data dari form (POST)
 $user_id = $_SESSION['user_id'];
 $id_lapangan = mysqli_real_escape_string($conn, $_POST['lapangan_id']);
 $tanggal = mysqli_real_escape_string($conn, $_POST['tanggal']);
@@ -23,7 +21,6 @@ $harga_jual = (float)$_POST['harga'];
 $total = (float)$_POST['total'];
 $catatan = mysqli_real_escape_string($conn, $_POST['catatan'] ?? '');
 
-// Cek kelengkapan data
 if (empty($id_lapangan) || empty($tanggal) || empty($jam_mulai) || empty($jam_selesai) || $durasi <= 0 || $harga_jual <= 0) {
     echo json_encode([
         'status' => 'error',
@@ -32,7 +29,6 @@ if (empty($id_lapangan) || empty($tanggal) || empty($jam_mulai) || empty($jam_se
     exit;
 }
 
-// Cek apakah jam yang dipilih sudah dipesan di tanggal & lapangan sama
 $cek = mysqli_query($conn, "
     SELECT * FROM keranjang 
     WHERE id_lapangan = '$id_lapangan' 
@@ -50,7 +46,6 @@ if (mysqli_num_rows($cek) > 0) {
     exit;
 }
 
-// Generate ID unik (misalnya: KER001, KER002, dst)
 $q_last = mysqli_query($conn, "SELECT id FROM keranjang ORDER BY id DESC LIMIT 1");
 if (mysqli_num_rows($q_last) > 0) {
     $last_id = mysqli_fetch_assoc($q_last)['id'];
@@ -60,7 +55,6 @@ if (mysqli_num_rows($q_last) > 0) {
     $new_id = 'KER001';
 }
 
-// Simpan ke tabel keranjang
 $query = mysqli_query($conn, "
     INSERT INTO keranjang (id, user_id, id_lapangan, tanggal, jam_mulai, jam_selesai, durasi, harga_jual, total, catatan)
     VALUES ('$new_id', '$user_id', '$id_lapangan', '$tanggal', '$jam_mulai', '$jam_selesai', '$durasi', '$harga_jual', '$total', '$catatan')

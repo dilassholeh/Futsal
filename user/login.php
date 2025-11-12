@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <section class="form-section-login">
         <div class="logo-login">
-            <img src="./assets/image/logo_orange.png" alt="Logo Sport Club">
+            <img src="./assets/image/logo.png" alt="Logo Sport Club">
         </div>
 
         <h1>Masuk Akun</h1>

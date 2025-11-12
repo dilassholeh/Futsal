@@ -18,7 +18,7 @@
       background: #fff;
       border: 1px solid #ccc;
       padding: 25px 30px;
-      border-radius: 10px;
+      border-radius: 2px;
       width: 350px;
       text-align: center;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -44,7 +44,7 @@
       width: 100%;
       padding: 8px 35px 8px 10px;
       border: 1px solid #ccc;
-      border-radius: 25px;
+      border-radius: 10px;
       font-size: 14px;
   }
 
@@ -99,7 +99,7 @@
   }
 
   .extra-links-register a {
-      color: orange;
+      color: #006b1d;
       text-decoration: none;
   }
 
@@ -118,7 +118,7 @@
       background: #fff;
       border: 1px solid #ccc;
       padding: 25px 30px;
-      border-radius: 10px;
+      border-radius: 2px;
       width: 350px;
       text-align: center;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -131,7 +131,7 @@
 
   h1 {
       font-size: 20px;
-      color: orange;
+      color: #006b1d;
       margin-bottom: 15px;
   }
 
@@ -144,7 +144,7 @@
       width: 100%;
       padding: 8px 35px 8px 10px;
       border: 1px solid #ccc;
-      border-radius: 25px;
+      border-radius: 7px;
       font-size: 14px;
   }
 
@@ -163,7 +163,7 @@
       background: #333;
       color: #fff;
       border: none;
-      border-radius: 25px;
+      border-radius: 7px;
       padding: 8px;
       font-size: 14px;
       font-weight: 600;
@@ -199,6 +199,6 @@
   }
 
   .extra-links-login a {
-      color: orange;
+      color: #006b1d;
       text-decoration: none;
   }
