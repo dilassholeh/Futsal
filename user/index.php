@@ -16,6 +16,13 @@ if (empty($sliders)) {
         'foto' => 'assets/image/futsal.png'
     ];
 }
+$jumlahKeranjang = 0;
+if (isset($_SESSION['user_id'])) {
+  $user_id = $_SESSION['user_id'];
+  $queryCart = mysqli_query($conn, "SELECT COUNT(*) AS jumlah FROM keranjang WHERE user_id = '$user_id'");
+  $cartData = mysqli_fetch_assoc($queryCart);
+  $jumlahKeranjang = $cartData['jumlah'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -28,6 +35,39 @@ if (empty($sliders)) {
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="./assets/css/style.css?v=<?php echo filemtime('./assets/css/style.css'); ?>">
 </head>
+ <style>
+    .btn-cart {
+      display: inline-flex;
+      align-items: center;
+      color: #333;
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+      margin-left: 15px;
+      transition: 0.3s;
+    }
+
+    .btn-cart:hover {
+      color: #000;
+      text-decoration: underline;
+    }
+
+    .cart-count {
+      background: #dc3545;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 12px;
+      margin-left: 5px;
+      color: white;
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  </style>
 
 <body>
     <header>
@@ -39,26 +79,36 @@ if (empty($sliders)) {
                 </a>
             </div>
             <div class="sub-container">
-                <ul>
-                    <li><a href="index.php">Beranda</a></li>
-                    <li><a href="../user/pages/sewa.php" class="active">Penyewaan</a></li>
-                    <li><a href="../user/pages/event.php">Event</a></li>
-                </ul>
+        <ul>
+          <li><a href="index.php">Beranda</a></li>
+          <li><a href="../user/pages/sewa.php" class="active">Penyewaan</a></li>
+          <li><a href="../user/pages/event.php">Event</a></li>
 
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <div class="user-menu">
-                        <span class="user-name">👋 <?= htmlspecialchars($_SESSION['nama']); ?></span>
-                        <a href="../logout.php" class="btn-logout">Keluar</a>
-                    </div>
-                <?php else: ?>
-                    <a href="../login.php" class="btn-masuk">Masuk</a>
-                    <a href="../register.php" class="btn-daftar">Daftar</a>
+          <?php if (isset($_SESSION['user_id'])): ?>
+            <li>
+              <a href="../user/pages/keranjang.php" class="btn-cart">
+                🛒 Keranjang
+                <?php if ($jumlahKeranjang > 0): ?>
+                  <span class="cart-count"><?= $jumlahKeranjang; ?></span>
                 <?php endif; ?>
-            </div>
+              </a>
+            </li>
+          <?php endif; ?>
+        </ul>
+
+        <?php if (isset($_SESSION['user_id'])): ?>
+          <div class="user-menu">
+            <span class="user-name">👋 <?= htmlspecialchars($_SESSION['nama']); ?></span>
+            <a href="../logout.php" class="btn-logout">Keluar</a>
+          </div>
+        <?php else: ?>
+          <a href="../login.php" class="btn-masuk">Masuk</a>
+          <a href="../register.php" class="btn-daftar">Daftar</a>
+        <?php endif; ?>
+      </div>
         </nav>
     </header>
 
-    <!-- HERO -->
     <section class="hero" id="hero" style="background-image:url('<?= $sliders[0]['foto']; ?>');">
         <div class="hero-overlay"></div>
         <div class="hero-content container">
@@ -68,7 +118,6 @@ if (empty($sliders)) {
         </div>
     </section>
 
-   <!-- USER GUIDE -->
 <section class="user-guide container">
   <h2>User Guide for First Timer</h2>
   <div class="steps">
@@ -81,7 +130,6 @@ if (empty($sliders)) {
   </div>
 </section>
 
-<!-- TESTIMONIAL -->
 <section class="testimonial container">
   <h2>What Our Clients Say</h2>
   <div class="testi-grid">
@@ -96,7 +144,6 @@ if (empty($sliders)) {
   </div>
 </section>
 
-<!-- STATISTICS -->
 <section class="stats">
   <div class="stat-box">
     <div class="stat-number">10K+</div>
@@ -112,7 +159,6 @@ if (empty($sliders)) {
   </div>
 </section>
 
-<!-- BLOG -->
 <section class="blog-section container">
   <h2>Blog & Artikel</h2>
   <div class="blog-grid">
@@ -122,7 +168,6 @@ if (empty($sliders)) {
   </div>
 </section>
 
-<!-- SERVICES -->
 <section class="services container">
   <h2>Layanan Kami</h2>
   <div class="service-grid">

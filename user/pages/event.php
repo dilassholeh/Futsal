@@ -11,6 +11,14 @@ $query = "SELECT e.*, k.nama as kategori_nama
           WHERE e.tanggal_berakhir >= '$current_date'
           ORDER BY e.tanggal_mulai ASC";
 $result = $conn->query($query);
+
+$jumlahKeranjang = 0;
+if (isset($_SESSION['user_id'])) {
+  $user_id = $_SESSION['user_id'];
+  $queryCart = mysqli_query($conn, "SELECT COUNT(*) AS jumlah FROM keranjang WHERE user_id = '$user_id'");
+  $cartData = mysqli_fetch_assoc($queryCart);
+  $jumlahKeranjang = $cartData['jumlah'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -22,7 +30,39 @@ $result = $conn->query($query);
     <title>Event Futsal</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/event.css?v=<?php echo filemtime('../assets/css/event.css'); ?>">
+ <style>
+    .btn-cart {
+      display: inline-flex;
+      align-items: center;
+      color: #333;
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+      margin-left: 15px;
+      transition: 0.3s;
+    }
 
+    .btn-cart:hover {
+      color: #000;
+      text-decoration: underline;
+    }
+
+    .cart-count {
+      background: #dc3545;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 12px;
+      margin-left: 5px;
+      color: white;
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  </style>
 </head>
 
 <body>
@@ -34,23 +74,34 @@ $result = $conn->query($query);
                     ZOFA
                 </a>
             </div>
-            <div class="sub-container">
-                <ul>
-                    <li><a href="../index.php">Beranda</a></li>
-                    <li><a href="sewa.php">Penyewaan</a></li>
-                    <li><a href="event.php">Event</a></li>
-                </ul>
+           <div class="sub-container">
+        <ul>
+          <li><a href="../index.php">Beranda</a></li>
+          <li><a href="sewa.php" class="active">Penyewaan</a></li>
+          <li><a href="event.php">Event</a></li>
 
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <div class="user-menu">
-                        <span class="user-name">👋 <?= htmlspecialchars($_SESSION['nama']); ?></span>
-                        <a href="../logout.php" class="btn-logout">Keluar</a>
-                    </div>
-                <?php else: ?>
-                    <a href="../login.php" class="btn-masuk">Masuk</a>
-                    <a href="../register.php" class="btn-daftar">Daftar</a>
+          <?php if (isset($_SESSION['user_id'])): ?>
+            <li>
+              <a href="keranjang.php" class="btn-cart">
+                🛒 Keranjang
+                <?php if ($jumlahKeranjang > 0): ?>
+                  <span class="cart-count"><?= $jumlahKeranjang; ?></span>
                 <?php endif; ?>
-            </div>
+              </a>
+            </li>
+          <?php endif; ?>
+        </ul>
+
+        <?php if (isset($_SESSION['user_id'])): ?>
+          <div class="user-menu">
+            <span class="user-name">👋 <?= htmlspecialchars($_SESSION['nama']); ?></span>
+            <a href="../logout.php" class="btn-logout">Keluar</a>
+          </div>
+        <?php else: ?>
+          <a href="../login.php" class="btn-masuk">Masuk</a>
+          <a href="../register.php" class="btn-daftar">Daftar</a>
+        <?php endif; ?>
+      </div>
         </nav>
 
     </header>
