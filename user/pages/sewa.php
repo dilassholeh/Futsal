@@ -56,7 +56,26 @@ $result = mysqli_query($conn, "SELECT * FROM lapangan ORDER BY id ASC");
   <section class="container" id="lapangan">
     <h2 class="section-title">Daftar Lapangan</h2>
 
-    <div class="card-grid">
+    <!-- 🔍 Filter bar -->
+    <div class="filter-bar">
+      <form method="GET" action="sewa.php" class="filter-form">
+        <select name="jenis" class="filter-input">
+          <option value="">Semua Jenis</option>
+          <option value="indoor">Indoor</option>
+          <option value="outdoor">Outdoor</option>
+        </select>
+        <select name="waktu" class="filter-input">
+          <option value="">Semua Waktu</option>
+          <option value="pagi">Pagi</option>
+          <option value="malam">Malam</option>
+        </select>
+        <input type="text" name="cari" placeholder="Cari lapangan..." class="filter-search">
+        <button type="submit" class="filter-btn">Cari</button>
+      </form>
+    </div>
+
+    <!-- 🏟️ Grid Lapangan -->
+    <div class="card-grid fade-in">
       <?php
       if (mysqli_num_rows($result) > 0) {
         while ($row = mysqli_fetch_assoc($result)) {
@@ -66,26 +85,33 @@ $result = mysqli_query($conn, "SELECT * FROM lapangan ORDER BY id ASC");
           }
       ?>
           <div class="card">
-            <img src="<?= htmlspecialchars($fotoPath); ?>"
-              alt="<?= htmlspecialchars($row['nama_lapangan']); ?>">
+            <div class="card-img">
+              <img src="<?= htmlspecialchars($fotoPath); ?>" alt="<?= htmlspecialchars($row['nama_lapangan']); ?>">
+              <span class="lapangan-tag">
+                <?= strtoupper(htmlspecialchars($row['jenis'] ?? 'TIDAK DITENTUKAN')); ?>
+              </span>
+            </div>
             <div class="card-content">
               <h3><?= htmlspecialchars($row['nama_lapangan']); ?></h3>
+              <p class="card-desc"><?= htmlspecialchars($row['deskripsi'] ?? 'Lapangan futsal berkualitas tinggi untuk semua kalangan.'); ?></p>
 
-              <p>
-                <b>Pagi:</b> Rp <?= number_format($row['harga_pagi'], 0, ',', '.'); ?>/
-                <b>Malam:</b> Rp <?= number_format($row['harga_malam'], 0, ',', '.'); ?>
-              </p>
+              <div class="price-box">
+                <span class="pagi">Pagi: <b>Rp <?= number_format($row['harga_pagi'], 0, ',', '.'); ?></b></span>
+                <span class="malam">Malam: <b>Rp <?= number_format($row['harga_malam'], 0, ',', '.'); ?></b></span>
+              </div>
 
-              <a href="booking.php?id=<?= urlencode($row['id']); ?>" class="btn-book">Booking</a>
+              <a href="booking.php?id=<?= urlencode($row['id']); ?>" class="btn-book">Booking Sekarang</a>
             </div>
           </div>
       <?php
         }
       } else {
-        echo "<p style='text-align:center;'>Belum ada data lapangan tersedia.</p>";
+        echo "<p class='no-data'>Belum ada data lapangan tersedia.</p>";
       }
       ?>
     </div>
+  </section>
+
   </section>
 
   <div class="garis"></div>
