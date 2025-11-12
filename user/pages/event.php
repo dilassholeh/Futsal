@@ -79,7 +79,6 @@ if (isset($_SESSION['user_id'])) {
           <li><a href="../index.php">Beranda</a></li>
           <li><a href="sewa.php" class="active">Penyewaan</a></li>
           <li><a href="event.php">Event</a></li>
-
           <?php if (isset($_SESSION['user_id'])): ?>
             <li>
               <a href="keranjang.php" class="btn-cart">
