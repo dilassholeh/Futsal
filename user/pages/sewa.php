@@ -24,6 +24,118 @@ if (isset($_SESSION['user_id'])) {
   <link rel="stylesheet" href="../assets/css/pages.css?v=<?php echo filemtime('../assets/css/pages.css'); ?>">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
+  <style>
+    .card {
+      position: relative;
+    }
+
+    .card.disabled {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .card.disabled::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 1;
+      border-radius: 12px;
+    }
+
+    .status-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 15px 25px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .status-overlay i {
+      font-size: 36px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .status-overlay.rusak {
+      border: 2px solid #dc3545;
+    }
+
+    .status-overlay.rusak i {
+      color: #dc3545;
+    }
+
+    .status-overlay.perbaikan {
+      border: 2px solid #ffc107;
+    }
+
+    .status-overlay.perbaikan i {
+      color: #ffc107;
+    }
+
+    .status-overlay h4 {
+      margin: 0 0 5px 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .status-overlay p {
+      margin: 0;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .status-badge-card {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      z-index: 3;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-badge-card.tersedia {
+      background: linear-gradient(135deg, #28a745, #20c997);
+      color: white;
+      box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    }
+
+    .status-badge-card.rusak {
+      background: linear-gradient(135deg, #dc3545, #c82333);
+      color: white;
+      box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    }
+
+    .status-badge-card.perbaikan {
+      background: linear-gradient(135deg, #ffc107, #ff9800);
+      color: white;
+      box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+    }
+
+    .btn-book.disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .btn-book.disabled:hover {
+      background: #6c757d;
+      transform: none;
+    }
+  </style>
+
 </head>
 
 <body>
@@ -104,8 +216,31 @@ if (isset($_SESSION['user_id'])) {
           if (empty($row['foto']) || !file_exists($fotoPath)) {
             $fotoPath = "../assets/image/noimage.png";
           }
+
+          $status = $row['status'] ?? 'tersedia';
+          $isDisabled = ($status == 'rusak' || $status == 'perbaikan');
+          $cardClass = $isDisabled ? 'card disabled' : 'card';
+          
+          // Status text
+          $statusText = '';
+          $statusIcon = '';
+          $statusClass = '';
+          if ($status == 'rusak') {
+            $statusText = 'Lapangan Rusak';
+            $statusIcon = 'bx-error-circle';
+            $statusClass = 'rusak';
+          } elseif ($status == 'perbaikan') {
+            $statusText = 'Sedang Perbaikan';
+            $statusIcon = 'bx-wrench';
+            $statusClass = 'perbaikan';
+          }
       ?>
-          <div class="card">
+          <div class="<?= $cardClass; ?>">
+            
+            <!-- Status Badge -->
+            <span class="status-badge-card <?= $status; ?>">
+              <?= $status == 'tersedia' ? 'Tersedia' : ($status == 'rusak' ? 'Rusak' : 'Perbaikan'); ?>
+            </span>
 
             <div class="card-img">
               <img src="<?= htmlspecialchars($fotoPath); ?>" alt="<?= htmlspecialchars($row['nama_lapangan']); ?>">
@@ -115,15 +250,28 @@ if (isset($_SESSION['user_id'])) {
               <h3><?= htmlspecialchars($row['nama_lapangan']); ?></h3>
               <p class="card-desc"><?= htmlspecialchars($row['deskripsi'] ?? 'Lapangan futsal berkualitas tinggi untuk semua kalangan.'); ?></p>
 
-
               <div class="price-box">
                 <span class="pagi">Pagi: <b>Rp <?= number_format($row['harga_pagi'], 0, ',', '.'); ?></b></span>
                 <span class="malam">Malam: <b>Rp <?= number_format($row['harga_malam'], 0, ',', '.'); ?></b></span>
               </div>
 
-              <a href="booking.php?id=<?= urlencode($row['id']); ?>" class="btn-book">Booking Sekarang</a>
+              <?php if ($isDisabled): ?>
+                <button class="btn-book disabled" disabled>Tidak Tersedia</button>
+              <?php else: ?>
+                <a href="booking.php?id=<?= urlencode($row['id']); ?>" class="btn-book">Booking Sekarang</a>
+              <?php endif; ?>
 
             </div>
+
+            <!-- Status Overlay untuk lapangan tidak tersedia -->
+            <?php if ($isDisabled): ?>
+              <div class="status-overlay <?= $statusClass; ?>">
+                <i class="bx <?= $statusIcon; ?>"></i>
+                <h4><?= $statusText; ?></h4>
+                <p>Mohon maaf, lapangan sedang tidak dapat digunakan</p>
+              </div>
+            <?php endif; ?>
+
           </div>
       <?php
         }
@@ -132,8 +280,6 @@ if (isset($_SESSION['user_id'])) {
       }
       ?>
     </div>
-  </section>
-
   </section>
 
   <div class="garis"></div>

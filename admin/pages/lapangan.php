@@ -21,10 +21,12 @@ function generateLapanganID($conn)
     }
 }
 
+// TAMBAH LAPANGAN - FIXED
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
-    $nama_lapangan = $_POST['nama_lapangan'];
-    $harga_pagi = $_POST['harga_pagi'];
-    $harga_malam = $_POST['harga_malam'];
+    $nama_lapangan = mysqli_real_escape_string($conn, $_POST['nama_lapangan']);
+    $harga_pagi = mysqli_real_escape_string($conn, $_POST['harga_pagi']);
+    $harga_malam = mysqli_real_escape_string($conn, $_POST['harga_malam']);
+    $status = mysqli_real_escape_string($conn, $_POST['status']); // PENTING: Pastikan ini ter-escape
 
     $foto = $_FILES['foto']['name'];
     $tmp = $_FILES['foto']['tmp_name'];
@@ -40,18 +42,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
 
     if (move_uploaded_file($tmp, $folder)) {
         $id = generateLapanganID($conn);
-        $query = "INSERT INTO lapangan (id, nama_lapangan, harga_pagi, harga_malam, foto)
-                  VALUES ('$id', '$nama_lapangan', '$harga_pagi', '$harga_malam', '$new_filename')";
-        if (mysqli_query($conn, $query)) {
-            echo "<script>alert('Lapangan berhasil ditambahkan!'); window.location='lapangan.php';</script>";
+        
+        // PERBAIKAN: Gunakan prepared statement untuk keamanan
+        $stmt = $conn->prepare("INSERT INTO lapangan (id, nama_lapangan, harga_pagi, harga_malam, foto, status) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssddss", $id, $nama_lapangan, $harga_pagi, $harga_malam, $new_filename, $status);
+        
+        if ($stmt->execute()) {
+            echo "<script>alert('Lapangan berhasil ditambahkan! Status: $status'); window.location='lapangan.php';</script>";
         } else {
-            echo "<script>alert('Gagal menambahkan lapangan!'); window.location='lapangan.php';</script>";
+            echo "<script>alert('Gagal menambahkan lapangan: " . $stmt->error . "'); window.location='lapangan.php';</script>";
         }
+        $stmt->close();
+    } else {
+        echo "<script>alert('Gagal upload foto!'); window.location='lapangan.php';</script>";
     }
 }
 
+// HAPUS LAPANGAN
 if (isset($_GET['hapus'])) {
-    $id = $_GET['hapus'];
+    $id = mysqli_real_escape_string($conn, $_GET['hapus']);
 
     $getFoto = mysqli_query($conn, "SELECT foto FROM lapangan WHERE id='$id'");
     if ($row = mysqli_fetch_assoc($getFoto)) {
@@ -65,19 +74,20 @@ if (isset($_GET['hapus'])) {
     echo "<script>alert('Data lapangan berhasil dihapus!'); window.location='lapangan.php';</script>";
 }
 
+// EDIT LAPANGAN - FIXED
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
-    $id = $_POST['id'];
-    $nama_lapangan = $_POST['nama_lapangan'];
-    $harga_pagi = $_POST['harga_pagi'];
-    $harga_malam = $_POST['harga_malam'];
+    $id = mysqli_real_escape_string($conn, $_POST['id']);
+    $nama_lapangan = mysqli_real_escape_string($conn, $_POST['nama_lapangan']);
+    $harga_pagi = mysqli_real_escape_string($conn, $_POST['harga_pagi']);
+    $harga_malam = mysqli_real_escape_string($conn, $_POST['harga_malam']);
+    $status = mysqli_real_escape_string($conn, $_POST['status']); // PENTING
 
     if ($_FILES['foto']['name'] == "") {
-        $query = "UPDATE lapangan SET 
-                  nama_lapangan='$nama_lapangan', 
-                  harga_pagi='$harga_pagi', 
-                  harga_malam='$harga_malam'
-                  WHERE id='$id'";
+        // Update tanpa foto
+        $stmt = $conn->prepare("UPDATE lapangan SET nama_lapangan=?, harga_pagi=?, harga_malam=?, status=? WHERE id=?");
+        $stmt->bind_param("sddss", $nama_lapangan, $harga_pagi, $harga_malam, $status, $id);
     } else {
+        // Hapus foto lama
         $getFoto = mysqli_query($conn, "SELECT foto FROM lapangan WHERE id='$id'");
         if ($row = mysqli_fetch_assoc($getFoto)) {
             $old_foto = '../../uploads/lapangan/' . $row['foto'];
@@ -86,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
             }
         }
 
+        // Upload foto baru
         $foto = $_FILES['foto']['name'];
         $tmp = $_FILES['foto']['tmp_name'];
         $file_ext = pathinfo($foto, PATHINFO_EXTENSION);
@@ -94,16 +105,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
 
         move_uploaded_file($tmp, $folder);
 
-        $query = "UPDATE lapangan SET 
-                  nama_lapangan='$nama_lapangan', 
-                  harga_pagi='$harga_pagi', 
-                  harga_malam='$harga_malam', 
-                  foto='$new_filename'
-                  WHERE id='$id'";
+        // Update dengan foto
+        $stmt = $conn->prepare("UPDATE lapangan SET nama_lapangan=?, harga_pagi=?, harga_malam=?, foto=?, status=? WHERE id=?");
+        $stmt->bind_param("sddsss", $nama_lapangan, $harga_pagi, $harga_malam, $new_filename, $status, $id);
     }
 
-    mysqli_query($conn, $query);
-    echo "<script>alert('Data lapangan berhasil diperbarui!'); window.location='lapangan.php';</script>";
+    if ($stmt->execute()) {
+        echo "<script>alert('Data lapangan berhasil diperbarui! Status: $status'); window.location='lapangan.php';</script>";
+    } else {
+        echo "<script>alert('Gagal update: " . $stmt->error . "'); window.location='lapangan.php';</script>";
+    }
+    $stmt->close();
 }
 ?>
 
@@ -116,6 +128,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     <title>Lapangan | Zona Futsal</title>
     <link rel="stylesheet" href="../assets/css/lapangan.css?v=<?php echo filemtime('../assets/css/lapangan.css'); ?>">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-tersedia {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-rusak {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .status-perbaikan {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+    </style>
 </head>
 
 <body>
@@ -123,7 +156,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
         <div class="header">
             <div class="header-left">
                 <h1>Data Lapangan</h1>
-
             </div>
             <div class="header-right">
                 <div class="notif"><i class='bx bxs-bell'></i></div>
@@ -155,6 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
                                 <th>Nama Lapangan</th>
                                 <th>Harga Pagi</th>
                                 <th>Harga Malam</th>
+                                <th>Status</th>
                                 <th>Foto</th>
                                 <th>Aksi</th>
                             </tr>
@@ -164,12 +197,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
                             $result = mysqli_query($conn, "SELECT * FROM lapangan ORDER BY id DESC");
                             if (mysqli_num_rows($result) > 0) {
                                 while ($row = mysqli_fetch_assoc($result)) {
+                                    // PERBAIKAN: Pastikan status ditampilkan dengan benar
+                                    $status = $row['status'] ?? 'tersedia';
+                                    $statusClass = 'status-' . $status;
+                                    $statusText = ucfirst($status);
+                                    if ($status == 'perbaikan') $statusText = 'Sedang Perbaikan';
+                                    
                                     echo "
                         <tr>
                             <td>{$row['id']}</td>
                             <td>{$row['nama_lapangan']}</td>
                             <td>Rp " . number_format($row['harga_pagi'], 0, ',', '.') . "</td>
                             <td>Rp " . number_format($row['harga_malam'], 0, ',', '.') . "</td>
+                            <td><span class='status-badge $statusClass'>$statusText</span></td>
                             <td><img src='../../uploads/lapangan/{$row['foto']}' width='70' height='50' style='object-fit:cover; border-radius:6px;' onerror=\"this.src='../../uploads/no-image.png'\"></td>
                             <td>
                                 <a href='#' class='edit-btn' 
@@ -177,6 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
                                    data-nama='{$row['nama_lapangan']}'
                                    data-pagi='{$row['harga_pagi']}'
                                    data-malam='{$row['harga_malam']}'
+                                   data-status='$status'
                                    data-foto='{$row['foto']}'>
                                    <i class='bx bx-edit' style='color:blue; font-size:20px;'></i>
                                 </a>
@@ -187,7 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
                         </tr>";
                                 }
                             } else {
-                                echo "<tr><td colspan='6'>Belum ada data lapangan.</td></tr>";
+                                echo "<tr><td colspan='7'>Belum ada data lapangan.</td></tr>";
                             }
                             ?>
                         </tbody>
@@ -197,6 +238,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
         </div>
     </main>
 
+    <!-- Modal Tambah -->
     <div class="modal" id="modal">
         <div class="modal-content">
             <span class="close-btn" id="closeModal">&times;</span>
@@ -212,6 +254,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
                 <label>Harga Malam</label>
                 <input type="number" name="harga_malam" required>
 
+                <label>Status Lapangan</label>
+                <select name="status" required>
+                    <option value="tersedia">Tersedia</option>
+                    <option value="rusak">Rusak</option>
+                    <option value="perbaikan">Sedang Perbaikan</option>
+                </select>
+
                 <label>Foto</label>
                 <input type="file" name="foto" accept="image/*" required>
 
@@ -220,6 +269,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
         </div>
     </div>
 
+    <!-- Modal Edit -->
     <div class="modal" id="editModal">
         <div class="modal-content">
             <span class="close-btn" id="closeEdit">&times;</span>
@@ -236,6 +286,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
 
                 <label>Harga Malam</label>
                 <input type="number" name="harga_malam" id="edit-malam" required>
+
+                <label>Status Lapangan</label>
+                <select name="status" id="edit-status" required>
+                    <option value="tersedia">Tersedia</option>
+                    <option value="rusak">Rusak</option>
+                    <option value="perbaikan">Sedang Perbaikan</option>
+                </select>
 
                 <label>Foto (Kosongkan jika tidak diubah)</label>
                 <input type="file" name="foto" accept="image/*">
@@ -279,6 +336,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
                 document.getElementById('edit-nama').value = btn.dataset.nama;
                 document.getElementById('edit-pagi').value = btn.dataset.pagi;
                 document.getElementById('edit-malam').value = btn.dataset.malam;
+                document.getElementById('edit-status').value = btn.dataset.status;
+                
+                // Debug: tampilkan status yang dipilih
+                console.log('Status yang akan di-edit:', btn.dataset.status);
             });
         });
     </script>
