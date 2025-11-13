@@ -25,17 +25,17 @@ if (isset($_SESSION['user_id'])) {
 <html lang="id">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Futsal</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Futsal</title>
   <link href="https://unpkg.com/boxicons@latest/css/boxicons.min.css" rel="stylesheet">
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/event.css?v=<?php echo filemtime('../assets/css/event.css'); ?>"> 
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/event.css?v=<?php echo filemtime('../assets/css/event.css'); ?>">
 </head>
 
 <body>
-   <header>
+  <header>
     <nav class="nav">
       <div class="logo-container">
         <a href="../index.php" class="logo-text">
@@ -75,35 +75,35 @@ if (isset($_SESSION['user_id'])) {
     </nav>
   </header>
 
-    <section class="hero">
-        <img src="../assets/image/bakground.png" alt="ZonaFutsal" class="hero-img">
-        <div class="hero-overlay">
-            <h1>Event Futsal Terbaru</h1>
-        </div>
-    </section>
+  <section class="hero">
+    <img src="../assets/image/bakground.png" alt="ZonaFutsal" class="hero-img">
+    <div class="hero-overlay">
+      <h1>Event Futsal Terbaru</h1>
+    </div>
+  </section>
 
-    <div class="event-container">
-        <h2 class="title">Daftar Event Futsal</h2>
+  <div class="event-container">
+    <h2 class="title">Daftar Event Futsal</h2>
 
-        <?php
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $tanggal_mulai = date('d M Y', strtotime($row['tanggal_mulai']));
-                $tanggal_berakhir = date('d M Y', strtotime($row['tanggal_berakhir']));
+    <?php
+    if ($result->num_rows > 0) {
+      while ($row = $result->fetch_assoc()) {
+        $tanggal_mulai = date('d M Y', strtotime($row['tanggal_mulai']));
+        $tanggal_berakhir = date('d M Y', strtotime($row['tanggal_berakhir']));
 
-                $foto_path = !empty($row['foto']) ? "../../uploads/event/{$row['foto']}" : "../assets/image/default-event.jpg";
+        $foto_path = !empty($row['foto']) ? "../../uploads/event/{$row['foto']}" : "../assets/image/default-event.jpg";
 
-                $status = '';
-                $status_class = '';
-                if (strtotime($current_date) < strtotime($row['tanggal_mulai'])) {
-                    $status = 'Akan Datang';
-                    $status_class = 'upcoming';
-                } else {
-                    $status = 'Sedang Berlangsung';
-                    $status_class = 'ongoing';
-                }
+        $status = '';
+        $status_class = '';
+        if (strtotime($current_date) < strtotime($row['tanggal_mulai'])) {
+          $status = 'Akan Datang';
+          $status_class = 'upcoming';
+        } else {
+          $status = 'Sedang Berlangsung';
+          $status_class = 'ongoing';
+        }
 
-                echo "<div class='event-card'>
+        echo "<div class='event-card'>
                     <div class='event-img'>
                         <img src='{$foto_path}' alt='{$row['nama_event']}'>
                         <span class='event-status {$status_class}'>{$status}</span>
@@ -115,42 +115,24 @@ if (isset($_SESSION['user_id'])) {
                             <span>📅 {$tanggal_mulai} - {$tanggal_berakhir}</span>
                         </div>
                         <div class='event-desc'>" . nl2br(substr($row['deskripsi'], 0, 150)) .
-                    (strlen($row['deskripsi']) > 150 ? '...' : '') . "</div>
+          (strlen($row['deskripsi']) > 150 ? '...' : '') . "</div>
                         <a href='detail_event.php?id={$row['id']}' class='btn'>Lihat Detail</a>
                     </div>
                 </div>";
-            }
-        } else {
-            echo "<div class='no-events'>
+      }
+    } else {
+      echo "<div class='no-events'>
                     <p>Tidak ada event yang sedang berlangsung saat ini.</p>
                   </div>";
-        }
-        ?>
-    </div>
+    }
+    ?>
+  </div>
 
-    <div class="garis"></div>
+  <div class="garis"></div>
 
-    <footer>
-        <div class="footer-section">
-            <h4>Tentang Kami</h4>
-            <p>ZonaFutsal adalah platform modern untuk memesan lapangan, melihat jadwal, dan mengikuti event futsal secara online.</p>
-        </div>
-
-        <div class="footer-section">
-            <h4>Link Cepat</h4>
-            <a href="../index.php">Beranda</a>
-            <a href="sewa.php">Penyewaan</a>
-            <a href="event.php">Event</a>
-            <a href="kontak.php">Kontak</a>
-        </div>
-
-        <div class="footer-section">
-            <h4>Hubungi Kami</h4>
-            <p>Email: info@zonafutsal.id</p>
-            <p>Telp: +62 812 3456 7890</p>
-            <p>Alamat: Jl. Raya Sport Center No. 88, Bandung</p>
-        </div>
-    </footer>
+  <?php
+  include 'footer.php';
+  ?>
 </body>
 
 </html>

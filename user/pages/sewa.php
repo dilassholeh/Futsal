@@ -11,6 +11,7 @@ if (isset($_SESSION['user_id'])) {
   $cartData = mysqli_fetch_assoc($queryCart);
   $jumlahKeranjang = $cartData['jumlah'];
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -20,7 +21,6 @@ if (isset($_SESSION['user_id'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ZonaFutsal | Booking Lapangan</title>
   <link href="https://unpkg.com/boxicons@latest/css/boxicons.min.css" rel="stylesheet">
-
   <link rel="stylesheet" href="../assets/css/pages.css?v=<?php echo filemtime('../assets/css/pages.css'); ?>">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
@@ -53,18 +53,27 @@ if (isset($_SESSION['user_id'])) {
                 <span class="cart-count"><?= $jumlahKeranjang; ?></span>
               <?php endif; ?>
             </a>
+            <div class="profile-card">
+              <a href="user.php" class="profile-link">
+                <div class="profile-info">
+                  <img src="../assets/image/<?= $_SESSION['foto'] ?? 'profil.png'; ?>" alt="Profile" class="profile-img">
+                  <div class="profile-text">
+                    <span class="profile-name"><?= $_SESSION['nama'] ?? 'User'; ?></span>
+                    <small class="profile-role"><?= $_SESSION['username'] ?? ''; ?></small>
+                  </div>
+                </div>
+              </a>
+            </div>
 
-            <span class="user-name">👋 <?= htmlspecialchars($_SESSION['nama']); ?></span>
-            <a href="../logout.php" class="btn-logout">Keluar</a>
-          </div>
 
-        <?php else: ?>
-          <div class="user-menu">
-            <a href="../login.php" class="btn-masuk">Masuk</a>
-            <a href="../register.php" class="btn-daftar">Daftar</a>
+
+          <?php else: ?>
+            <div class="user-menu">
+              <a href="../login.php" class="btn-masuk">Masuk</a>
+              <a href="../register.php" class="btn-daftar">Daftar</a>
+            </div>
+          <?php endif; ?>
           </div>
-        <?php endif; ?>
-      </div>
     </nav>
   </header>
 
@@ -138,25 +147,9 @@ if (isset($_SESSION['user_id'])) {
 
   <div class="garis"></div>
 
-  <footer>
-    <div class="footer-section">
-      <h4>Tentang Kami</h4>
-      <p>ZonaFutsal adalah platform modern untuk memesan lapangan dan mengikuti event futsal secara online.</p>
-    </div>
-    <div class="footer-section">
-      <h4>Link Cepat</h4>
-      <a href="../index.php">Beranda</a>
-      <a href="jadwal.php">Jadwal</a>
-      <a href="event.php">Event</a>
-      <a href="kontak.php">Kontak</a>
-    </div>
-    <div class="footer-section">
-      <h4>Hubungi Kami</h4>
-      <p>Email: info@zonafutsal.id</p>
-      <p>Telp: +62 812 3456 7890</p>
-      <p>Alamat: Jl. Raya Sport Center No. 88, Bandung</p>
-    </div>
-  </footer>
+  <?php
+  include 'footer.php';
+  ?>
 
 </body>
 

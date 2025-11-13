@@ -52,29 +52,44 @@ $totalJSON = json_encode($totalArr);
 <body>
 
   <main class="main">
-    <div class="header">
-      <div class="header-left">
-        <h1>Dashboard</h1>
-        <p>Selamat Datang di Perencanaan</p>
-      </div>
-      <div class="header-right">
-        <div class="notif"><i class='bx bxs-bell'></i></div>
-        <div class="profile">
-          <img
-            src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
-            alt="Profile"
-            style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
-          <span><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
+<div class="header">
+  <div class="header-left">
+    <h1>Dashboard</h1>
+    <p>Selamat Datang di Perencanaan</p>
+  </div>
+
+  <div class="header-right">
+    <div class="notif">
+      <i class='bx bxs-bell'></i>
+    </div>
+
+    <div class="profile-card">
+      <div class="profile-info">
+        <img
+          src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
+          alt="Profile"
+          class="profile-img">
+        <div class="profile-text">
+          <span class="profile-name"><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
+          <small class="profile-role">Administrator</small>
         </div>
       </div>
+      <div class="profile-actions">
+        <a href="../logout.php" class="btn-logout">
+          <i class='bx bx-log-out'></i> Keluar
+        </a>
+      </div>
     </div>
+  </div>
+</div>
+
 
     <div class="bot">
 
-      <div class="search-box">
+      <!-- <div class="search-box">
         <input type="text" id="searchInput" placeholder="Cari...">
         <i class='bx bx-search'></i>
-      </div>
+      </div> -->
       <div class="cards">
         <div class="card">
           <div class="card-top">
@@ -131,7 +146,7 @@ $totalJSON = json_encode($totalArr);
       <div class="bottom-section">
         <div class="chart-container" style="flex:2;">
           <div class="chart-header" style="display:flex; justify-content:space-between;">
-            <h2>Grafik Transaksi</h2>
+            <h2>Grafik Pendapatan</h2>
             <div class="filter-box">
               <i class='bx bx-filter-alt'></i>
               <select id="filterSelect">

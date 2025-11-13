@@ -43,7 +43,7 @@ if (isset($_SESSION['user_id'])) {
     <nav class="nav">
       <div class="logo-container">
         <a href="../index.php" class="logo-text">
-          <img src="../assets/image/logo.png" alt="ZonaFutsal Logo" class="logo-img">
+          <img src="../user/assets/image/logo.png" alt="ZonaFutsal Logo" class="logo-img">
           ZOFA
         </a>
       </div>
