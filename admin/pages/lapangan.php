@@ -21,12 +21,11 @@ function generateLapanganID($conn)
     }
 }
 
-// TAMBAH LAPANGAN - FIXED
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
     $nama_lapangan = mysqli_real_escape_string($conn, $_POST['nama_lapangan']);
     $harga_pagi = mysqli_real_escape_string($conn, $_POST['harga_pagi']);
     $harga_malam = mysqli_real_escape_string($conn, $_POST['harga_malam']);
-    $status = mysqli_real_escape_string($conn, $_POST['status']); // PENTING: Pastikan ini ter-escape
+    $status = mysqli_real_escape_string($conn, $_POST['status']); 
 
     $foto = $_FILES['foto']['name'];
     $tmp = $_FILES['foto']['tmp_name'];
@@ -43,7 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
     if (move_uploaded_file($tmp, $folder)) {
         $id = generateLapanganID($conn);
         
-        // PERBAIKAN: Gunakan prepared statement untuk keamanan
         $stmt = $conn->prepare("INSERT INTO lapangan (id, nama_lapangan, harga_pagi, harga_malam, foto, status) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->bind_param("ssddss", $id, $nama_lapangan, $harga_pagi, $harga_malam, $new_filename, $status);
         
@@ -58,7 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
     }
 }
 
-// HAPUS LAPANGAN
 if (isset($_GET['hapus'])) {
     $id = mysqli_real_escape_string($conn, $_GET['hapus']);
 
@@ -74,20 +71,17 @@ if (isset($_GET['hapus'])) {
     echo "<script>alert('Data lapangan berhasil dihapus!'); window.location='lapangan.php';</script>";
 }
 
-// EDIT LAPANGAN - FIXED
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     $id = mysqli_real_escape_string($conn, $_POST['id']);
     $nama_lapangan = mysqli_real_escape_string($conn, $_POST['nama_lapangan']);
     $harga_pagi = mysqli_real_escape_string($conn, $_POST['harga_pagi']);
     $harga_malam = mysqli_real_escape_string($conn, $_POST['harga_malam']);
-    $status = mysqli_real_escape_string($conn, $_POST['status']); // PENTING
+    $status = mysqli_real_escape_string($conn, $_POST['status']); 
 
     if ($_FILES['foto']['name'] == "") {
-        // Update tanpa foto
         $stmt = $conn->prepare("UPDATE lapangan SET nama_lapangan=?, harga_pagi=?, harga_malam=?, status=? WHERE id=?");
         $stmt->bind_param("sddss", $nama_lapangan, $harga_pagi, $harga_malam, $status, $id);
     } else {
-        // Hapus foto lama
         $getFoto = mysqli_query($conn, "SELECT foto FROM lapangan WHERE id='$id'");
         if ($row = mysqli_fetch_assoc($getFoto)) {
             $old_foto = '../../uploads/lapangan/' . $row['foto'];
@@ -96,7 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
             }
         }
 
-        // Upload foto baru
         $foto = $_FILES['foto']['name'];
         $tmp = $_FILES['foto']['tmp_name'];
         $file_ext = pathinfo($foto, PATHINFO_EXTENSION);
@@ -105,7 +98,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
 
         move_uploaded_file($tmp, $folder);
 
-        // Update dengan foto
         $stmt = $conn->prepare("UPDATE lapangan SET nama_lapangan=?, harga_pagi=?, harga_malam=?, foto=?, status=? WHERE id=?");
         $stmt->bind_param("sddsss", $nama_lapangan, $harga_pagi, $harga_malam, $new_filename, $status, $id);
     }
@@ -153,22 +145,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
 
 <body>
     <main class="main">
-        <div class="header">
-            <div class="header-left">
-                <h1>Data Lapangan</h1>
-            </div>
-            <div class="header-right">
-                <div class="notif"><i class='bx bxs-bell'></i></div>
-                <div class="profile">
-                    <img
-                        src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
-                        alt="Profile"
-                        style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
-                    <span><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
-                </div>
-            </div>
+           <div class="header">
+      <div class="header-left">
+        <h1>Dashboard</h1>
+      </div>
+
+      <div class="header-right">
+        <div class="notif">
+          <i class='bx bxs-bell'></i>
         </div>
 
+        <div class="profile-card">
+          <div class="profile-info">
+            <img
+              src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
+              alt="Profile"
+              class="profile-img">
+            <div class="profile-text">
+              <span class="profile-name"><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
+              <small class="profile-role">Administrator</small>
+            </div>
+          </div>
+          <div class="profile-actions">
+            <a href="../logout.php" class="btn-logout">
+              <i class='bx bx-log-out'></i> Keluar
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
         <div class="latar">
             <div class="table-actions">
                 <div class="search-box">

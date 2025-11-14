@@ -35,10 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,28 +44,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="./assets/css/login.css?v=<?php echo filemtime('./assets/css/login.css'); ?>">
     <script src="https://kit.fontawesome.com/a81368914c.js" crossorigin="anonymous"></script>
 </head>
-
 <body>
-    <section class="form-section-login">
-        <div class="logo-login">
-            <img src="./assets/image/logo.png" alt="Logo Sport Club">
-        </div>
-
-        <h1>Masuk Akun</h1>
-
-        <form action="" method="POST">
-            <div class="form-group-login">
-                <input type="text" name="username" placeholder="Username" required>
+    <div class="login-container">
+        <section class="form-section-login">
+            <div class="logo-login">
+                <img src="./assets/image/logo.png" alt="Logo Sport Club">
             </div>
 
-            <div class="form-group-login">
-                <input type="password" id="password" name="password" placeholder="Kata Sandi" required>
-                <i class="fa-regular fa-eye toggle-password" id="togglePassword" style="cursor:pointer;"></i>
-            </div>
+            <h1>Masuk Akun</h1>
 
-            <button type="submit">Masuk</button>
-        </form>
-    </section>
+            <form action="" method="POST">
+                <div class="form-group-login">
+                    <input type="text" name="username" placeholder="Username" required>
+                </div>
+
+                <div class="form-group-login">
+                    <input type="password" id="password" name="password" placeholder="Kata Sandi" required>
+                    <i class="fa-regular fa-eye toggle-password" id="togglePassword"></i>
+                </div>
+
+                <button type="submit">Masuk</button>
+            </form>
+        </section>
+    </div>
 
     <script>
         const togglePassword = document.querySelector("#togglePassword");
@@ -79,5 +78,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
     </script>
 </body>
-
 </html>

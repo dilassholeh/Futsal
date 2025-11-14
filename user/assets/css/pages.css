@@ -622,77 +622,254 @@ footer {
 }
 
 .profile-card {
-  position: relative;
-  cursor: pointer;
+    position: relative;
+    cursor: pointer;
 }
 
 .profile-popup {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5);
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
 .profile-popup.active {
-  display: flex;
-  animation: fadeIn 0.3s ease;
+    display: flex;
+    animation: fadeIn 0.3s ease;
 }
 
 .popup-content {
-  background: #fff;
-  padding: 25px;
-  border-radius: 15px;
-  width: 420px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  text-align: center;
-  position: relative;
+    background: #fff;
+    padding: 25px;
+    border-radius: 15px;
+    width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    position: relative;
 }
 
 .popup-img {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 10px;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
 }
 
 .close-btn {
-  position: absolute;
-  top: 10px; right: 15px;
-  font-size: 22px;
-  cursor: pointer;
-  color: #666;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 22px;
+    cursor: pointer;
+    color: #666;
 }
 
 .riwayat-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
 }
 
-.riwayat-table th, .riwayat-table td {
-  border-bottom: 1px solid #eee;
-  padding: 8px;
-  font-size: 14px;
+.riwayat-table th,
+.riwayat-table td {
+    border-bottom: 1px solid #eee;
+    padding: 8px;
+    font-size: 14px;
 }
 
 .btn-logout-popup {
-  display: inline-block;
-  margin-top: 15px;
-  padding: 8px 18px;
-  background: #ff4d4d;
-  color: #fff;
-  border-radius: 8px;
-  text-decoration: none;
+    display: inline-block;
+    margin-top: 15px;
+    padding: 8px 18px;
+    background: #ff4d4d;
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
 }
 
 @keyframes fadeIn {
-  from {opacity: 0; transform: scale(0.9);}
-  to {opacity: 1; transform: scale(1);}
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.card {
+    position: relative;
+}
+
+.card.disabled {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.card.disabled::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1;
+    border-radius: 12px;
+}
+
+.status-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px 25px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.status-overlay i {
+    font-size: 36px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.status-overlay.rusak {
+    border: 2px solid #dc3545;
+}
+
+.status-overlay.rusak i {
+    color: #dc3545;
+}
+
+.status-overlay.perbaikan {
+    border: 2px solid #ffc107;
+}
+
+.status-overlay.perbaikan i {
+    color: #ffc107;
+}
+
+.status-overlay h4 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.status-overlay p {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.status-badge-card {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    z-index: 3;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge-card.tersedia {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.status-badge-card.rusak {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.status-badge-card.perbaikan {
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.btn-book.disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-book.disabled:hover {
+    background: #6c757d;
+    transform: none;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.modal-content h3 {
+    margin-bottom: 15px;
+}
+
+.modal-content p {
+    margin-bottom: 20px;
+}
+
+.btn-login-modal {
+    background-color: #057107;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.btn-login-modal:hover {
+    background-color: #057107;
+
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
 }

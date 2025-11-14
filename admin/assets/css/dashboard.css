@@ -27,7 +27,6 @@ body {
   flex-direction: column;
   padding: 15px;
   gap: 20px;
-  /* height: 100vh; */
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -39,73 +38,16 @@ body {
   justify-content: space-between;
   align-items: center;
   border-radius: 10px;
-  margin-bottom: 5px;
-}
-
-.bot h1 {
-  font-size: 30px;
-  padding: 5px;
-  font-weight: 700;
-}
-
-.search-box {
-  display: flex;
-  align-items: center;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 5px 10px;
-  width: 230px;
-  transition: 0.3s;
-  margin-bottom: 10px;
-}
-
-.search-box input {
-  border: none;
-  outline: none;
-  width: 100%;
-  font-size: 14px;
-  background: transparent;
-}
-
-.search-box i {
-  color: #666;
-  font-size: 18px;
-}
-
-.search-box:focus-within {
-  border-color: #2b8eff;
-  box-shadow: 0 0 4px rgba(43, 142, 255, 0.3);
-}
-
-.bot {
-  background: #f5f5f5;
-  height: 100vh;
-  padding: 10px;
-  border-radius: 10px;
-  margin-top: -10px;
-}
-
-.bot p {
-  font-size: 12px;
-  padding: 5px;
-  margin-top: -2px;
-
-}
-
-.bot h1 {
-  font-size: 30px;
 }
 
 .header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 15px;
 }
 
 .notif {
   background: #b5fcad;
-
   padding: 8px;
   border-radius: 50%;
   cursor: pointer;
@@ -117,7 +59,6 @@ body {
 
 .notif:hover {
   background: #a3ff99;
-
 }
 
 .notif i {
@@ -125,26 +66,61 @@ body {
   font-size: 18px;
 }
 
-.profile {
+.profile-card {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   background: #fff;
-  padding: 2px 10px;
+  padding: 6px 12px;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
-.profile img {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  object-fit: cover;
+.profile-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.profile span {
+.profile-img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #117139;
+}
+
+.profile-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-name {
   font-weight: 600;
   font-size: 15px;
+  color: #111;
+}
+
+.profile-role {
+  font-size: 12px;
+  color: #666;
+}
+
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  background: #117139;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.btn-logout:hover {
+  background: #0b4c26;
 }
 
 .cards {
@@ -195,14 +171,7 @@ body {
   color: #111;
 }
 
-.card select {
-  border: none;
-  background: transparent;
-  font-weight: 600;
-  color: var(--primary);
-  cursor: pointer;
-}
-
+/* ✅ BAGIAN BAWAH (GRAFIK & OMZET) */
 .bottom-section {
   display: flex;
   justify-content: space-between;
@@ -215,111 +184,18 @@ body {
 
 .chart-container {
   flex: 1.4;
-  min-height: 0;
-  display: flex;
-  background: #ffff;
+  background: #fff;
   padding: 10px;
   border-radius: 10px;
-  flex-direction: column;
-}
-
-.chart-container canvas {
-  flex: 1;
-}
-
-
-.omzet-container {
-  flex: 0.8;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  align-items: flex-end;
 }
 
-.omzet-filter {
+.chart-header {
   display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.omzet-filter span {
-  padding: 4px 10px;
-  font-size: 12px;
-  border-radius: 8px;
-}
-
-.total-card {
-  background: linear-gradient(130deg, #117139 70%, #042d16 100%);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 25px;
-  border-radius: 10px;
-}
-
-.omzet-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 25px;
-  background: #ffff;
-  border-radius: 10px;
-}
-
-
-.total-card i {
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  font-size: 42px;
-  color: #ffff;
-}
-
-.omzet-card i {
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  font-size: 42px;
-  color: #117139;
-}
-
-.total-card .card-info,
-.omzet-card .card-info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.total-card .card-info h3 {
-  font-size: 20px;
-  color: #faf9f9;
-  margin-bottom: 8px;
-}
-
-.omzet-card .card-info h3 {
-  font-size: 20px;
-  color: #131313;
-  margin-bottom: 8px;
-}
-
-.total-card .card-info p {
-  font-size: 20px;
-  font-weight: 600;
-  color: #fefdfd;
-}
-
-.omzet-card .card-info p {
-  font-size: 20px;
-  font-weight: 600;
-  color: #111;
-}
-
-.omzet-card .omzet-filter {
-  display: flex;
-  gap: 6px;
-  margin: 8px 0;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
 }
 
 .filter-box {
@@ -343,12 +219,55 @@ body {
   font-size: 14px;
 }
 
+/* ✅ KARTU PENDAPATAN DAN OMZET */
+.total-card {
+  background: linear-gradient(130deg, #117139 70%, #042d16 100%);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 25px;
+  border-radius: 10px;
+  color: #fff;
+}
+
+.omzet-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 25px;
+  background: #fff;
+  border-radius: 10px;
+}
+
+.total-card i,
+.omzet-card i {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 42px;
+}
+
+.total-card i {
+  color: #fff;
+}
+
+.omzet-card i {
+  color: #117139;
+}
+
+.omzet-filter {
+  display: flex;
+  gap: 6px;
+  margin: 8px 0;
+}
+
 .omzet-filter span {
   padding: 5px 10px;
   font-size: 12px;
   border-radius: 6px;
   background: #eaeaea;
-  margin-right: 5px;
   cursor: pointer;
 }
 
@@ -361,87 +280,4 @@ canvas {
   width: 100% !important;
   height: auto !important;
   max-height: 240px;
-}
-
-
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.chart-actions {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.filter-icon {
-  background: #fff;
-  border: 1px solid #ddd;
-  padding: 7px 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.filter-icon:hover {
-  background: #117139;
-  border-color: #117139;
-}
-
-.filter-icon i {
-  font-size: 18px;
-  color: #111;
-}
-
-.dropdown {
-  position: relative;
-}
-
-.dropdown-toggle {
-  background: #fff;
-  border: 1px solid #ddd;
-  padding: 7px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 13px;
-  color: #111;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: .3s;
-}
-
-.dropdown-toggle:hover {
-  background: #117139;
-  color: #fff;
-  border-color: #117139;
-}
-
-.dropdown-menu {
-  position: absolute;
-  right: 0;
-  top: 110%;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  display: none;
-  list-style: none;
-  min-width: 120px;
-  padding: 6px 0;
-  z-index: 10;
-}
-
-.dropdown-menu li {
-  padding: 8px 15px;
-  font-size: 13px;
-  cursor: pointer;
-  transition: .3s;
-}
-
-.dropdown-menu li:hover {
-  background: #117139;
-  color: #fff;
 }

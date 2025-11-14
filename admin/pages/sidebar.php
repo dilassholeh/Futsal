@@ -68,7 +68,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         <i class='bx bxs-bank'></i><span>Bank</span>
                     </a>
                     <a href="keuangan.php" class="<?php echo ($current_page == 'keuangan.php') ? 'active' : ''; ?>">
-                        <i class='bx bx-bar-chart-alt-2'></i><span>Laporan Keuangan</span>
+                        <i class='bx bx-bar-chart-alt-2'></i><span>Laporan</span>
                     </a>
                 </div>
             </div>

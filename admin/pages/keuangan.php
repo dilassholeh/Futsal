@@ -1,21 +1,19 @@
-
 <?php
-include '../../includes/koneksi.php'; 
+include '../../includes/koneksi.php';
 $current_page = basename($_SERVER['PHP_SELF']);
 
-// Proses simpan data transaksi
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['simpan_transaksi'])) {
     $tanggal = $_POST['tanggal'];
     $keterangan = $_POST['keterangan'];
     $tipe = $_POST['tipe'];
     $jumlah = $_POST['jumlah'];
-    
+
     $pemasukan = ($tipe == 'pemasukan') ? $jumlah : 0;
     $pengeluaran = ($tipe == 'pengeluaran') ? $jumlah : 0;
-    
+
     $sql = "INSERT INTO transaksi_keuangan (tanggal, keterangan, pemasukan, pengeluaran) 
             VALUES ('$tanggal', '$keterangan', $pemasukan, $pengeluaran)";
-    
+
     if (mysqli_query($conn, $sql)) {
         echo "<script>alert('Data berhasil disimpan!');</script>";
     } else {
@@ -23,11 +21,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['simpan_transaksi'])) {
     }
 }
 
-// Ambil data transaksi dari database
 $query_transaksi = "SELECT * FROM transaksi_keuangan ORDER BY tanggal DESC, id DESC";
 $result_transaksi = mysqli_query($conn, $query_transaksi);
 
-// Hitung total pemasukan dan pengeluaran
 $query_total = "SELECT 
     SUM(pemasukan) as total_pemasukan, 
     SUM(pengeluaran) as total_pengeluaran 
@@ -38,7 +34,6 @@ $total_pemasukan = $total_data['total_pemasukan'] ?? 0;
 $total_pengeluaran = $total_data['total_pengeluaran'] ?? 0;
 $saldo_akhir = $total_pemasukan - $total_pengeluaran;
 
-// Data laporan bulanan
 $query_bulanan = "SELECT 
     DATE_FORMAT(tanggal, '%Y-%m') as bulan,
     SUM(pemasukan) as total_pemasukan,
@@ -91,18 +86,109 @@ $result_bulanan = mysqli_query($conn, $query_bulanan);
             padding: 15px;
             gap: 20px;
             box-sizing: border-box;
-            overflow-y: auto;
+            overflow: hidden;
         }
 
+        .header {
+            display: flex;
+            background: #f5f5f5;
+            padding: 10px;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 10px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .notif {
+            background: #b5fcad;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        .notif:hover {
+            background: #a3ff99;
+        }
+
+        .notif i {
+            color: #117139;
+            font-size: 18px;
+        }
+
+        .profile-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff;
+            padding: 6px 12px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-img {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #117139;
+        }
+
+        .profile-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: #111;
+        }
+
+        .profile-role {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            background: #117139;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #0b4c26;
+        }
+
+
         h1 {
-            margin-bottom: 20px;
             color: #333;
         }
 
         .tabs {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
             flex-wrap: wrap;
         }
 
@@ -137,7 +223,6 @@ $result_bulanan = mysqli_query($conn, $query_bulanan);
             display: block;
         }
 
-        /* Form Styles */
         .form-container {
             background: #f8f9fa;
             padding: 20px;
@@ -204,7 +289,6 @@ $result_bulanan = mysqli_query($conn, $query_bulanan);
             background: #c82333;
         }
 
-        /* Table Styles */
         .table-container {
             overflow-x: auto;
         }
@@ -315,7 +399,37 @@ $result_bulanan = mysqli_query($conn, $query_bulanan);
     <?php include 'sidebar.php'; ?>
 
     <main>
-        <h1><i class='bx bx-wallet'></i> Laporan Keuangan</h1>
+
+        <div class="header">
+            <div class="header-left">
+                <h1><i class='bx bx-wallet'></i> Laporan Keuangan</h1>
+
+            </div>
+
+            <div class="header-right">
+                <div class="notif">
+                    <i class='bx bxs-bell'></i>
+                </div>
+
+                <div class="profile-card">
+                    <div class="profile-info">
+                        <img
+                            src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
+                            alt="Profile"
+                            class="profile-img">
+                        <div class="profile-text">
+                            <span class="profile-name"><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
+                            <small class="profile-role">Administrator</small>
+                        </div>
+                    </div>
+                    <div class="profile-actions">
+                        <a href="../logout.php" class="btn-logout">
+                            <i class='bx bx-log-out'></i> Keluar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="tabs">
             <button class="tab-btn active" data-tab="input">Input Transaksi</button>
@@ -324,7 +438,6 @@ $result_bulanan = mysqli_query($conn, $query_bulanan);
             <button class="tab-btn" data-tab="grafik">Grafik Keuangan</button>
         </div>
 
-        <!-- TAB 0: INPUT TRANSAKSI -->
         <div class="tab-content active" id="input">
             <h2>💰 Input Transaksi Keuangan</h2>
             <div class="form-container">
@@ -360,7 +473,6 @@ $result_bulanan = mysqli_query($conn, $query_bulanan);
                 </form>
             </div>
 
-            <!-- Summary Cards -->
             <div class="summary-grid">
                 <div class="summary-card income">
                     <h3>Total Pemasukan</h3>
@@ -377,7 +489,6 @@ $result_bulanan = mysqli_query($conn, $query_bulanan);
             </div>
         </div>
 
-        <!-- TAB 1: TRANSAKSI HARIAN -->
         <div class="tab-content" id="harian">
             <h2>📅 Transaksi Harian</h2>
             <div class="table-container">
@@ -397,7 +508,6 @@ $result_bulanan = mysqli_query($conn, $query_bulanan);
                         if (mysqli_num_rows($result_transaksi) > 0) {
                             $no = 1;
                             $saldo = 0;
-                            // Reset pointer
                             mysqli_data_seek($result_transaksi, 0);
                             while ($row = mysqli_fetch_assoc($result_transaksi)) {
                                 $saldo += $row['pemasukan'] - $row['pengeluaran'];
@@ -424,7 +534,6 @@ $result_bulanan = mysqli_query($conn, $query_bulanan);
             </div>
         </div>
 
-        <!-- TAB 2: LAPORAN BULANAN -->
         <div class="tab-content" id="bulanan">
             <h2>📊 Laporan Bulanan</h2>
             <div class="table-container">
@@ -441,17 +550,25 @@ $result_bulanan = mysqli_query($conn, $query_bulanan);
                         <?php
                         if (mysqli_num_rows($result_bulanan) > 0) {
                             $bulan_indo = [
-                                '01' => 'Januari', '02' => 'Februari', '03' => 'Maret',
-                                '04' => 'April', '05' => 'Mei', '06' => 'Juni',
-                                '07' => 'Juli', '08' => 'Agustus', '09' => 'September',
-                                '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
+                                '01' => 'Januari',
+                                '02' => 'Februari',
+                                '03' => 'Maret',
+                                '04' => 'April',
+                                '05' => 'Mei',
+                                '06' => 'Juni',
+                                '07' => 'Juli',
+                                '08' => 'Agustus',
+                                '09' => 'September',
+                                '10' => 'Oktober',
+                                '11' => 'November',
+                                '12' => 'Desember'
                             ];
 
                             while ($row = mysqli_fetch_assoc($result_bulanan)) {
                                 $laba = $row['total_pemasukan'] - $row['total_pengeluaran'];
                                 $status = $laba >= 0 ? 'Laba' : 'Rugi';
                                 $status_class = $laba >= 0 ? 'text-success' : 'text-danger';
-                                
+
                                 // Format bulan
                                 list($tahun, $bulan) = explode('-', $row['bulan']);
                                 $nama_bulan = $bulan_indo[$bulan] . ' ' . $tahun;
@@ -472,7 +589,6 @@ $result_bulanan = mysqli_query($conn, $query_bulanan);
             </div>
         </div>
 
-        <!-- TAB 3: GRAFIK KEUANGAN -->
         <div class="tab-content" id="grafik">
             <h2>📈 Grafik Arus Kas</h2>
             <canvas id="financeChart"></canvas>
@@ -480,7 +596,6 @@ $result_bulanan = mysqli_query($conn, $query_bulanan);
     </main>
 
     <script>
-        // Tab functionality
         const buttons = document.querySelectorAll('.tab-btn');
         const contents = document.querySelectorAll('.tab-content');
         buttons.forEach(btn => {
@@ -492,16 +607,13 @@ $result_bulanan = mysqli_query($conn, $query_bulanan);
             });
         });
 
-        // Format input rupiah
         const inputJumlah = document.getElementById('jumlah');
         inputJumlah.addEventListener('input', function(e) {
             let value = this.value.replace(/[^0-9]/g, '');
             this.value = value;
         });
 
-        // Chart.js - Data dari database
         <?php
-        // Siapkan data untuk chart
         mysqli_data_seek($result_bulanan, 0);
         $labels = [];
         $pemasukan_data = [];
@@ -514,7 +626,6 @@ $result_bulanan = mysqli_query($conn, $query_bulanan);
             $pengeluaran_data[] = $row['total_pengeluaran'];
         }
 
-        // Reverse array agar urutan dari lama ke baru
         $labels = array_reverse($labels);
         $pemasukan_data = array_reverse($pemasukan_data);
         $pengeluaran_data = array_reverse($pengeluaran_data);

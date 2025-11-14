@@ -230,7 +230,6 @@ if (isset($_SESSION['user_id'])) {
           $isDisabled = ($status == 'rusak' || $status == 'perbaikan');
           $cardClass = $isDisabled ? 'card disabled' : 'card';
           
-          // Status text
           $statusText = '';
           $statusIcon = '';
           $statusClass = '';
@@ -246,7 +245,6 @@ if (isset($_SESSION['user_id'])) {
       ?>
           <div class="<?= $cardClass; ?>">
             
-            <!-- Status Badge -->
             <span class="status-badge-card <?= $status; ?>">
               <?= $status == 'tersedia' ? 'Tersedia' : ($status == 'rusak' ? 'Rusak' : 'Perbaikan'); ?>
             </span>
@@ -268,11 +266,11 @@ if (isset($_SESSION['user_id'])) {
                 <button class="btn-book disabled" disabled>Tidak Tersedia</button>
               <?php else: ?>
                 <a href="booking.php?id=<?= urlencode($row['id']); ?>" class="btn-book">Booking Sekarang</a>
+
               <?php endif; ?>
 
             </div>
 
-            <!-- Status Overlay untuk lapangan tidak tersedia -->
             <?php if ($isDisabled): ?>
               <div class="status-overlay <?= $statusClass; ?>">
                 <i class="bx <?= $statusIcon; ?>"></i>
@@ -296,7 +294,42 @@ if (isset($_SESSION['user_id'])) {
   <?php
   include 'footer.php';
   ?>
-
+<div id="loginAlertModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h3>Perhatian!</h3>
+    <p>Anda harus login terlebih dahulu untuk melakukan booking.</p>
+    <a href="../login.php" class="btn-login-modal">Login Sekarang</a>
+  </div>
+</div>
 </body>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const isLoggedIn = <?= isset($_SESSION['user_id']) ? 'true' : 'false'; ?>;
+    
+    if (!isLoggedIn) {
+        const bookingButtons = document.querySelectorAll('.btn-book');
+        const modal = document.getElementById('loginAlertModal');
+        const closeBtn = modal.querySelector('.close');
+
+        bookingButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault(); 
+                modal.style.display = "block";
+            });
+        });
+
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = "none";
+        });
+
+        window.addEventListener('click', function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        });
+    }
+});
+</script>
 
 </html>

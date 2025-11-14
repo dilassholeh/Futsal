@@ -5,91 +5,81 @@
     font-family: "Poppins", sans-serif;
 }
 
+html, body {
+    height: 100%;
+}
+
 body {
-    height: 100vh;
+    background: url('../image/latarlogin.png') no-repeat center center fixed;
+    background-size: cover;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #f9f9f9;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
 }
 
 .form-section-login {
-    background: #fff;
-    border: 1px solid #ccc;
-    padding: 25px 30px;
-    border-radius: 10px;
-    width: 350px;
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
     text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .logo-login img {
     width: 100px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 h1 {
-    font-size: 20px;
+    font-size: 22px;
     color: #117139;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .form-group-login {
-    margin-bottom: 12px;
+    margin-bottom: 15px;
     position: relative;
 }
 
 .form-group-login input {
     width: 100%;
-    padding: 8px 35px 8px 10px;
+    padding: 10px 40px 10px 10px;
     border: 1px solid #ccc;
     border-radius: 10px;
     font-size: 14px;
 }
 
-.toggle-password-login {
+.toggle-password {
     position: absolute;
     right: 10px;
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
     color: #888;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 button {
     width: 100%;
-    background: #333;
-    color: #fff;
+    padding: 10px;
     border: none;
     border-radius: 10px;
-    padding: 8px;
-    font-size: 14px;
+    background-color: #117139;
+    color: #fff;
+    font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    margin-top: 10px;
+    transition: background 0.3s;
 }
 
-.google-btn-login {
-    width: 100%;
-    background: #fff;
-    color: #444;
-    border: 1px solid #ccc;
-    border-radius: 25px;
-    padding: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 10px;
-    text-decoration: none;
-}
-
-.google-btn-login i {
-    margin-right: 8px;
-    font-size: 16px;
+button:hover {
+    background-color: #0d5f2f;
 }
 
 .extra-links-login {

@@ -35,10 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $cek_user = mysqli_query($conn, "SELECT id FROM user WHERE username = '$username' OR email = '$email' LIMIT 1");
     if (mysqli_num_rows($cek_user) > 0) {
-        echo "<script>
-                alert('Username atau Email sudah digunakan! Silakan gunakan yang lain.');
-                window.history.back();
-              </script>";
+        echo "<script>alert('Username atau Email sudah digunakan!'); window.history.back();</script>";
         exit;
     }
 
@@ -58,33 +55,107 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               VALUES ('$id', '$id_grup', '$nama', '$username', '$email', '$hashed_password', '$no_hp')";
 
     if (mysqli_query($conn, $query)) {
-        echo "<script>
-                alert('Pendaftaran berhasil! Silakan login.');
-                window.location.href = './login.php';
-              </script>";
+        echo "<script>alert('Pendaftaran berhasil! Silakan login.'); window.location.href = './login.php';</script>";
         exit;
     } else {
-        echo "<script>
-                alert('Pendaftaran gagal: " . addslashes(mysqli_error($conn)) . "');
-                window.history.back();
-              </script>";
+        echo "<script>alert('Pendaftaran gagal: " . addslashes(mysqli_error($conn)) . "'); window.history.back();</script>";
         exit;
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar Akun - ZonaFutsal</title>
-    <!-- Font Awesome (CDN stabil) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="./assets/css/auth.css?v=<?php echo time(); ?>">
+
     <style>
-        .form-group-register {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            background: url('../user/assets/image/latarlogin.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             position: relative;
         }
+
+        body::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 0;
+        }
+
+        .register-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-section-register {
+            background: #fff;
+            border-radius: 16px;
+            padding: 40px 35px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            width: 360px;
+            text-align: center;
+            position: relative;
+        }
+
+        .logo-register img {
+            width: 90px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 1.7em;
+            color: #111;
+            margin-bottom: 20px;
+        }
+
+        .form-group-register {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            border-color: #00b894;
+            box-shadow: 0 0 5px rgba(0, 184, 148, 0.4);
+        }
+
         .toggle-password {
             position: absolute;
             right: 15px;
@@ -93,48 +164,96 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #666;
             cursor: pointer;
         }
+
         .toggle-password:hover {
             color: #111;
         }
+
+        button {
+            width: 100%;
+            background: #1c6e03ff;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #1c6e03ff;
+
+        }
+
+        .extra-links-register {
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        .extra-links-register a {
+            color: #1c6e03ff;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .extra-links-register a:hover {
+            text-decoration: underline;
+        }
+
+        @media(max-width:400px) {
+            .form-section-register {
+                width: 90%;
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+        }
     </style>
 </head>
+
 <body>
-    <section class="form-section-register">
-        <div class="logo-register">
-            <img src="./assets/image/logo.png" alt="Logo Sport Club">
-        </div>
-
-        <h1>Daftar Akun</h1>
-
-        <form action="" method="POST">
-            <div class="form-group-register">
-                <input type="text" name="nama" id="nama" placeholder="Nama Lengkap" required pattern="[A-Za-z\s]+" title="Hanya huruf dan spasi diperbolehkan">
+    <div class="register-wrapper">
+        <section class="form-section-register">
+            <div class="logo-register">
+                <img src="./assets/image/logo.png" alt="Logo ZonaFutsal">
             </div>
 
-            <div class="form-group-register">
-                <input type="text" name="username" id="username" placeholder="Username" required pattern="[A-Za-z0-9_]+" title="Hanya huruf, angka, dan garis bawah">
+            <h1>Daftar Akun</h1>
+
+            <form action="" method="POST">
+                <div class="form-group-register">
+                    <input type="text" name="nama" id="nama" placeholder="Nama Lengkap" required pattern="[A-Za-z\s]+" title="Hanya huruf dan spasi diperbolehkan">
+                </div>
+
+                <div class="form-group-register">
+                    <input type="text" name="username" id="username" placeholder="Username" required pattern="[A-Za-z0-9_]+" title="Hanya huruf, angka, dan garis bawah">
+                </div>
+
+                <div class="form-group-register">
+                    <input type="email" name="email" id="email" placeholder="Alamat Email" required>
+                </div>
+
+                <div class="form-group-register">
+                    <input type="tel" name="tel" id="tel" placeholder="No Telp" required pattern="[0-9]{10,15}" title="Hanya angka (10-15 digit)">
+                </div>
+
+                <div class="form-group-register">
+                    <input type="password" id="password" name="password" placeholder="Kata Sandi" minlength="6" required>
+                    <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
+                </div>
+
+                <button type="submit">Daftar</button>
+            </form>
+
+            <div class="extra-links-register">
+                <p>Sudah punya akun? <a href="./login.php">Masuk di sini</a></p>
             </div>
-
-            <div class="form-group-register">
-                <input type="email" name="email" id="email" placeholder="Alamat Email" required title="Masukkan email yang valid">
-            </div>
-
-            <div class="form-group-register">
-                <input type="tel" name="tel" id="tel" placeholder="No Telp" required pattern="[0-9]{10,15}" title="Hanya angka (10-15 digit)">
-            </div>
-
-            <div class="form-group-register">
-                <input type="password" id="password" name="password" placeholder="Kata Sandi" minlength="6" required>
-                <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
-            </div>
-
-            <button type="submit">Daftar</button>
-        </form>
-
-        <div class="extra-links-register">
-            <p>Sudah punya akun? <a href="./login.php">Masuk di sini</a></p>
-        </div>
-    </section>
+        </section>
+    </div>
 
     <script>
         const togglePassword = document.querySelector("#togglePassword");
@@ -145,7 +264,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             this.classList.toggle("fa-eye-slash");
         });
 
-        // Validasi real-time untuk input
         document.getElementById("nama").addEventListener("input", function() {
             this.value = this.value.replace(/[^A-Za-z\s]/g, '');
         });
@@ -157,4 +275,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
     </script>
 </body>
+
 </html>

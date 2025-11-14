@@ -52,36 +52,33 @@ $totalJSON = json_encode($totalArr);
 <body>
 
   <main class="main">
-<div class="header">
-  <div class="header-left">
-    <h1>Dashboard</h1>
-    <p>Selamat Datang di Perencanaan</p>
-  </div>
-
-  <div class="header-right">
-    <div class="notif">
-      <i class='bx bxs-bell'></i>
-    </div>
-
-    <div class="profile-card">
-      <div class="profile-info">
-        <img
-          src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
-          alt="Profile"
-          class="profile-img">
-        <div class="profile-text">
-          <span class="profile-name"><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
-          <small class="profile-role">Administrator</small>
+    <div class="header">
+      <div class="header-left">
+        <h1>Dashboard</h1>
+      </div>
+      <div class="header-right">
+        <div class="notif">
+          <i class='bx bxs-bell'></i>
+        </div>
+        <div class="profile-card">
+          <div class="profile-info">
+            <img
+              src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
+              alt="Profile"
+              class="profile-img">
+            <div class="profile-text">
+              <span class="profile-name"><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
+              <small class="profile-role">Administrator</small>
+            </div>
+          </div>
+          <div class="profile-actions">
+            <a href="../logout.php" class="btn-logout">
+              <i class='bx bx-log-out'></i> Keluar
+            </a>
+          </div>
         </div>
       </div>
-      <div class="profile-actions">
-        <a href="../logout.php" class="btn-logout">
-          <i class='bx bx-log-out'></i> Keluar
-        </a>
-      </div>
     </div>
-  </div>
-</div>
 
 
     <div class="bot">

@@ -49,18 +49,35 @@ $hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transaksi WHERE 
 
 <body>
     <main class="main">
-        <div class="header">
-            <div class="header-left">
-                <h2>Data Transaksi</h2>
-            </div>
-            <div class="header-right">
-                <div class="notif"><i class='bx bxs-bell'></i></div>
-                <div class="profile">
-                    <img src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>" alt="Profile" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
-                    <span><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
-                </div>
-            </div>
+           <div class="header">
+      <div class="header-left">
+        <h1>Dashboard</h1>
+      </div>
+
+      <div class="header-right">
+        <div class="notif">
+          <i class='bx bxs-bell'></i>
         </div>
+
+        <div class="profile-card">
+          <div class="profile-info">
+            <img
+              src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
+              alt="Profile"
+              class="profile-img">
+            <div class="profile-text">
+              <span class="profile-name"><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
+              <small class="profile-role">Administrator</small>
+            </div>
+          </div>
+          <div class="profile-actions">
+            <a href="../logout.php" class="btn-logout">
+              <i class='bx bx-log-out'></i> Keluar
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
 
         <div class="boot">
             <div class="search-box">
