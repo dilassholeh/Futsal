@@ -55,7 +55,6 @@ $transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transa
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/green.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
     <link rel="stylesheet" href="../assets/css/transaksi.css?v=<?= filemtime('../assets/css/transaksi.css'); ?>">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
@@ -111,14 +110,15 @@ $transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transa
                         <option value="lunas" <?= ($status == 'lunas') ? 'selected' : ''; ?>>Lunas</option>
                         <option value="dibatalkan" <?= ($status == 'dibatalkan') ? 'selected' : ''; ?>>Dibatalkan</option>
                     </select>
+
                     <div class="date-input-wrapper">
                         <input type="text" id="tanggalFilter" name="tanggal" placeholder="Pilih tanggal..." value="<?= htmlspecialchars($tanggal); ?>">
                         <i class='bx bx-calendar calendar-icon'></i>
                     </div>
 
-
                     <button type="submit">Filter</button>
                 </form>
+
                 <div class="export-buttons">
                     <a href="../includes/transaksi/export.php?type=excel&search=<?= urlencode($search); ?>&status=<?= $status; ?>&tanggal=<?= $tanggal; ?>" class="btn_excel">Export Excel</a>
                     <a href="../includes/transaksi/export.php?type=pdf&search=<?= urlencode($search); ?>&status=<?= $status; ?>&tanggal=<?= $tanggal; ?>" class="btn_pdf">Export PDF</a>
@@ -140,6 +140,7 @@ $transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transa
                             <th>Aksi</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         <?php
                         $no = ($page - 1) * $limit + 1;
@@ -160,8 +161,9 @@ $transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transa
                                     <td>
                                         <?php if (!empty($row['bukti_pembayaran'])): ?>
                                             <a href='../../uploads/booking/<?= $row['bukti_pembayaran']; ?>' target='_blank'>Lihat</a>
-                                        <?php else: echo '-';
-                                        endif; ?>
+                                        <?php else: ?>
+                                            -
+                                        <?php endif; ?>
                                     </td>
 
                                     <td>
@@ -172,19 +174,19 @@ $transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transa
                                                 onclick="return confirm('Set status transaksi menjadi LUNAS?')">Set Lunas</a> |
                                         <?php endif; ?>
 
-                                        <?php if ($status_bayar != 'dibatalkan' && $status_bayar != 'lunas'): ?>
-                                            <a href="../includes/transaksi/transaksi_update.php?action=batal&id=<?= $row['id']; ?>"
-                                                onclick="return confirm('Batalkan transaksi?')">Batalkan</a> |
+                                        <?php if ($status_bayar != 'dibatalkan'): ?>
+                                            <a href="#" data-id="<?= $row['id']; ?>" class="btn-batal">Batalkan</a> |
                                         <?php endif; ?>
+
 
                                         <a href="../includes/transaksi/transaksi_detail.php?id=<?= $row['id']; ?>">Detail</a>
                                     </td>
-
                                 </tr>
                             <?php
                                 $no++;
                             endwhile;
-                        else: ?>
+                        else:
+                            ?>
                             <tr>
                                 <td colspan="9" style="text-align:center;">Belum ada data transaksi</td>
                             </tr>
@@ -206,11 +208,8 @@ $transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transa
 
                 if ($total_pages <= 5) {
                     for ($i = 1; $i <= $total_pages; $i++) {
-                        if ($i == $page) {
-                            echo '<span class="active">' . $i . '</span>';
-                        } else {
-                            echo '<a href="?page=' . $i . '&search=' . urlencode($search) . '&status=' . $status . '&tanggal=' . $tanggal . '">' . $i . '</a>';
-                        }
+                        if ($i == $page) echo '<span class="active">' . $i . '</span>';
+                        else echo '<a href="?page=' . $i . '&search=' . urlencode($search) . '&status=' . $status . '&tanggal=' . $tanggal . '">' . $i . '</a>';
                     }
                 } else {
                     if ($page == 1) echo '<span class="active">1</span>';
@@ -242,12 +241,12 @@ $transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transa
 
         </div>
     </main>
+
     <script>
         flatpickr("#tanggalFilter", {
             dateFormat: "Y-m-d",
             altInput: true,
             altFormat: "d F Y",
-
             theme: "green",
             defaultDate: "<?= htmlspecialchars($tanggal); ?>",
             locale: {
@@ -262,7 +261,6 @@ $transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transa
                 },
             },
             onReady: function(selectedDates, dateStr, instance) {
-
                 const clearBtn = document.createElement("button");
                 clearBtn.textContent = "Clear";
                 clearBtn.type = "button";
@@ -273,7 +271,38 @@ $transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transa
                 instance.calendarContainer.appendChild(clearBtn);
             }
         });
+        document.querySelectorAll('.btn-batal').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                let id = this.getAttribute('data-id');
+                document.getElementById('batal_id').value = id; 
+                document.getElementById('modalBatal').style.display = "flex";
+            });
+        });
+
+        document.getElementById('closeModal').addEventListener('click', function() {
+            document.getElementById('modalBatal').style.display = "none";
+        });
     </script>
+
+    <div class="modal" id="modalBatal" style="
+display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+        <div style="background:#fff; padding:20px; width:400px; border-radius:10px;">
+            <h3>Alasan Pembatalan</h3>
+
+            <form id="formBatal" method="POST" action="../includes/transaksi/transaksi_update.php">
+                <input type="hidden" name="id" id="batal_id">
+                <textarea name="alasan_batal" required style="width:100%; height:100px; margin-top:10px;" placeholder="Masukkan alasan..."></textarea>
+
+                <div style="margin-top:15px; text-align:right;">
+                    <button type="button" id="closeModal" style="padding:6px 12px;">Batal</button>
+                    <button type="submit" style="padding:6px 12px; background:#e63946; color:#fff; border:none;">Konfirmasi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </body>
 
 </html>
