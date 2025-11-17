@@ -167,7 +167,7 @@ h2 {
         </div>
     </div>
 
-    <a class="back-btn" href="../../pages/sewa.php">← Kembali</a>
+    <a class="back-btn" href="../../sewa.php">← Kembali</a>
     <a class="btn-print" href="#" onclick="window.print();return false;"><i class="fa fa-print"></i> Cetak Bukti</a>
 </div>
 </body>

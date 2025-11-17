@@ -10,10 +10,6 @@ if(!isset($_SESSION['user_id'])){
 $user_id = $_SESSION['user_id'];
 
 $query = mysqli_query($conn, "SELECT * FROM pesan WHERE user_id='$user_id' ORDER BY created_at DESC");
-if (!$query) {
-    die("Query error: " . mysqli_error($conn));
-}
-
 $pesanList = [];
 while($row = mysqli_fetch_assoc($query)){
     $pesanList[] = $row;
@@ -98,10 +94,22 @@ h2 {
             <p><?= nl2br(htmlspecialchars($p['pesan'])); ?></p>
             <small><?= date('d-m-Y H:i', strtotime($p['created_at'])); ?></small><br>
             <span class="pesan-status <?= $p['status']; ?>">
-                <?= $p['status']=='dikonfirmasi'?'Dikonfirmasi':'Menunggu Konfirmasi'; ?>
+                <?php
+                echo match($p['status']) {
+                    'baru' => 'Baru',
+                    'dibaca' => 'Dibaca',
+                    'dikonfirmasi' => 'Dikonfirmasi',
+                    'kirim_ulang' => 'Kirim Ulang',
+                    'dibatalkan' => 'Dibatalkan',
+                    default => $p['status']
+                };
+                ?>
             </span>
             <?php if(!empty($p['bukti'])): ?>
                 <br><a href="../../uploads/<?= htmlspecialchars($p['bukti']) ?>" target="_blank">Lihat Bukti</a>
+            <?php endif; ?>
+            <?php if(!empty($p['alasan'])): ?>
+                <br>Alasan: <?= htmlspecialchars($p['alasan']); ?>
             <?php endif; ?>
         </div>
     <?php endforeach; ?>
