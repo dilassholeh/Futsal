@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
     $nama_lapangan = mysqli_real_escape_string($conn, $_POST['nama_lapangan']);
     $harga_pagi = mysqli_real_escape_string($conn, $_POST['harga_pagi']);
     $harga_malam = mysqli_real_escape_string($conn, $_POST['harga_malam']);
-    $status = mysqli_real_escape_string($conn, $_POST['status']); 
+    $status = mysqli_real_escape_string($conn, $_POST['status']);
 
     $foto = $_FILES['foto']['name'];
     $tmp = $_FILES['foto']['tmp_name'];
@@ -41,10 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
 
     if (move_uploaded_file($tmp, $folder)) {
         $id = generateLapanganID($conn);
-        
+
         $stmt = $conn->prepare("INSERT INTO lapangan (id, nama_lapangan, harga_pagi, harga_malam, foto, status) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->bind_param("ssddss", $id, $nama_lapangan, $harga_pagi, $harga_malam, $new_filename, $status);
-        
+
         if ($stmt->execute()) {
             echo "<script>alert('Lapangan berhasil ditambahkan! Status: $status'); window.location='lapangan.php';</script>";
         } else {
@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     $nama_lapangan = mysqli_real_escape_string($conn, $_POST['nama_lapangan']);
     $harga_pagi = mysqli_real_escape_string($conn, $_POST['harga_pagi']);
     $harga_malam = mysqli_real_escape_string($conn, $_POST['harga_malam']);
-    $status = mysqli_real_escape_string($conn, $_POST['status']); 
+    $status = mysqli_real_escape_string($conn, $_POST['status']);
 
     if ($_FILES['foto']['name'] == "") {
         $stmt = $conn->prepare("UPDATE lapangan SET nama_lapangan=?, harga_pagi=?, harga_malam=?, status=? WHERE id=?");
@@ -128,14 +128,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
             font-weight: 600;
             display: inline-block;
         }
+
         .status-tersedia {
             background-color: #d4edda;
             color: #155724;
         }
+
         .status-rusak {
             background-color: #f8d7da;
             color: #721c24;
         }
+
         .status-perbaikan {
             background-color: #fff3cd;
             color: #856404;
@@ -145,70 +148,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
 
 <body>
     <main class="main">
-           <div class="header">
-      <div class="header-left">
-        <h1>Dashboard</h1>
-      </div>
-
-      <div class="header-right">
-        <div class="notif">
-          <i class='bx bxs-bell'></i>
-        </div>
-
-        <div class="profile-card">
-          <div class="profile-info">
-            <img
-              src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
-              alt="Profile"
-              class="profile-img">
-            <div class="profile-text">
-              <span class="profile-name"><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
-              <small class="profile-role">Administrator</small>
-            </div>
-          </div>
-          <div class="profile-actions">
-            <a href="../logout.php" class="btn-logout">
-              <i class='bx bx-log-out'></i> Keluar
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-        <div class="latar">
-            <div class="table-actions">
-                <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Cari...">
-                    <i class='bx bx-search'></i>
+        <div class="header">
+            <h1>Data Lapangan</h1>
+            <div class="header-right">
+                <div class="profile-card">
+                    <img src="../assets/image/<?php echo htmlspecialchars($_SESSION['admin_foto'] ?? 'profil.png'); ?>" class="profile-img">
+                    <div class="profile-info">
+                        <span class="profile-name"><?php echo htmlspecialchars($_SESSION['admin_nama'] ?? 'Admin'); ?></span>
+                    </div>
+                    <a href="../logout.php" class="btn-logout"><i class='bx bx-log-out'></i></a>
                 </div>
-                <button class="btn-tambah" id="openModal"><i class='bx bx-plus'></i>Tambah</button>
             </div>
+        </div>
 
-            <div class="table-wrapper">
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nama Lapangan</th>
-                                <th>Harga Pagi</th>
-                                <th>Harga Malam</th>
-                                <th>Status</th>
-                                <th>Foto</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $result = mysqli_query($conn, "SELECT * FROM lapangan ORDER BY id DESC");
-                            if (mysqli_num_rows($result) > 0) {
-                                while ($row = mysqli_fetch_assoc($result)) {
-                                    // PERBAIKAN: Pastikan status ditampilkan dengan benar
-                                    $status = $row['status'] ?? 'tersedia';
-                                    $statusClass = 'status-' . $status;
-                                    $statusText = ucfirst($status);
-                                    if ($status == 'perbaikan') $statusText = 'Sedang Perbaikan';
-                                    
-                                    echo "
+        <div class="bottom">
+            <div class="latar">
+                <div class="table-actions">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Cari...">
+                        <i class='bx bx-search'></i>
+                    </div>
+                    <button class="btn-tambah" id="openModal"><i class='bx bx-plus'></i>Tambah</button>
+                </div>
+
+                <div class="table-wrapper">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nama Lapangan</th>
+                                    <th>Harga Pagi</th>
+                                    <th>Harga Malam</th>
+                                    <th>Status</th>
+                                    <th>Foto</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $result = mysqli_query($conn, "SELECT * FROM lapangan ORDER BY id DESC");
+                                if (mysqli_num_rows($result) > 0) {
+                                    while ($row = mysqli_fetch_assoc($result)) {
+                                        // PERBAIKAN: Pastikan status ditampilkan dengan benar
+                                        $status = $row['status'] ?? 'tersedia';
+                                        $statusClass = 'status-' . $status;
+                                        $statusText = ucfirst($status);
+                                        if ($status == 'perbaikan') $statusText = 'Sedang Perbaikan';
+
+                                        echo "
                         <tr>
                             <td>{$row['id']}</td>
                             <td>{$row['nama_lapangan']}</td>
@@ -231,19 +219,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
                                 </a>
                             </td>
                         </tr>";
+                                    }
+                                } else {
+                                    echo "<tr><td colspan='7'>Belum ada data lapangan.</td></tr>";
                                 }
-                            } else {
-                                echo "<tr><td colspan='7'>Belum ada data lapangan.</td></tr>";
-                            }
-                            ?>
-                        </tbody>
-                    </table>
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Modal Tambah -->
     <div class="modal" id="modal">
         <div class="modal-content">
             <span class="close-btn" id="closeModal">&times;</span>
@@ -274,7 +262,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
         </div>
     </div>
 
-    <!-- Modal Edit -->
     <div class="modal" id="editModal">
         <div class="modal-content">
             <span class="close-btn" id="closeEdit">&times;</span>
@@ -342,8 +329,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
                 document.getElementById('edit-pagi').value = btn.dataset.pagi;
                 document.getElementById('edit-malam').value = btn.dataset.malam;
                 document.getElementById('edit-status').value = btn.dataset.status;
-                
-                // Debug: tampilkan status yang dipilih
+
                 console.log('Status yang akan di-edit:', btn.dataset.status);
             });
         });

@@ -94,64 +94,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
 
 <body>
     <main class="main">
-           <div class="header">
-      <div class="header-left">
-        <h1>Dashboard</h1>
-      </div>
-
-      <div class="header-right">
-        <div class="notif">
-          <i class='bx bxs-bell'></i>
-        </div>
-
-        <div class="profile-card">
-          <div class="profile-info">
-            <img
-              src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
-              alt="Profile"
-              class="profile-img">
-            <div class="profile-text">
-              <span class="profile-name"><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
-              <small class="profile-role">Administrator</small>
+        <div class="header">
+            <h1>Data Slider</h1>
+            <div class="header-right">
+                <div class="profile-card">
+                    <img src="../assets/image/<?php echo htmlspecialchars($_SESSION['admin_foto'] ?? 'profil.png'); ?>" class="profile-img">
+                    <div class="profile-info">
+                        <span class="profile-name"><?php echo htmlspecialchars($_SESSION['admin_nama'] ?? 'Admin'); ?></span>
+                    </div>
+                    <a href="../logout.php" class="btn-logout"><i class='bx bx-log-out'></i></a>
+                </div>
             </div>
-          </div>
-          <div class="profile-actions">
-            <a href="../logout.php" class="btn-logout">
-              <i class='bx bx-log-out'></i> Keluar
-            </a>
-          </div>
         </div>
-      </div>
-    </div>
 
+        <div class="bottom">
+            <div class="latar">
+                <div class="table-actions">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Cari...">
+                        <i class='bx bx-search'></i>
+                    </div>
 
-        <div class="latar">
-            <div class="table-actions">
-                <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Cari...">
-                    <i class='bx bx-search'></i>
+                    <button class="btn-tambah" id="openModal"><i class='bx bx-plus'></i>Tambah</button>
                 </div>
 
-                <button class="btn-tambah" id="openModal"><i class='bx bx-plus'></i>Tambah</button>
-            </div>
-
-            <div class="table-wrapper">
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nama Slider</th>
-                                <th>Foto</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $result = mysqli_query($conn, "SELECT * FROM slider ORDER BY id DESC");
-                            if (mysqli_num_rows($result) > 0) {
-                                while ($row = mysqli_fetch_assoc($result)) {
-                                    echo "
+                <div class="table-wrapper">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nama Slider</th>
+                                    <th>Foto</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $result = mysqli_query($conn, "SELECT * FROM slider ORDER BY id DESC");
+                                if (mysqli_num_rows($result) > 0) {
+                                    while ($row = mysqli_fetch_assoc($result)) {
+                                        echo "
                                 <tr>
                                     <td>{$row['id']}</td>
                                     <td>{$row['nama_slider']}</td>
@@ -167,13 +150,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
                                         </a>
                                     </td>
                                 </tr>";
+                                    }
+                                } else {
+                                    echo "<tr><td colspan='4'>Belum ada data slider.</td></tr>";
                                 }
-                            } else {
-                                echo "<tr><td colspan='4'>Belum ada data slider.</td></tr>";
-                            }
-                            ?>
-                        </tbody>
-                    </table>
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

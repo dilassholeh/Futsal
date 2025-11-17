@@ -26,174 +26,149 @@ $d->execute();
 $detail = $d->get_result()->fetch_assoc();
 ?>
 
-
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Pembayaran Berhasil</title>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #e9ecef;
-            display: flex;
-            justify-content: center;
-            padding-top: 40px;
-        }
-
-        .card {
-            background: #ffffff;
-            width: 380px;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-        }
-
-        .check-circle {
-            width: 90px;
-            height: 90px;
-            background: #e8f9ee;
-            border-radius: 50%;
-            margin: auto;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .check-circle i {
-            font-size: 45px;
-            color: #28a745;
-        }
-
-        h2 {
-            margin-top: 15px;
-            font-size: 22px;
-            font-weight: bold;
-        }
-
-        .amount {
-            color: #28a745;
-            font-size: 26px;
-            font-weight: bold;
-            margin-top: -5px;
-        }
-
-        table {
-            width: 100%;
-            margin-top: 25px;
-            font-size: 15px;
-        }
-
-        table td {
-            padding: 5px 0;
-            color: #444;
-        }
-
-        .btn-main {
-            width: 100%;
-            padding: 12px;
-            margin-top: 25px;
-            background: #28a745;
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .btn-print {
-            margin-top: 15px;
-            display: inline-block;
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: 1px solid #28a745;
-            color: #28a745;
-            text-decoration: none;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .back-btn {
-            margin-top: 12px;
-            display: inline-block;
-            padding: 10px 15px;
-            border-radius: 8px;
-            background: #6c757d;
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .back-btn:hover {
-            background: #5a6268;
-        }
-    </style>
-
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
+<meta charset="UTF-8">
+<title>Pembayaran Berhasil</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #e9ecef;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 10px;
+    min-height: 100vh;
+}
+.card {
+    background: #fff;
+    width: 400px;
+    max-width: 95%;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.check-circle {
+    width: 90px;
+    height: 90px;
+    background: #e8f9ee;
+    border-radius: 50%;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.check-circle i {
+    font-size: 45px;
+    color: #28a745;
+}
+h2 {
+    margin-top: 15px;
+    font-size: 22px;
+    font-weight: bold;
+}
+.amount {
+    color: #28a745;
+    font-size: 26px;
+    font-weight: bold;
+    margin-top: -5px;
+    margin-bottom: 25px;
+}
+.info-table {
+    width: 100%;
+    margin-top: 10px;
+    font-size: 15px;
+}
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+.info-row:last-child {
+    border-bottom: none;
+}
+.label {
+    font-weight: bold;
+    color: #333;
+}
+.value {
+    color: #555;
+    text-align: right;
+}
+.btn-main, .btn-print, .back-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+    border: none;
+    font-size: 16px;
+}
+.btn-main {
+    background: #28a745;
+    color: #fff;
+}
+.btn-print {
+    background: #fff;
+    color: #28a745;
+    border: 1px solid #28a745;
+}
+.btn-print i {
+    margin-right: 5px;
+}
+.back-btn {
+    background: #6c757d;
+    color: #fff;
+}
+.back-btn:hover { background: #5a6268; }
+.btn-print:hover { background: #28a745; color: #fff; }
+</style>
 </head>
-
 <body>
+<div class="card">
+    <div class="check-circle">
+        <i class="fa fa-check"></i>
+    </div>
+    <h2>Pembayaran Berhasil!</h2>
+    <div class="amount">Rp <?= number_format($transaksi['subtotal'], 0, ',', '.'); ?></div>
 
-    <div class="card">
-
-        <div class="check-circle">
-            <i class="fa fa-check"></i>
+    <div class="info-table">
+        <div class="info-row">
+            <div class="label">Order ID</div>
+            <div class="value"><?= $transaksi['id'] ?></div>
         </div>
-
-        <h2>Pembayaran Berhasil!</h2>
-
-        <div class="amount">
-            Rp <?= number_format($transaksi['subtotal'], 0, ',', '.'); ?>
+        <div class="info-row">
+            <div class="label">Nama Lapangan</div>
+            <div class="value"><?= $detail['lapangan'] ?></div>
         </div>
-
-        <table>
-            <tr>
-                <td><strong>Order ID</strong></td>
-                <td><?= $transaksi['id'] ?></td>
-            </tr>
-
-            <tr>
-                <td><strong>Nama Lapangan</strong></td>
-                <td><?= $detail['lapangan'] ?></td>
-            </tr>
-
-            <tr>
-                <td><strong>Tanggal</strong></td>
-                <td><?= $detail['tanggal'] ?></td>
-            </tr>
-
-            <tr>
-                <td><strong>Jam</strong></td>
-                <td><?= $detail['jam_mulai'] ?> - <?= $detail['jam_selesai'] ?></td>
-            </tr>
-
-            <tr>
-                <td><strong>Durasi</strong></td>
-                <td><?= $detail['durasi'] ?> Jam</td>
-            </tr>
-
-            <tr>
-                <td><strong>Metode</strong></td>
-                <td>Transfer Bank</td>
-            </tr>
-        </table>
-
-        <a class="back-btn" href="../../pages/sewa.php">
-            ← Kembali
-        </a>
-
-        <a class="btn-print" href="#" onclick="window.print();return false;">
-            <i class="fa fa-print"></i> Cetak Bukti
-        </a>
-
+        <div class="info-row">
+            <div class="label">Tanggal</div>
+            <div class="value"><?= $detail['tanggal'] ?></div>
+        </div>
+        <div class="info-row">
+            <div class="label">Jam</div>
+            <div class="value"><?= $detail['jam_mulai'] ?> - <?= $detail['jam_selesai'] ?></div>
+        </div>
+        <div class="info-row">
+            <div class="label">Durasi</div>
+            <div class="value"><?= $detail['durasi'] ?> Jam</div>
+        </div>
+        <div class="info-row">
+            <div class="label">Metode</div>
+            <div class="value">Transfer Bank</div>
+        </div>
     </div>
 
+    <a class="back-btn" href="../../pages/sewa.php">← Kembali</a>
+    <a class="btn-print" href="#" onclick="window.print();return false;"><i class="fa fa-print"></i> Cetak Bukti</a>
+</div>
 </body>
-
 </html>

@@ -1,29 +1,41 @@
 <?php
-include '../includes/koneksi.php';
 session_start();
+include '../includes/koneksi.php';
 
-$querySlider = mysqli_query($conn, "SELECT * FROM slider ORDER BY id DESC");
-$sliders = [];
-while ($row = mysqli_fetch_assoc($querySlider)) {
-  $sliders[] = [
-    'nama' => $row['nama_slider'],
-    'foto' => "../uploads/slider/" . $row['foto']
-  ];
-}
-if (empty($sliders)) {
-  $sliders[] = [
-    'nama' => 'Zona Futsal - Lapangan Modern',
-    'foto' => 'assets/image/futsal.png'
-  ];
-}
+
+$current_date = date('Y-m-d');
+$query = "SELECT e.*, k.nama as kategori_nama 
+          FROM event e 
+          LEFT JOIN kategori k ON e.kategori_id = k.id 
+          WHERE e.tanggal_berakhir >= '$current_date'
+          ORDER BY e.tanggal_mulai ASC";
+$result = $conn->query($query);
+
 $jumlahKeranjang = 0;
 if (isset($_SESSION['user_id'])) {
   $user_id = $_SESSION['user_id'];
   $queryCart = mysqli_query($conn, "SELECT COUNT(*) AS jumlah FROM keranjang WHERE user_id = '$user_id'");
   $cartData = mysqli_fetch_assoc($queryCart);
   $jumlahKeranjang = $cartData['jumlah'];
+
+
+
+  $notifQuery = mysqli_query($conn, "
+        SELECT * FROM pesan 
+        WHERE user_id = '$user_id' 
+        ORDER BY created_at DESC
+    ");
+  $notifBaruResult = mysqli_query($conn, "
+        SELECT COUNT(*) AS jumlah_baru 
+        FROM pesan 
+        WHERE user_id = '$user_id' AND status='baru'
+    ");
+  $notifBaruData = mysqli_fetch_assoc($notifBaruResult);
+  $notifBaru = $notifBaruData['jumlah_baru'];
 }
+
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -32,132 +44,33 @@ if (isset($_SESSION['user_id'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Zona Futsal</title>
   <link href="https://unpkg.com/boxicons@latest/css/boxicons.min.css" rel="stylesheet">
-
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="./assets/css/style.css?v=<?php echo filemtime('./assets/css/style.css'); ?>">
+
 </head>
 
 <body>
-  <header>
-    <nav class="nav">
-      <div class="logo-container">
-        <a href="../index.php" class="logo-text">
-          <img src="../user/assets/image/logo.png" alt="ZonaFutsal Logo" class="logo-img">
-          ZOFA
-        </a>
-      </div>
+  <?php
+  include './pages/header.php'
+  ?>
 
-      <div class="sub-container">
-        <ul>
-          <li><a href="index.php">Beranda</a></li>
-          <li><a href="../user/pages/sewa.php" class="active">Penyewaan</a></li>
-          <li><a href="../user/pages/event.php">Event</a></li>
-        </ul>
-
-
-        <?php if (isset($_SESSION['user_id'])): ?>
-          <div class="user-menu">
-            <a href="keranjang.php" class="btn-cart">
-              <i class="bx bx-cart"></i>
-              <?php if ($jumlahKeranjang > 0): ?>
-                <span class="cart-count"><?= $jumlahKeranjang; ?></span>
-              <?php endif; ?>
-            </a>
-
-            <span class="user-name">👋 <?= htmlspecialchars($_SESSION['nama']); ?></span>
-            <a href="../logout.php" class="btn-logout">Keluar</a>
-          </div>
-
-        <?php else: ?>
-          <div class="user-menu">
-            <a href="login.php" class="btn-masuk">Masuk</a>
-            <a href="register.php" class="btn-daftar">Daftar</a>
-          </div>
-        <?php endif; ?>
-      </div>
-    </nav>
-  </header>
-
-  <section class="hero" id="hero" style="background-image:url('<?= $sliders[0]['foto']; ?>');">
+  <section class="hero" style="background-image:url('./assets/image/futsal.png');">
     <div class="hero-overlay"></div>
-    <div class="hero-content container">
+    <div class="hero-content">
       <h1>Bermain Futsal<br><span class="highlight">Lebih Seru di ZonaFutsal</span></h1>
       <p>Lapangan modern, bersih, dan nyaman. Booking mudah, harga bersahabat.</p>
       <a href="./pages/sewa.php" class="btn-primary big">Booking Sekarang</a>
     </div>
   </section>
 
-  <section class="user-guide container">
-    <h2>User Guide for First Timer</h2>
-    <div class="steps">
-      <ol>
-        <li>Login atau daftar akun</li>
-        <li>Pilih jadwal & lapangan</li>
-        <li>Lakukan pembayaran</li>
-        <li>Datang dan main di ZonaFutsal!</li>
-      </ol>
-    </div>
-  </section>
+  <script>
+    const burger = document.querySelector('.burger');
+    const navMenu = document.querySelector('.nav-menu');
+    burger.addEventListener('click', () => {
+      navMenu.classList.toggle('active');
+    });
+  </script>
 
-  <section class="testimonial container">
-    <h2>What Our Clients Say</h2>
-    <div class="testi-grid">
-      <div class="testi-item">
-        <p>“Lapangan bersih dan booking mudah banget. Top!”</p>
-        <h4>– Rian, Komunitas Futsal ITB</h4>
-      </div>
-      <div class="testi-item">
-        <p>“ZonaFutsal bikin latihan jadi profesional.”</p>
-        <h4>– Budi, Bandung United</h4>
-      </div>
-    </div>
-  </section>
+</body>
 
-  <section class="stats">
-    <div class="stat-box">
-      <div class="stat-number">10K+</div>
-      <p>Pemain Terdaftar</p>
-    </div>
-    <div class="stat-box">
-      <div class="stat-number">200+</div>
-      <p>Komunitas Aktif</p>
-    </div>
-    <div class="stat-box">
-      <div class="stat-number">50+</div>
-      <p>Event per Tahun</p>
-    </div>
-  </section>
-
-  <section class="blog-section container">
-    <h2>Blog & Artikel</h2>
-    <div class="blog-grid">
-      <div class="blog-card"><img src="assets/image/futsal.png">
-        <h3>Tips Bermain Futsal Lebih Efektif</h3>
-      </div>
-      <div class="blog-card"><img src="assets/image/futsal.png">
-        <h3>Manfaat Futsal untuk Kesehatan</h3>
-      </div>
-      <div class="blog-card"><img src="assets/image/futsal.png">
-        <h3>Event ZonaFutsal 2025</h3>
-      </div>
-    </div>
-  </section>
-
-  <section class="services container">
-    <h2>Layanan Kami</h2>
-    <div class="service-grid">
-      <div class="service-card">
-        <h3>Sewa Lapangan</h3>
-        <p>Lapangan indoor & outdoor berkualitas tinggi.</p>
-      </div>
-      <div class="service-card">
-        <h3>Event & Turnamen</h3>
-        <p>Bergabunglah dalam kompetisi seru setiap bulan.</p>
-      </div>
-      <div class="service-card">
-        <h3>Komunitas Futsal</h3>
-        <p>Temukan tim & lawan baru di ZonaFutsal.</p>
-      </div>
-    </div>
-  </section>
+</html>

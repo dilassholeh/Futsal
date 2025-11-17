@@ -80,7 +80,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .form-section-login {
-            background: #fff;
+            background-color: rgba(255, 255, 255, 0.85);
+
             border-radius: 16px;
             padding: 40px 35px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
@@ -96,7 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         h1 {
             font-size: 1.7em;
-            color: #111;
+            color: #117139;
             margin-bottom: 20px;
         }
 
@@ -132,7 +133,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         button {
             width: 100%;
-            background: #1c6e03ff;
+            background-color: #117139;
             color: #fff;
             border: none;
             padding: 12px;
@@ -144,8 +145,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         button:hover {
-            background: #1c6e03ff;
-
+            background-color: #117139;
         }
 
         .spinner {

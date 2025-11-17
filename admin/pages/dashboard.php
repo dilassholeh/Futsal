@@ -8,11 +8,8 @@ if (!isset($_SESSION['admin_id'])) {
   exit;
 }
 
-$totalLapangan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM lapangan"))['total'];
-$totalKategori = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM kategori"))['total'];
-$totalSlider   = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM slider"))['total'];
-$totalEvent    = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM event"))['total'];
-$totalUser     = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM user"))['total'];
+$totalEvent = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM event WHERE CURDATE() BETWEEN tanggal_mulai AND tanggal_berakhir"))['total'] ?? 0;
+$totalUser = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM user"))['total'] ?? 0;
 
 $qTotal = mysqli_fetch_assoc(mysqli_query($conn, "SELECT SUM(subtotal) AS total FROM transaksi"));
 $totalPendapatan = $qTotal['total'] ?? 0;
@@ -20,12 +17,7 @@ $totalPendapatan = $qTotal['total'] ?? 0;
 $qHari = mysqli_query($conn, "SELECT SUM(subtotal) AS total FROM transaksi WHERE DATE(created_at)=CURDATE()");
 $omzetHari = mysqli_fetch_assoc($qHari)['total'] ?? 0;
 
-$grafikQuery = mysqli_query($conn, "
-    SELECT MONTH(created_at) AS bulan, SUM(subtotal) AS total
-    FROM transaksi
-    WHERE YEAR(created_at) = YEAR(CURDATE())
-    GROUP BY bulan ORDER BY bulan ASC
-");
+$grafikQuery = mysqli_query($conn, "SELECT MONTH(created_at) AS bulan, SUM(subtotal) AS total FROM transaksi WHERE YEAR(created_at) = YEAR(CURDATE()) GROUP BY bulan ORDER BY bulan ASC");
 $bulanArr = [];
 $totalArr = [];
 while ($row = mysqli_fetch_assoc($grafikQuery)) {
@@ -34,8 +26,21 @@ while ($row = mysqli_fetch_assoc($grafikQuery)) {
 }
 $bulanJSON = json_encode($bulanArr);
 $totalJSON = json_encode($totalArr);
-?>
 
+$jamQuery = mysqli_query($conn, "
+    SELECT HOUR(created_at) AS jam, COUNT(*) AS total 
+    FROM transaksi 
+    GROUP BY jam ORDER BY jam ASC
+");
+$jamArr = [];
+$totalJamArr = [];
+while ($row = mysqli_fetch_assoc($jamQuery)) {
+  $jamArr[] = $row['jam'] . ':00';
+  $totalJamArr[] = $row['total'];
+}
+$jamJSON = json_encode($jamArr);
+$totalJamJSON = json_encode($totalJamArr);
+?>
 <!DOCTYPE html>
 <html lang="id">
 
@@ -43,154 +48,74 @@ $totalJSON = json_encode($totalArr);
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Admin</title>
-
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="../assets/css/dashboard.css?v=<?php echo filemtime('../assets/css/dashboard.css'); ?>">
 </head>
 
 <body>
-
   <main class="main">
     <div class="header">
-      <div class="header-left">
-        <h1>Dashboard</h1>
-      </div>
+      <h1>Dashboard</h1>
       <div class="header-right">
-        <div class="notif">
-          <i class='bx bxs-bell'></i>
-        </div>
         <div class="profile-card">
+          <img src="../assets/image/<?php echo htmlspecialchars($_SESSION['admin_foto'] ?? 'profil.png'); ?>" class="profile-img">
           <div class="profile-info">
-            <img
-              src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
-              alt="Profile"
-              class="profile-img">
-            <div class="profile-text">
-              <span class="profile-name"><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
-              <small class="profile-role">Administrator</small>
-            </div>
+            <span class="profile-name"><?php echo htmlspecialchars($_SESSION['admin_nama'] ?? 'Admin'); ?></span>
           </div>
-          <div class="profile-actions">
-            <a href="../logout.php" class="btn-logout">
-              <i class='bx bx-log-out'></i> Keluar
-            </a>
-          </div>
+          <a href="../logout.php" class="btn-logout"><i class='bx bx-log-out'></i></a>
         </div>
       </div>
     </div>
 
-
-    <div class="bot">
-
-      <!-- <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Cari...">
-        <i class='bx bx-search'></i>
-      </div> -->
-      <div class="cards">
-        <div class="card">
-          <div class="card-top">
-            <h3>Lapangan</h3>
-            <i class='bx bx-football'></i>
-          </div>
-
-          <div class="card-info">
-            <p><?= $totalLapangan ?></p>
+    <div class="bottom">
+      
+      <div class="cards-grid">
+        <div class="card card-pendapatan"><i class='bx bx-wallet'></i>
+          <div class="card-text">
+            <p>Total Pendapatan<br><strong>Rp <?php echo number_format($totalPendapatan, 0, ',', '.'); ?></strong></p>
           </div>
         </div>
-        <div class="card">
-          <div class="card-top">
-            <h3>Kategori</h3>
-            <i class='bx bx-category'></i>
-          </div>
-
-          <div class="card-info">
-            <p><?= $totalKategori ?></p>
+        <div class="card card-omzet"><i class='bx bx-money'></i>
+          <div class="card-text">
+            <p>Omzet Hari Ini<br><strong>Rp <?php echo number_format($omzetHari, 0, ',', '.'); ?></strong></p>
           </div>
         </div>
-        <div class="card">
-          <div class="card-top">
-            <h3>Slider</h3>
-            <i class='bx bx-slideshow'></i>
-
-          </div>
-          <div class="card-info">
-            <p><?= $totalSlider ?></p>
+        <div class="card card-user"><i class='bx bx-user'></i>
+          <div class="card-text">
+            <p>User<br><strong><?php echo (int)$totalUser; ?></strong></p>
           </div>
         </div>
-        <div class="card">
-          <div class="card-top">
-            <h3>Event</h3>
-            <i class='bx bx-calendar-event'></i>
-
-          </div>
-          <div class="card-info">
-            <p><?= $totalEvent ?></p>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-top">
-            <h3>User</h3>
-            <i class='bx bx-user'></i>
-
-          </div>
-          <div class="card-info">
-            <p><?= $totalUser ?></p>
+        <div class="card card-event"><i class='bx bx-calendar-event'></i>
+          <div class="card-text">
+            <p>Event<br><strong><?php echo (int)$totalEvent; ?></strong></p>
           </div>
         </div>
       </div>
 
-      <div class="bottom-section">
-        <div class="chart-container" style="flex:2;">
-          <div class="chart-header" style="display:flex; justify-content:space-between;">
-            <h2>Grafik Pendapatan</h2>
-            <div class="filter-box">
-              <i class='bx bx-filter-alt'></i>
-              <select id="filterSelect">
-                <option value="tahun">Tahun Ini</option>
-                <option value="bulan">Bulan Ini</option>
-                <option value="minggu">Minggu Ini</option>
-                <option value="hari">Hari Ini</option>
-              </select>
-            </div>
-          </div>
+      <div class="charts-grid">
+        <div class="chart-container">
+          <h2><i class='bx bx-bar-chart'></i> Grafik Pendapatan</h2>
+          <select id="filterSelect">
+            <option value="tahun">Tahun Ini</option>
+            <option value="bulan">Bulan Ini</option>
+            <option value="minggu">Minggu Ini</option>
+            <option value="hari">Hari Ini</option>
+          </select>
           <canvas id="barChart"></canvas>
         </div>
 
-        <div style="flex:1; display:flex; flex-direction:column; gap:20px;">
-          <div class="total-card">
-            <i class='bx bx-wallet'></i>
-            <div class="card-info">
-              <h3>Total Pendapatan</h3>
-              <p style="font-size:20px; margin-top:10px;">
-                <strong>Rp <?= number_format($totalPendapatan, 0, ',', '.'); ?></strong>
-              </p>
-            </div>
-          </div>
-
-          <div class="omzet-card">
-            <i class='bx bx-money'></i>
-            <div class="card-info">
-              <h3>Omzet</h3>
-
-              <div class="omzet-filter" style="margin:10px 0;">
-                <span class="active" data-target="hari">Hari</span>
-                <span data-target="minggu">Minggu</span>
-                <span data-target="bulan">Bulan</span>
-                <span data-target="tahun">Tahun</span>
-              </div>
-
-              <p id="omzet-value"><strong>Rp <?= number_format($omzetHari, 0, ',', '.'); ?></strong></p>
-            </div>
-          </div>
+        <div class="chart-container">
+          <h2><i class='bx bx-time-five'></i> Grafik Jam Terlaris</h2>
+          <canvas id="chartJamTerlaris"></canvas>
         </div>
       </div>
     </div>
   </main>
 
   <script>
-    const bulan = <?= $bulanJSON ?>;
-    const total = <?= $totalJSON ?>;
+    const bulan = <?php echo $bulanJSON; ?>;
+    const total = <?php echo $totalJSON; ?>;
 
     const ctx = document.getElementById('barChart').getContext('2d');
     let barChart = new Chart(ctx, {
@@ -227,17 +152,49 @@ $totalJSON = json_encode($totalArr);
         });
     });
 
-    document.querySelectorAll('.omzet-filter span').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.omzet-filter span').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+    const jamLabels = <?php echo $jamJSON; ?>;
+    const totalJam = <?php echo $totalJamJSON; ?>;
 
-        fetch("get_omzet.php?type=" + btn.dataset.target)
-          .then(res => res.json())
-          .then(data => {
-            document.getElementById("omzet-value").innerHTML = "<strong>Rp " + data.total + "</strong>";
-          });
-      });
+    new Chart(document.getElementById('chartJamTerlaris'), {
+      type: 'line',
+      data: {
+        labels: jamLabels,
+        datasets: [{
+          data: totalJam,
+          borderColor: '#117139',
+          backgroundColor: 'rgba(17,113,57,0.2)',
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          title: {
+            display: true,
+            text: 'Jumlah Transaksi per Jam (Sepanjang Waktu)',
+            color: '#117139'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Jam'
+            }
+          }
+        }
+      }
     });
   </script>
 </body>

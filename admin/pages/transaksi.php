@@ -8,105 +8,120 @@ if (!isset($_SESSION['admin_id'])) {
     exit;
 }
 
-$limit = 5;
+$limit = 7;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
-$total_data = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM transaksi"));
-$total_pages = ceil($total_data / $limit);
+$search = $_GET['search'] ?? '';
+$status = $_GET['status'] ?? '';
+$tanggal = $_GET['tanggal'] ?? '';
 
-$query = mysqli_query($conn, "
-    SELECT t.*,
-        (SELECT td.tanggal FROM transaksi_detail td WHERE td.id_transaksi = t.id LIMIT 1) AS tanggal,
-        (SELECT td.jam_mulai FROM transaksi_detail td WHERE td.id_transaksi = t.id LIMIT 1) AS jam_mulai,
-        (SELECT td.jam_selesai FROM transaksi_detail td WHERE td.id_transaksi = t.id LIMIT 1) AS jam_selesai
+$where = [];
+if ($search) $where[] = "(t.id LIKE '%$search%' OR u.name LIKE '%$search%')";
+if ($status) $where[] = "LOWER(t.status_pembayaran) = '" . strtolower($status) . "'";
+if ($tanggal) $where[] = "DATE((SELECT td.tanggal FROM transaksi_detail td WHERE td.id_transaksi = t.id LIMIT 1)) = '$tanggal'";
+
+$where_sql = $where ? "WHERE " . implode(" AND ", $where) : "";
+
+$total_transaksi = mysqli_num_rows(mysqli_query($conn, "
+    SELECT t.id FROM transaksi t
+    LEFT JOIN user u ON t.user_id = u.id
+    $where_sql
+"));
+$total_pages = ceil($total_transaksi / $limit);
+
+$query_transaksi = mysqli_query($conn, "
+    SELECT t.*, u.name AS user_nama,
+           (SELECT td.tanggal FROM transaksi_detail td WHERE td.id_transaksi = t.id LIMIT 1) AS tanggal,
+           (SELECT td.jam_mulai FROM transaksi_detail td WHERE td.id_transaksi = t.id LIMIT 1) AS jam_mulai,
+           (SELECT td.jam_selesai FROM transaksi_detail td WHERE td.id_transaksi = t.id LIMIT 1) AS jam_selesai
     FROM transaksi t
+    LEFT JOIN user u ON t.user_id = u.id
+    $where_sql
     ORDER BY t.created_at DESC
     LIMIT $limit OFFSET $offset
 ");
 
 $total_pendapatan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT SUM(subtotal) AS total FROM transaksi"))['total'] ?? 0;
-$hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transaksi WHERE DATE(created_at) = CURDATE()"));
+$transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transaksi WHERE DATE(created_at) = CURDATE()"));
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transaksi | Zona Futsal</title>
-    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/transaksi.css?v=<?php echo filemtime('../assets/css/transaksi.css'); ?>">
-    <style>
-        .action-buttons {
-            display: flex;
-            gap: 5px;
-            justify-content: center;
-        }
-    </style>
+    <title>Admin | Transaksi</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/green.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <link rel="stylesheet" href="../assets/css/transaksi.css?v=<?= filemtime('../assets/css/transaksi.css'); ?>">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 
 <body>
     <main class="main">
-           <div class="header">
-      <div class="header-left">
-        <h1>Dashboard</h1>
-      </div>
-
-      <div class="header-right">
-        <div class="notif">
-          <i class='bx bxs-bell'></i>
-        </div>
-
-        <div class="profile-card">
-          <div class="profile-info">
-            <img
-              src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
-              alt="Profile"
-              class="profile-img">
-            <div class="profile-text">
-              <span class="profile-name"><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
-              <small class="profile-role">Administrator</small>
-            </div>
-          </div>
-          <div class="profile-actions">
-            <a href="../logout.php" class="btn-logout">
-              <i class='bx bx-log-out'></i> Keluar
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-        <div class="boot">
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Cari transaksi...">
-                <i class='bx bx-search'></i>
-            </div>
-            <div class="stats">
-                <div class="card">
-                    <i class='bx bx-receipt' style="font-size:40px; color:#007bff;"></i>
-                    <div>
-                        <h3>Total Transaksi</h3>
-                        <p><?= $total_data; ?></p>
+        <div class="header">
+            <h1>Data Transaksi</h1>
+            <div class="header-right">
+                <div class="profile-card">
+                    <img src="../assets/image/<?php echo htmlspecialchars($_SESSION['admin_foto'] ?? 'profil.png'); ?>" class="profile-img">
+                    <div class="profile-info">
+                        <span class="profile-name"><?php echo htmlspecialchars($_SESSION['admin_nama'] ?? 'Admin'); ?></span>
                     </div>
+                    <a href="../logout.php" class="btn-logout"><i class='bx bx-log-out'></i></a>
                 </div>
+            </div>
+        </div>
 
-                <div class="card">
-                    <i class='bx bx-money' style="font-size:40px; color:#28a745;"></i>
-                    <div>
-                        <h3>Pendapatan</h3>
+        <div class="bottom">
+            <div class="card-container">
+                <div class="card card-pendapatan">
+                    <div class="card-icon"><i class='bx bx-credit-card'></i></div>
+                    <div class="card-text">
+                        <h3>Total Pendapatan</h3>
                         <p>Rp <?= number_format($total_pendapatan, 0, ',', '.'); ?></p>
                     </div>
                 </div>
 
-                <div class="card">
-                    <i class='bx bx-calendar-check' style="font-size:40px; color:#ffc107;"></i>
-                    <div>
-                        <h3>Transaksi Hari Ini</h3>
-                        <p><?= $hari_ini; ?></p>
+                <div class="card card-transaksi">
+                    <div class="card-icon"><i class='bx bx-receipt'></i></div>
+                    <div class="card-text">
+                        <h3>Total Transaksi</h3>
+                        <p><?= $total_transaksi; ?> Transaksi</p>
                     </div>
+                </div>
+
+                <div class="card card-hariini">
+                    <div class="card-icon"><i class='bx bx-calendar'></i></div>
+                    <div class="card-text">
+                        <h3>Transaksi Hari Ini</h3>
+                        <p><?= $transaksi_hari_ini; ?> Transaksi</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-search">
+                <form method="GET" action="">
+                    <input type="text" name="search" placeholder="Cari ID / User" value="<?= htmlspecialchars($search); ?>">
+                    <select name="status">
+                        <option value="">Semua Status</option>
+                        <option value="pending" <?= ($status == 'pending') ? 'selected' : ''; ?>>Pending</option>
+                        <option value="lunas" <?= ($status == 'lunas') ? 'selected' : ''; ?>>Lunas</option>
+                        <option value="dibatalkan" <?= ($status == 'dibatalkan') ? 'selected' : ''; ?>>Dibatalkan</option>
+                    </select>
+                    <div class="date-input-wrapper">
+                        <input type="text" id="tanggalFilter" name="tanggal" placeholder="Pilih tanggal..." value="<?= htmlspecialchars($tanggal); ?>">
+                        <i class='bx bx-calendar calendar-icon'></i>
+                    </div>
+
+
+                    <button type="submit">Filter</button>
+                </form>
+                <div class="export-buttons">
+                    <a href="../includes/transaksi/export.php?type=excel&search=<?= urlencode($search); ?>&status=<?= $status; ?>&tanggal=<?= $tanggal; ?>" class="btn_excel">Export Excel</a>
+                    <a href="../includes/transaksi/export.php?type=pdf&search=<?= urlencode($search); ?>&status=<?= $status; ?>&tanggal=<?= $tanggal; ?>" class="btn_pdf">Export PDF</a>
                 </div>
             </div>
 
@@ -116,7 +131,7 @@ $hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transaksi WHERE 
                         <tr>
                             <th>No</th>
                             <th>ID Transaksi</th>
-                            <th>ID User</th>
+                            <th>Nama User</th>
                             <th>Total (Rp)</th>
                             <th>Tanggal</th>
                             <th>Jam</th>
@@ -128,78 +143,135 @@ $hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transaksi WHERE 
                     <tbody>
                         <?php
                         $no = ($page - 1) * $limit + 1;
-                        if (mysqli_num_rows($query) > 0) {
-                            while ($row = mysqli_fetch_assoc($query)) {
-                                $status = strtolower($row['status_pembayaran'] ?? 'pending');
-
+                        if (mysqli_num_rows($query_transaksi) > 0):
+                            while ($row = mysqli_fetch_assoc($query_transaksi)):
+                                $status_bayar = strtolower($row['status_pembayaran'] ?? 'pending');
                                 $tanggal_booking = !empty($row['tanggal']) ? date('d-m-Y', strtotime($row['tanggal'])) : '-';
                                 $jam_booking = (!empty($row['jam_mulai']) && !empty($row['jam_selesai'])) ? $row['jam_mulai'] . ' - ' . $row['jam_selesai'] : '-';
                         ?>
                                 <tr>
                                     <td><?= $no; ?></td>
                                     <td><?= $row['id']; ?></td>
-                                    <td><?= $row['user_id']; ?></td>
+                                    <td><?= $row['user_nama']; ?></td>
                                     <td>Rp <?= number_format($row['subtotal'], 0, ',', '.'); ?></td>
                                     <td><?= $tanggal_booking; ?></td>
                                     <td><?= $jam_booking; ?></td>
-                                    <td><span class='status <?= $status; ?>'><?= ucfirst($status); ?></span></td>
+                                    <td><span class="status <?= $status_bayar; ?>"><?= ucfirst($status_bayar); ?></span></td>
                                     <td>
                                         <?php if (!empty($row['bukti_pembayaran'])): ?>
                                             <a href='../../uploads/booking/<?= $row['bukti_pembayaran']; ?>' target='_blank'>Lihat</a>
                                         <?php else: echo '-';
                                         endif; ?>
                                     </td>
+
                                     <td>
-                                        <div class="action-buttons">
-                                            <a href='../includes/transaksi/transaksi_detail.php?id=<?= $row['id']; ?>' class='btn-detail'>Detail</a>
+                                        <a href="../includes/transaksi/edit.php?id=<?= $row['id']; ?>">Edit</a> |
 
-                                            <?php if ($row['status_pembayaran'] === 'dp'): ?>
-                                                <a href='../includes/transaksi/set_lunas.php?id=<?= $row['id']; ?>'
-                                                    class='btn-success'
-                                                    onclick='return confirm("Set transaksi ini menjadi lunas?")'>Set Lunas</a>
-                                            <?php endif; ?>
+                                        <?php if ($status_bayar != 'lunas'): ?>
+                                            <a href="../includes/transaksi/transaksi_update.php?action=set_lunas&id=<?= $row['id']; ?>"
+                                                onclick="return confirm('Set status transaksi menjadi LUNAS?')">Set Lunas</a> |
+                                        <?php endif; ?>
 
-                                            <a href='../includes/transaksi/batalkan_booking.php?id=<?= $row['id']; ?>'
-                                                class='btn-warning'
-                                                onclick='return confirm("Batalkan transaksi ini dan kosongkan jam yang dibooking?")'>Batalkan</a>
+                                        <?php if ($status_bayar != 'dibatalkan' && $status_bayar != 'lunas'): ?>
+                                            <a href="../includes/transaksi/transaksi_update.php?action=batal&id=<?= $row['id']; ?>"
+                                                onclick="return confirm('Batalkan transaksi?')">Batalkan</a> |
+                                        <?php endif; ?>
 
-                                            <!-- <a href='transaksi_hapus.php?id=<?= $row['id']; ?>'
-                                                class='btn-delete'
-                                                onclick='return confirm("Yakin ingin menghapus transaksi ini?")'>Hapus</a> -->
-                                        </div>
-
+                                        <a href="../includes/transaksi/transaksi_detail.php?id=<?= $row['id']; ?>">Detail</a>
                                     </td>
+
                                 </tr>
-                        <?php
+                            <?php
                                 $no++;
-                            }
-                        } else {
-                            echo "<tr><td colspan='9' style='text-align:center;'>Belum ada data transaksi</td></tr>";
-                        }
-                        ?>
+                            endwhile;
+                        else: ?>
+                            <tr>
+                                <td colspan="9" style="text-align:center;">Belum ada data transaksi</td>
+                            </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
 
             <div class="pagination">
-                <a href="?page=<?= max($page - 1, 1) ?>" class="prev" <?= $page <= 1 ? 'style="pointer-events:none; opacity:0.5;"' : '' ?>>&#10094;</a>
-                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                    <a href="?page=<?= $i ?>" class="<?= $i == $page ? 'active' : '' ?>"><?= $i ?></a>
-                <?php endfor; ?>
-                <a href="?page=<?= min($page + 1, $total_pages) ?>" class="next" <?= $page >= $total_pages ? 'style="pointer-events:none; opacity:0.5;"' : '' ?>>&#10095;</a>
+                <?php
+                $prev = $page - 1;
+                $next = $page + 1;
+
+                if ($page > 1) {
+                    echo '<a href="?page=' . $prev . '&search=' . urlencode($search) . '&status=' . $status . '&tanggal=' . $tanggal . '">&laquo;</a>';
+                } else {
+                    echo '<span class="disabled">&laquo;</span>';
+                }
+
+                if ($total_pages <= 5) {
+                    for ($i = 1; $i <= $total_pages; $i++) {
+                        if ($i == $page) {
+                            echo '<span class="active">' . $i . '</span>';
+                        } else {
+                            echo '<a href="?page=' . $i . '&search=' . urlencode($search) . '&status=' . $status . '&tanggal=' . $tanggal . '">' . $i . '</a>';
+                        }
+                    }
+                } else {
+                    if ($page == 1) echo '<span class="active">1</span>';
+                    else echo '<a href="?page=1&search=' . urlencode($search) . '&status=' . $status . '&tanggal=' . $tanggal . '">1</a>';
+
+                    if ($page > 3) echo '<span>...</span>';
+
+                    $start = max(2, $page - 1);
+                    $end = min($total_pages - 1, $page + 1);
+
+                    for ($i = $start; $i <= $end; $i++) {
+                        if ($i == $page) echo '<span class="active">' . $i . '</span>';
+                        else echo '<a href="?page=' . $i . '&search=' . urlencode($search) . '&status=' . $status . '&tanggal=' . $tanggal . '">' . $i . '</a>';
+                    }
+
+                    if ($page < $total_pages - 2) echo '<span>...</span>';
+
+                    if ($page == $total_pages) echo '<span class="active">' . $total_pages . '</span>';
+                    else echo '<a href="?page=' . $total_pages . '&search=' . urlencode($search) . '&status=' . $status . '&tanggal=' . $tanggal . '">' . $total_pages . '</a>';
+                }
+
+                if ($page < $total_pages) {
+                    echo '<a href="?page=' . $next . '&search=' . urlencode($search) . '&status=' . $status . '&tanggal=' . $tanggal . '">&raquo;</a>';
+                } else {
+                    echo '<span class="disabled">&raquo;</span>';
+                }
+                ?>
             </div>
+
         </div>
     </main>
-
     <script>
-        const searchInput = document.getElementById('searchInput');
-        searchInput.addEventListener('keyup', function() {
-            const keyword = this.value.toLowerCase();
-            const rows = document.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(keyword) ? '' : 'none';
-            });
+        flatpickr("#tanggalFilter", {
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "d F Y",
+
+            theme: "green",
+            defaultDate: "<?= htmlspecialchars($tanggal); ?>",
+            locale: {
+                firstDayOfWeek: 1,
+                weekdays: {
+                    shorthand: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+                    longhand: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+                },
+                months: {
+                    shorthand: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                    longhand: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                },
+            },
+            onReady: function(selectedDates, dateStr, instance) {
+
+                const clearBtn = document.createElement("button");
+                clearBtn.textContent = "Clear";
+                clearBtn.type = "button";
+                clearBtn.classList.add("flatpickr-clear-btn");
+                clearBtn.addEventListener("click", function() {
+                    instance.clear();
+                });
+                instance.calendarContainer.appendChild(clearBtn);
+            }
         });
     </script>
 </body>

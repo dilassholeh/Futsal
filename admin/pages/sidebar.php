@@ -77,6 +77,20 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <i class='bx bx-group'></i><span>User</span>
             </a>
 
+
+            <a href="riwayat_booking.php" class="<?php echo ($current_page == 'riwayat_booking.php') ? 'active' : ''; ?>">
+                <i class='bx bx-history'></i><span>Riwayat Booking</span>
+            </a>
+
+            <a href="admin.php" class="<?php echo ($current_page == 'admin.php') ? 'active' : ''; ?>">
+                <i class='bx bx-shield-quarter'></i><span>Kelola Admin</span>
+            </a>
+
+            <a href="pengaturan.php" class="<?php echo ($current_page == 'pengaturan.php') ? 'active' : ''; ?>">
+                <i class='bx bx-cog'></i><span>Pengaturan Website</span>
+            </a>
+
+
             <div class="log">
                 <a href="../logout.php">
                     <i class='bx bx-log-out'></i><span>Logout</span>
