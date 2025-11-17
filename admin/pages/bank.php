@@ -26,65 +26,48 @@ if (!isset($_SESSION['admin_id'])) {
 <body>
   <main class="main">
     <div class="header">
-      <div class="header-left">
-        <h1>Dashboard</h1>
-      </div>
-
+      <h1>Data Bank</h1>
       <div class="header-right">
-        <div class="notif">
-          <i class='bx bxs-bell'></i>
-        </div>
-
         <div class="profile-card">
+          <img src="../assets/image/<?php echo htmlspecialchars($_SESSION['admin_foto'] ?? 'profil.png'); ?>" class="profile-img">
           <div class="profile-info">
-            <img
-              src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
-              alt="Profile"
-              class="profile-img">
-            <div class="profile-text">
-              <span class="profile-name"><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
-              <small class="profile-role">Administrator</small>
-            </div>
+            <span class="profile-name"><?php echo htmlspecialchars($_SESSION['admin_nama'] ?? 'Admin'); ?></span>
           </div>
-          <div class="profile-actions">
-            <a href="../logout.php" class="btn-logout">
-              <i class='bx bx-log-out'></i> Keluar
-            </a>
-          </div>
+          <a href="../logout.php" class="btn-logout"><i class='bx bx-log-out'></i></a>
         </div>
       </div>
     </div>
 
+    <div class="bottom">
+      <div class="latar">
+        <div class="table-actions">
+          <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Cari...">
+            <i class='bx bx-search'></i>
+          </div>
 
-    <div class="latar">
-      <div class="table-actions">
-        <div class="search-box">
-          <input type="text" id="searchInput" placeholder="Cari...">
-          <i class='bx bx-search'></i>
+          <button class="btn-tambah" id="openAddModal"><i class='bx bx-plus'></i>Tambah</button>
         </div>
 
-        <button class="btn-tambah" id="openAddModal"><i class='bx bx-plus'></i>Tambah</button>
-      </div>
-
-      <div class="table-wrapper">
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nama Bank</th>
-                <th>Atas Nama</th>
-                <th>No Rekening</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="bankTable">
-              <?php
-              $query = "SELECT * FROM bank ORDER BY id DESC";
-              $result = $conn->query($query);
-              if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                  echo "<tr>
+        <div class="table-wrapper">
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nama Bank</th>
+                  <th>Atas Nama</th>
+                  <th>No Rekening</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="bankTable">
+                <?php
+                $query = "SELECT * FROM bank ORDER BY id DESC";
+                $result = $conn->query($query);
+                if ($result->num_rows > 0) {
+                  while ($row = $result->fetch_assoc()) {
+                    echo "<tr>
                         <td>{$row['id']}</td>
                         <td>{$row['nama_bank']}</td>
                         <td>{$row['atas_nama']}</td>
@@ -102,13 +85,14 @@ if (!isset($_SESSION['admin_id'])) {
                           </button>
                         </td>
                       </tr>";
+                  }
+                } else {
+                  echo "<tr><td colspan='5' style='text-align:center;'>Belum ada data bank</td></tr>";
                 }
-              } else {
-                echo "<tr><td colspan='5' style='text-align:center;'>Belum ada data bank</td></tr>";
-              }
-              ?>
-            </tbody>
-          </table>
+                ?>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

@@ -1,7 +1,6 @@
 <?php
 session_start();
-include '../../includes/koneksi.php';
-session_start();
+include '../includes/koneksi.php';
 
 
 $current_date = date('Y-m-d');
@@ -18,7 +17,23 @@ if (isset($_SESSION['user_id'])) {
   $queryCart = mysqli_query($conn, "SELECT COUNT(*) AS jumlah FROM keranjang WHERE user_id = '$user_id'");
   $cartData = mysqli_fetch_assoc($queryCart);
   $jumlahKeranjang = $cartData['jumlah'];
+
+
+
+  $notifQuery = mysqli_query($conn, "
+        SELECT * FROM pesan 
+        WHERE user_id = '$user_id' 
+        ORDER BY created_at DESC
+    ");
+  $notifBaruResult = mysqli_query($conn, "
+        SELECT COUNT(*) AS jumlah_baru 
+        FROM pesan 
+        WHERE user_id = '$user_id' AND status='baru'
+    ");
+  $notifBaruData = mysqli_fetch_assoc($notifBaruResult);
+  $notifBaru = $notifBaruData['jumlah_baru'];
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -31,52 +46,15 @@ if (isset($_SESSION['user_id'])) {
   <link href="https://unpkg.com/boxicons@latest/css/boxicons.min.css" rel="stylesheet">
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/event.css?v=<?php echo filemtime('../assets/css/event.css'); ?>">
+  <link rel="stylesheet" href="./assets/css/event.css?v=<?php echo filemtime('./assets/css/event.css'); ?>">
 </head>
 
 <body>
-  <header>
-    <nav class="nav">
-      <div class="logo-container">
-        <a href="../index.php" class="logo-text">
-          <img src="../assets/image/logo.png" alt="ZonaFutsal Logo" class="logo-img">
-          ZOFA
-        </a>
-      </div>
-
-      <div class="sub-container">
-        <ul>
-          <li><a href="../index.php">Beranda</a></li>
-          <li><a href="sewa.php" class="active">Penyewaan</a></li>
-          <li><a href="event.php">Event</a></li>
-        </ul>
-
-
-        <?php if (isset($_SESSION['user_id'])): ?>
-          <div class="user-menu">
-            <a href="keranjang.php" class="btn-cart">
-              <i class="bx bx-cart"></i>
-              <?php if ($jumlahKeranjang > 0): ?>
-                <span class="cart-count"><?= $jumlahKeranjang; ?></span>
-              <?php endif; ?>
-            </a>
-
-            <span class="user-name">👋 <?= htmlspecialchars($_SESSION['nama']); ?></span>
-            <a href="../logout.php" class="btn-logout">Keluar</a>
-          </div>
-
-        <?php else: ?>
-          <div class="user-menu">
-            <a href="../login.php" class="btn-masuk">Masuk</a>
-            <a href="../register.php" class="btn-daftar">Daftar</a>
-          </div>
-        <?php endif; ?>
-      </div>
-    </nav>
-  </header>
-
+<?php  
+include './pages/header.php'
+?>
   <section class="hero">
-    <img src="../assets/image/bakground.png" alt="ZonaFutsal" class="hero-img">
+    <img src="./assets/image/bakground.png" alt="ZonaFutsal" class="hero-img">
     <div class="hero-overlay">
       <h1>Event Futsal Terbaru</h1>
     </div>
@@ -91,7 +69,7 @@ if (isset($_SESSION['user_id'])) {
         $tanggal_mulai = date('d M Y', strtotime($row['tanggal_mulai']));
         $tanggal_berakhir = date('d M Y', strtotime($row['tanggal_berakhir']));
 
-        $foto_path = !empty($row['foto']) ? "../../uploads/event/{$row['foto']}" : "../assets/image/default-event.jpg";
+        $foto_path = !empty($row['foto']) ? "../uploads/event/{$row['foto']}" : "./assets/image/default-event.jpg";
 
         $status = '';
         $status_class = '';
@@ -116,7 +94,7 @@ if (isset($_SESSION['user_id'])) {
                         </div>
                         <div class='event-desc'>" . nl2br(substr($row['deskripsi'], 0, 150)) .
           (strlen($row['deskripsi']) > 150 ? '...' : '') . "</div>
-                        <a href='detail_event.php?id={$row['id']}' class='btn'>Lihat Detail</a>
+                        <a href='./pages/detail_event.php?id={$row['id']}' class='btn'>Lihat Detail</a>
                     </div>
                 </div>";
       }
@@ -131,8 +109,16 @@ if (isset($_SESSION['user_id'])) {
   <div class="garis"></div>
 
   <?php
-  include 'footer.php';
+  include './pages/footer.php';
   ?>
+
+  <script>
+    const burger = document.querySelector('.burger');
+    const navMenu = document.querySelector('.nav-menu');
+    burger.addEventListener('click', () => {
+      navMenu.classList.toggle('active');
+    });
+  </script>
 </body>
 
 </html>

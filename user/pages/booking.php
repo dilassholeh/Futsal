@@ -26,7 +26,6 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
     <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/green.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>

@@ -178,29 +178,9 @@ if (strtotime($current_date) < strtotime($event['tanggal_mulai'])) {
 </head>
 
 <body>
-    <header>
-        <nav class="nav">
-            <div class="logo-container">
-                <a href="../index.php" class="logo-text">
-                    <img src="../assets/image/logo.png" alt="ZonaFutsal Logo" class="logo-img">
-                    ZonaFutsal
-                </a>
-            </div>
-            <div class="sub-container">
-                <ul>
-                    <li><a href="../index.php">Beranda</a></li>
-                    <li><a href="sewa.php">Penyewaan</a></li>
-                    <li><a href="event.php">Event</a></li>
-                </ul>
-
-                <a href="login.php" class="btn-masuk">Masuk</a>
-                <a href="register.php" class="btn-daftar">Daftar</a>
-            </div>
-        </nav>
-    </header>
 
     <div class="detail-container">
-        <a href="event.php" class="back-button">← Kembali ke Daftar Event</a>
+        <a href="../event.php" class="back-button">← Kembali ke Daftar Event</a>
 
         <div class="event-detail">
             <div class="event-header">
@@ -239,29 +219,7 @@ if (strtotime($current_date) < strtotime($event['tanggal_mulai'])) {
         </div>
     </div>
 
-    <div class="garis"></div>
 
-    <footer>
-        <div class="footer-section">
-            <h4>Tentang Kami</h4>
-            <p>ZonaFutsal adalah platform modern untuk memesan lapangan, melihat jadwal, dan mengikuti event futsal secara online.</p>
-        </div>
-
-        <div class="footer-section">
-            <h4>Link Cepat</h4>
-            <a href="../index.php">Beranda</a>
-            <a href="sewa.php">Penyewaan</a>
-            <a href="event.php">Event</a>
-            <a href="kontak.php">Kontak</a>
-        </div>
-
-        <div class="footer-section">
-            <h4>Hubungi Kami</h4>
-            <p>Email: info@zonafutsal.id</p>
-            <p>Telp: +62 812 3456 7890</p>
-            <p>Alamat: Jl. Raya Sport Center No. 88, Bandung</p>
-        </div>
-    </footer>
 </body>
 
 </html>

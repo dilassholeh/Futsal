@@ -1,6 +1,9 @@
 <?php
 include '../../includes/koneksi.php';
-$current_page = basename($_SERVER['PHP_SELF']);
+
+$limit = 10;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['simpan_transaksi'])) {
     $tanggal = $_POST['tanggal'];
@@ -13,35 +16,46 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['simpan_transaksi'])) {
 
     $sql = "INSERT INTO transaksi_keuangan (tanggal, keterangan, pemasukan, pengeluaran) 
             VALUES ('$tanggal', '$keterangan', $pemasukan, $pengeluaran)";
-
-    if (mysqli_query($conn, $sql)) {
-        echo "<script>alert('Data berhasil disimpan!');</script>";
-    } else {
-        echo "<script>alert('Gagal menyimpan data: " . mysqli_error($conn) . "');</script>";
-    }
+    mysqli_query($conn, $sql);
 }
 
-$query_transaksi = "SELECT * FROM transaksi_keuangan ORDER BY tanggal DESC, id DESC";
+$query_transaksi = "SELECT * FROM transaksi_keuangan ORDER BY tanggal DESC, id DESC LIMIT $limit OFFSET $offset";
 $result_transaksi = mysqli_query($conn, $query_transaksi);
 
-$query_total = "SELECT 
-    SUM(pemasukan) as total_pemasukan, 
-    SUM(pengeluaran) as total_pengeluaran 
-    FROM transaksi_keuangan";
+$total_query = mysqli_query($conn, "SELECT COUNT(*) as total FROM transaksi_keuangan");
+$total_data = mysqli_fetch_assoc($total_query)['total'];
+$total_pages = ceil($total_data / $limit);
+
+$query_total = "SELECT SUM(pemasukan) as total_pemasukan, SUM(pengeluaran) as total_pengeluaran FROM transaksi_keuangan";
 $result_total = mysqli_query($conn, $query_total);
 $total_data = mysqli_fetch_assoc($result_total);
 $total_pemasukan = $total_data['total_pemasukan'] ?? 0;
 $total_pengeluaran = $total_data['total_pengeluaran'] ?? 0;
 $saldo_akhir = $total_pemasukan - $total_pengeluaran;
 
-$query_bulanan = "SELECT 
-    DATE_FORMAT(tanggal, '%Y-%m') as bulan,
-    SUM(pemasukan) as total_pemasukan,
-    SUM(pengeluaran) as total_pengeluaran
-    FROM transaksi_keuangan
-    GROUP BY DATE_FORMAT(tanggal, '%Y-%m')
-    ORDER BY bulan DESC";
+$query_bulanan = "SELECT DATE_FORMAT(tanggal,'%Y-%m') as bulan,
+                        SUM(pemasukan) as total_pemasukan,
+                        SUM(pengeluaran) as total_pengeluaran
+                  FROM transaksi_keuangan
+                  GROUP BY DATE_FORMAT(tanggal,'%Y-%m')
+                  ORDER BY bulan ASC";
 $result_bulanan = mysqli_query($conn, $query_bulanan);
+
+$bulan_labels = [];
+$pemasukan_data = [];
+$pengeluaran_data = [];
+$saldo_cumulative = [];
+$saldo = 0;
+$bulan_indo = ['01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April', '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus', '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'];
+
+while ($row = mysqli_fetch_assoc($result_bulanan)) {
+    list($tahun, $bulan) = explode('-', $row['bulan']);
+    $bulan_labels[] = $bulan_indo[$bulan] . ' ' . $tahun;
+    $pemasukan_data[] = $row['total_pemasukan'];
+    $pengeluaran_data[] = $row['total_pengeluaran'];
+    $saldo += ($row['total_pemasukan'] - $row['total_pengeluaran']);
+    $saldo_cumulative[] = $saldo;
+}
 ?>
 
 <!DOCTYPE html>
@@ -50,604 +64,204 @@ $result_bulanan = mysqli_query($conn, $query_bulanan);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Keuangan - ZOFA</title>
-    <link rel="stylesheet" href="../assets/css/sidebar.css?v=<?php echo filemtime('../assets/css/sidebar.css'); ?>">
+    <title>Laporan Keuangan - Dashboard Modern</title>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="../assets/css/keuangan.css?v=<?php echo filemtime('../assets/css/keuangan.css'); ?>">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Poppins", sans-serif;
-        }
 
-        :root {
-            --primary: #1a1a1a;
-            --background: #ffffff;
-            --text: #1a1a1a;
-            --white: #ffffff;
-            --gray-border: #e0e0e0;
-        }
-
-        body {
-            background: var(--background);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-            color: var(--text);
-        }
-
-        main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 15px;
-            gap: 20px;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-
-        .header {
-            display: flex;
-            background: #f5f5f5;
-            padding: 10px;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 10px;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .notif {
-            background: #b5fcad;
-            padding: 8px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.3s;
-        }
-
-        .notif:hover {
-            background: #a3ff99;
-        }
-
-        .notif i {
-            color: #117139;
-            font-size: 18px;
-        }
-
-        .profile-card {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: #fff;
-            padding: 6px 12px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-        }
-
-        .profile-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .profile-img {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #117139;
-        }
-
-        .profile-text {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .profile-name {
-            font-weight: 600;
-            font-size: 15px;
-            color: #111;
-        }
-
-        .profile-role {
-            font-size: 12px;
-            color: #666;
-        }
-
-        .btn-logout {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 13px;
-            background: #117139;
-            color: #fff;
-            padding: 5px 10px;
-            border-radius: 6px;
-            text-decoration: none;
-            transition: 0.3s;
-        }
-
-        .btn-logout:hover {
-            background: #0b4c26;
-        }
-
-
-        h1 {
-            color: #333;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .tab-btn {
-            background: #eee;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .tab-btn:hover {
-            background: #ddd;
-        }
-
-        .tab-btn.active {
-            background: #007bff;
-            color: white;
-        }
-
-        .tab-content {
-            display: none;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .form-container {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 60px;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: #007bff;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #0056b3;
-        }
-
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c82333;
-        }
-
-        .table-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 800px;
-        }
-
-        table th,
-        table td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-
-        table th {
-            background-color: #007bff;
-            color: white;
-            font-weight: 600;
-        }
-
-        table tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        table tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        .summary {
-            margin-top: 20px;
-            background: #e9f5ff;
-            padding: 15px;
-            border-radius: 8px;
-            font-weight: 500;
-        }
-
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .summary-card {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .summary-card h3 {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .summary-card .amount {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .summary-card.income .amount {
-            color: #28a745;
-        }
-
-        .summary-card.expense .amount {
-            color: #dc3545;
-        }
-
-        .summary-card.balance .amount {
-            color: #007bff;
-        }
-
-        canvas {
-            max-width: 100%;
-            height: 400px !important;
-        }
-
-        .text-success {
-            color: #28a745;
-        }
-
-        .text-danger {
-            color: #dc3545;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .summary-grid {
-                grid-template-columns: 1fr;
-            }
-        }
     </style>
 </head>
 
 <body>
     <?php include 'sidebar.php'; ?>
-
     <main>
-
         <div class="header">
-            <div class="header-left">
-                <h1><i class='bx bx-wallet'></i> Laporan Keuangan</h1>
-
-            </div>
-
+            <h1>Data Keuangan</h1>
             <div class="header-right">
-                <div class="notif">
-                    <i class='bx bxs-bell'></i>
-                </div>
-
                 <div class="profile-card">
+                    <img src="../assets/image/<?php echo htmlspecialchars($_SESSION['admin_foto'] ?? 'profil.png'); ?>" class="profile-img">
                     <div class="profile-info">
-                        <img
-                            src="../assets/image/<?= $_SESSION['admin_foto'] ?? 'profil.png'; ?>"
-                            alt="Profile"
-                            class="profile-img">
-                        <div class="profile-text">
-                            <span class="profile-name"><?= $_SESSION['admin_nama'] ?? 'Admin'; ?></span>
-                            <small class="profile-role">Administrator</small>
-                        </div>
+                        <span class="profile-name"><?php echo htmlspecialchars($_SESSION['admin_nama'] ?? 'Admin'); ?></span>
                     </div>
-                    <div class="profile-actions">
-                        <a href="../logout.php" class="btn-logout">
-                            <i class='bx bx-log-out'></i> Keluar
-                        </a>
-                    </div>
+                    <a href="../logout.php" class="btn-logout"><i class='bx bx-log-out'></i></a>
                 </div>
             </div>
         </div>
 
-        <div class="tabs">
-            <button class="tab-btn active" data-tab="input">Input Transaksi</button>
-            <button class="tab-btn" data-tab="harian">Transaksi Harian</button>
-            <button class="tab-btn" data-tab="bulanan">Laporan Bulanan</button>
-            <button class="tab-btn" data-tab="grafik">Grafik Keuangan</button>
-        </div>
+        <div class="bottom">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="input">Input Transaksi</button>
+                <button class="tab-btn" data-tab="harian">Transaksi Harian</button>
+                <button class="tab-btn" data-tab="bulanan">Laporan Bulanan</button>
+                <button class="tab-btn" data-tab="grafik">Grafik Keuangan</button>
+            </div>
 
-        <div class="tab-content active" id="input">
-            <h2>💰 Input Transaksi Keuangan</h2>
-            <div class="form-container">
-                <form method="POST" action="">
-                    <div class="form-row">
+            <div class="tab-content active" id="input">
+                <h2><i class='bx bx-wallet'></i> Input Transaksi Keuangan</h2>
+                <div class="form-container">
+                    <form method="POST">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tanggal">Tanggal <span style="color:red">*</span></label>
+                                <div class="input-icon">
+                                    <input type="text" id="tanggal" name="tanggal" required value="<?= date('Y-m-d'); ?>" placeholder="Pilih tanggal">
+                                    <i class='bx bx-calendar'></i>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Tipe Transaksi <span style="color:red">*</span></label>
+                                <select name="tipe" required>
+                                    <option value="">-- Pilih Tipe --</option>
+                                    <option value="pemasukan">Pemasukan</option>
+                                    <option value="pengeluaran">Pengeluaran</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="form-group">
-                            <label for="tanggal">Tanggal <span style="color: red;">*</span></label>
-                            <input type="date" id="tanggal" name="tanggal" required value="<?= date('Y-m-d'); ?>">
+                            <label>Keterangan <span style="color:red">*</span></label>
+                            <textarea name="keterangan" required placeholder="Contoh: Sewa Lapangan A, Pembelian Bola"></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="tipe">Tipe Transaksi <span style="color: red;">*</span></label>
-                            <select id="tipe" name="tipe" required>
-                                <option value="">-- Pilih Tipe --</option>
-                                <option value="pemasukan">Pemasukan</option>
-                                <option value="pengeluaran">Pengeluaran</option>
-                            </select>
+                            <label>Jumlah (Rp) <span style="color:red">*</span></label>
+                            <input type="number" name="jumlah" required min="0" placeholder="500000">
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="keterangan">Keterangan <span style="color: red;">*</span></label>
-                        <textarea id="keterangan" name="keterangan" required placeholder="Contoh: Sewa Lapangan A, Pembelian Bola, dll."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="jumlah">Jumlah (Rp) <span style="color: red;">*</span></label>
-                        <input type="number" id="jumlah" name="jumlah" required placeholder="Contoh: 500000" min="0">
-                    </div>
-
-                    <button type="submit" name="simpan_transaksi" class="btn btn-primary">
-                        <i class='bx bx-save'></i> Simpan Transaksi
-                    </button>
-                </form>
-            </div>
-
-            <div class="summary-grid">
-                <div class="summary-card income">
-                    <h3>Total Pemasukan</h3>
-                    <div class="amount">Rp <?= number_format($total_pemasukan, 0, ',', '.'); ?></div>
+                        <button type="submit" name="simpan_transaksi" class="btn btn-primary"><i class='bx bx-save'></i> Simpan</button>
+                    </form>
                 </div>
-                <div class="summary-card expense">
-                    <h3>Total Pengeluaran</h3>
-                    <div class="amount">Rp <?= number_format($total_pengeluaran, 0, ',', '.'); ?></div>
-                </div>
-                <div class="summary-card balance">
-                    <h3>Saldo Akhir</h3>
-                    <div class="amount">Rp <?= number_format($saldo_akhir, 0, ',', '.'); ?></div>
+                <div class="summary-grid">
+                    <div class="summary-card income">
+                        <h3><i class='bx bx-money'></i> Total Pemasukan</h3>
+                        <div class="amount">Rp <?= number_format($total_pemasukan, 0, ',', '.'); ?></div>
+                    </div>
+                    <div class="summary-card expense">
+                        <h3><i class='bx bx-credit-card'></i> Total Pengeluaran</h3>
+                        <div class="amount">Rp <?= number_format($total_pengeluaran, 0, ',', '.'); ?></div>
+                    </div>
+                    <div class="summary-card balance">
+                        <h3><i class='bx bx-wallet'></i> Saldo Akhir</h3>
+                        <div class="amount">Rp <?= number_format($saldo_akhir, 0, ',', '.'); ?></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="tab-content" id="harian">
-            <h2>📅 Transaksi Harian</h2>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Tanggal</th>
-                            <th>Keterangan</th>
-                            <th>Pemasukan (Rp)</th>
-                            <th>Pengeluaran (Rp)</th>
-                            <th>Saldo Akhir (Rp)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        if (mysqli_num_rows($result_transaksi) > 0) {
-                            $no = 1;
-                            $saldo = 0;
-                            mysqli_data_seek($result_transaksi, 0);
+            <div class="tab-content" id="harian">
+                <h2><i class='bx bx-calendar'></i> Transaksi Harian</h2>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Tanggal</th>
+                                <th>Keterangan</th>
+                                <th>Pemasukan</th>
+                                <th>Pengeluaran</th>
+                                <th>Saldo Akhir</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $no = ($page - 1) * $limit + 1;
+                            $saldo_temp = 0;
                             while ($row = mysqli_fetch_assoc($result_transaksi)) {
-                                $saldo += $row['pemasukan'] - $row['pengeluaran'];
+                                $saldo_temp += $row['pemasukan'] - $row['pengeluaran'];
                                 echo "<tr>
-                                    <td>{$no}</td>
-                                    <td>" . date('d-m-Y', strtotime($row['tanggal'])) . "</td>
-                                    <td>{$row['keterangan']}</td>
-                                    <td class='text-success'>" . number_format($row['pemasukan'], 0, ',', '.') . "</td>
-                                    <td class='text-danger'>" . number_format($row['pengeluaran'], 0, ',', '.') . "</td>
-                                    <td><strong>" . number_format($saldo, 0, ',', '.') . "</strong></td>
-                                </tr>";
+    <td>{$no}</td>
+    <td>" . date('d-m-Y', strtotime($row['tanggal'])) . "</td>
+    <td>{$row['keterangan']}</td>
+    <td class='text-success'>" . number_format($row['pemasukan'], 0, ',', '.') . "</td>
+    <td class='text-danger'>" . number_format($row['pengeluaran'], 0, ',', '.') . "</td>
+    <td><strong>" . number_format($saldo_temp, 0, ',', '.') . "</strong></td>
+    </tr>";
                                 $no++;
                             }
-                        } else {
-                            echo "<tr><td colspan='6' class='text-center'>Belum ada data transaksi</td></tr>";
-                        }
-                        ?>
-                    </tbody>
-                </table>
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                        <a href="?page=<?= $i; ?>" class="<?= ($i == $page) ? 'active' : '' ?>"><?= $i; ?></a>
+                    <?php endfor; ?>
+                </div>
             </div>
 
-            <div class="summary">
-                Total Saldo Akhir: <strong>Rp <?= number_format($saldo_akhir, 0, ',', '.'); ?></strong>
-            </div>
-        </div>
-
-        <div class="tab-content" id="bulanan">
-            <h2>📊 Laporan Bulanan</h2>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Bulan</th>
-                            <th>Total Pemasukan</th>
-                            <th>Total Pengeluaran</th>
-                            <th>Laba / Rugi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        if (mysqli_num_rows($result_bulanan) > 0) {
-                            $bulan_indo = [
-                                '01' => 'Januari',
-                                '02' => 'Februari',
-                                '03' => 'Maret',
-                                '04' => 'April',
-                                '05' => 'Mei',
-                                '06' => 'Juni',
-                                '07' => 'Juli',
-                                '08' => 'Agustus',
-                                '09' => 'September',
-                                '10' => 'Oktober',
-                                '11' => 'November',
-                                '12' => 'Desember'
-                            ];
-
-                            while ($row = mysqli_fetch_assoc($result_bulanan)) {
-                                $laba = $row['total_pemasukan'] - $row['total_pengeluaran'];
-                                $status = $laba >= 0 ? 'Laba' : 'Rugi';
-                                $status_class = $laba >= 0 ? 'text-success' : 'text-danger';
-
-                                // Format bulan
-                                list($tahun, $bulan) = explode('-', $row['bulan']);
-                                $nama_bulan = $bulan_indo[$bulan] . ' ' . $tahun;
-
+            <div class="tab-content" id="bulanan">
+                <h2><i class='bx bx-bar-chart-alt-2'></i> Laporan Bulanan</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Bulan</th>
+                                <th>Pemasukan</th>
+                                <th>Pengeluaran</th>
+                                <th>Laba/Rugi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            foreach ($bulan_labels as $idx => $bulan) {
+                                $laba = $pemasukan_data[$idx] - $pengeluaran_data[$idx];
+                                $status_class = ($laba >= 0) ? 'text-success' : 'text-danger';
+                                $status_label = ($laba >= 0) ? 'Laba' : 'Rugi';
                                 echo "<tr>
-                                    <td>{$nama_bulan}</td>
-                                    <td class='text-success'>Rp " . number_format($row['total_pemasukan'], 0, ',', '.') . "</td>
-                                    <td class='text-danger'>Rp " . number_format($row['total_pengeluaran'], 0, ',', '.') . "</td>
-                                    <td class='{$status_class}'><strong>{$status}: Rp " . number_format(abs($laba), 0, ',', '.') . "</strong></td>
-                                </tr>";
+    <td>{$bulan}</td>
+    <td class='text-success'>Rp " . number_format($pemasukan_data[$idx], 0, ',', '.') . "</td>
+    <td class='text-danger'>Rp " . number_format($pengeluaran_data[$idx], 0, ',', '.') . "</td>
+    <td class='{$status_class}'><strong>{$status_label}: Rp " . number_format(abs($laba), 0, ',', '.') . "</strong></td>
+    </tr>";
                             }
-                        } else {
-                            echo "<tr><td colspan='4' class='text-center'>Belum ada data laporan bulanan</td></tr>";
-                        }
-                        ?>
-                    </tbody>
-                </table>
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
 
-        <div class="tab-content" id="grafik">
-            <h2>📈 Grafik Arus Kas</h2>
-            <canvas id="financeChart"></canvas>
+            <div class="tab-content" id="grafik">
+                <h2><i class='bx bx-line-chart'></i> Grafik Keuangan</h2>
+                <div class="chart-grid">
+                    <div class="chart-item">
+                        <canvas id="chartIncomeExpense"></canvas>
+                    </div>
+                    <div class="chart-item">
+                        <canvas id="chartSaldo"></canvas>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </main>
 
     <script>
         const buttons = document.querySelectorAll('.tab-btn');
         const contents = document.querySelectorAll('.tab-content');
-        buttons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                buttons.forEach(b => b.classList.remove('active'));
-                contents.forEach(c => c.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById(btn.dataset.tab).classList.add('active');
-            });
-        });
+        buttons.forEach(btn => btn.addEventListener('click', () => {
+            buttons.forEach(b => b.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+        }));
 
-        const inputJumlah = document.getElementById('jumlah');
-        inputJumlah.addEventListener('input', function(e) {
-            let value = this.value.replace(/[^0-9]/g, '');
-            this.value = value;
-        });
-
-        <?php
-        mysqli_data_seek($result_bulanan, 0);
-        $labels = [];
-        $pemasukan_data = [];
-        $pengeluaran_data = [];
-
-        while ($row = mysqli_fetch_assoc($result_bulanan)) {
-            list($tahun, $bulan) = explode('-', $row['bulan']);
-            $labels[] = $bulan_indo[$bulan] . ' ' . $tahun;
-            $pemasukan_data[] = $row['total_pemasukan'];
-            $pengeluaran_data[] = $row['total_pengeluaran'];
-        }
-
-        $labels = array_reverse($labels);
-        $pemasukan_data = array_reverse($pemasukan_data);
-        $pengeluaran_data = array_reverse($pengeluaran_data);
-        ?>
-
-        const ctx = document.getElementById('financeChart');
-        new Chart(ctx, {
+        new Chart(document.getElementById('chartIncomeExpense'), {
             type: 'bar',
             data: {
-                labels: <?= json_encode($labels); ?>,
+                labels: <?= json_encode($bulan_labels); ?>,
                 datasets: [{
                         label: 'Pemasukan',
                         data: <?= json_encode($pemasukan_data); ?>,
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(40,167,69,0.6)',
+                        borderColor: 'rgba(40,167,69,1)',
                         borderWidth: 1
                     },
                     {
                         label: 'Pengeluaran',
                         data: <?= json_encode($pengeluaran_data); ?>,
-                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(220,53,69,0.6)',
+                        borderColor: 'rgba(220,53,69,1)',
                         borderWidth: 1
                     }
                 ]
@@ -661,7 +275,8 @@ $result_bulanan = mysqli_query($conn, $query_bulanan);
                     },
                     title: {
                         display: true,
-                        text: 'Grafik Keuangan Bulanan',
+                        text: 'Pemasukan & Pengeluaran Bulanan',
+                        color: '#28a745',
                         font: {
                             size: 16
                         }
@@ -671,13 +286,58 @@ $result_bulanan = mysqli_query($conn, $query_bulanan);
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: function(value) {
-                                return 'Rp ' + value.toLocaleString('id-ID');
-                            }
+                            callback: value => 'Rp ' + value.toLocaleString('id-ID')
                         }
                     }
                 }
             }
+        });
+
+        new Chart(document.getElementById('chartSaldo'), {
+            type: 'line',
+            data: {
+                labels: <?= json_encode($bulan_labels); ?>,
+                datasets: [{
+                    label: 'Saldo Kumulatif',
+                    data: <?= json_encode($saldo_cumulative); ?>,
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40,167,69,0.3)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Saldo Kumulatif Bulanan',
+                        color: '#28a745',
+                        font: {
+                            size: 16
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: value => 'Rp ' + value.toLocaleString('id-ID')
+                        }
+                    }
+                }
+            }
+        });
+
+        flatpickr("#tanggal", {
+            dateFormat: "Y-m-d",
+            defaultDate: "today",
+            allowInput: true,
         });
     </script>
 </body>

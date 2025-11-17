@@ -5,154 +5,9 @@
 }
 
 body {
-    font-family: "Poppins", Arial, Helvetica, sans-serif;
+    font-family: "Poppins", sans-serif;
     background: #f5f5f5;
-}
-
-header {
-    padding: 0;
-    margin: 0;
-}
-
-.nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background: #f5f5f5;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 7px 50px;
-    font-weight: bold;
-    z-index: 1000;
-    border-bottom: none;
-}
-
-.logo-container {
-    display: flex;
-    align-items: center;
-}
-
-.logo-text {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    color: #333;
-    text-decoration: none;
-    transition: color 0.3s ease;
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 1px;
-}
-
-.logo-text:hover {
-    color: #117139;
-}
-
-.logo-text img {
-    width: 45px;
-    height: 45px;
-    object-fit: cover;
-}
-
-.sub-container {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    flex: 1;
-}
-
-.sub-container ul {
-    display: flex;
-    list-style: none;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    margin: 0 auto;
-}
-
-.sub-container ul li a {
-    text-decoration: none;
-    color: #333;
-    transition: color 0.3s ease;
-    margin: 0 15px;
-    font-weight: 500;
-    transition: 0.3s;
-}
-
-.sub-container ul li a:hover {
-    color: #117139;
-}
-
-.btn-masuk,
-.btn-daftar {
-    padding: 6px 14px;
-    border-radius: 6px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: 0.3s;
-}
-
-.btn-masuk {
-    border: 1px solid #117139;
-    color: #117139;
-    margin-right: 10px;
-}
-
-.btn-masuk:hover {
-    background: #117139;
-    color: #fff;
-}
-
-.btn-daftar {
-    background: #117139;
-    color: #fff;
-}
-
-.btn-daftar:hover {
-    background-color: #117139;
-    color: #fff;
-}
-
-.user-menu {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    position: relative;
-}
-
-.btn-cart {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    background: #f5f5f5;
-    color: #333;
-    text-decoration: none;
-    font-size: 20px;
-    transition: 0.3s;
-}
-
-.btn-cart:hover {
-    background: #e0e0e0;
-    color: #000;
-}
-
-.cart-count {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: #dc3545;
-    color: #fff;
-    font-size: 12px;
-    font-weight: bold;
-    padding: 2px 6px;
-    border-radius: 50%;
-    border: 2px solid #fff;
+    color: #222;
 }
 
 .hero {
@@ -186,21 +41,14 @@ header {
 .hero-overlay h1 {
     font-size: 3rem;
     font-weight: 700;
-    margin-bottom: 20px;
-    margin-top: 38px;
+    margin: 38px 0 20px;
     text-shadow: 0 3px 10px rgba(0, 0, 0, .5);
     letter-spacing: 1px;
 }
 
-.hero-overlay p {
-    font-size: 1.2rem;
-    margin-bottom: 25px;
-    color: #e6e6e6;
-}
-
 .hero-overlay a {
     background: #fff;
-    color: #f18807;
+    color: #333;
     padding: 12px 30px;
     border-radius: 50px;
     text-decoration: none;
@@ -210,7 +58,7 @@ header {
 }
 
 .hero-overlay a:hover {
-    background: #f18807;
+    background: #0f6d04;
     color: #fff;
     transform: scale(1.05);
 }
@@ -341,13 +189,6 @@ h2.title {
     transform: scale(1.05);
 }
 
-.garis {
-    width: 90%;
-    height: 2px;
-    background: linear-gradient(90deg, #16a34a, #111111);
-    border-radius: 4px;
-    margin: 30px auto;
-}
 
 .no-events {
     text-align: center;
@@ -363,71 +204,238 @@ h2.title {
     font-size: 1.1em;
 }
 
-footer {
-    color: #333;
-    padding: 3rem 5%;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 2rem;
+
+.card {
+    position: relative;
 }
 
-.footer-section {
-    flex: 1;
-    min-width: 200px;
+.card.disabled {
+    opacity: 0.7;
+    pointer-events: none;
 }
 
-.footer-section h4 {
-    color: #131212;
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
+.card.disabled::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1;
+    border-radius: 12px;
 }
 
-.footer-section p,
-.footer-section a {
-    color: #242425;
-    font-size: 0.9rem;
-    text-decoration: none;
-    display: block;
-    margin-bottom: 0.5rem;
-    transition: color 0.3s;
-}
-
-.footer-section a:hover {
-    color: #f18807;
-}
-
-.footer-bottom {
-    color: #94a3b8;
+.status-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px 25px;
+    border-radius: 8px;
     text-align: center;
-    padding: 1rem;
-    font-size: 0.85rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-@media (max-width: 768px) {
-    header {
-        padding: 15px 25px;
-    }
+.status-overlay i {
+    font-size: 36px;
+    margin-bottom: 8px;
+    display: block;
+}
 
-    nav ul {
-        gap: 15px;
-    }
+.status-overlay.rusak {
+    border: 2px solid #dc3545;
+}
 
-    .event-card {
-        flex-direction: column;
-    }
+.status-overlay.rusak i {
+    color: #dc3545;
+}
 
-    .event-img {
-        width: 100%;
-        height: 200px;
-    }
+.status-overlay.perbaikan {
+    border: 2px solid #ffc107;
+}
 
-    footer {
-        flex-direction: column;
-        text-align: center;
-    }
+.status-overlay.perbaikan i {
+    color: #ffc107;
+}
 
-    .footer-section {
-        min-width: 100%;
-    }
+.status-overlay h4 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.status-overlay p {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.status-badge-card {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    z-index: 3;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge-card.tersedia {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.status-badge-card.rusak {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.status-badge-card.perbaikan {
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.btn-book.disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-book.disabled:hover {
+    background: #6c757d;
+    transform: none;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.modal-content h3 {
+    margin-bottom: 15px;
+}
+
+.modal-content p {
+    margin-bottom: 20px;
+}
+
+.btn-login-modal {
+    background-color: #057107;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.btn-login-modal:hover {
+    background-color: #057107;
+
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
+.card {
+    position: relative;
+}
+
+.card.disabled {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.card.disabled::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1;
+    border-radius: 12px;
+}
+
+.status-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px 25px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.status-overlay i {
+    font-size: 36px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.status-overlay.rusak {
+    border: 2px solid #dc3545;
+}
+
+.status-overlay.rusak i {
+    color: #dc3545;
+}
+
+.status-overlay.perbaikan {
+    border: 2px solid #ffc107;
+}
+
+.status-overlay.perbaikan i {
+    color: #ffc107;
+}
+
+.status-overlay h4 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.status-overlay p {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
 }

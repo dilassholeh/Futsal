@@ -42,6 +42,9 @@ if (!mysqli_query($conn, $query2)) {
 
 
 header("Location: ../../pages/invoice.php?id=$id_transaksi");
+
+
+
 exit;
 
 ?>

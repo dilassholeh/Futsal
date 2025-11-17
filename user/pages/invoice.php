@@ -268,14 +268,20 @@ $dp = $totalTagihan / 2;
                 </div>
 
                 <div>
-                    <form action="../includes/booking/upload_bukti.php" method="POST" enctype="multipart/form-data" id="payment-form">
+                    <form action="../includes/booking/upload_bukti.php" method="POST" enctype="multipart/form-data">
+
+                        <input type="hidden" name="lapangan_id" value="<?= $data['lapangan_id']; ?>">
+
                         <input type="hidden" name="payment_type" id="payment_type_input" value="dp">
+
                         <div class="upload-box">
                             <label><strong>Upload Bukti Pembayaran</strong></label><br>
                             <input type="file" name="bukti" accept="image/*,.pdf" required>
                         </div>
+
                         <button type="submit">Kirim Bukti Pembayaran</button>
                     </form>
+
 
                     <form action="booking.php?id=<?= $data['lapangan_id']; ?>">
                         <button class="back-btn" type="submit">Kembali</button>
