@@ -124,7 +124,7 @@ $totalJamJSON = json_encode($totalJamArr);
         labels: bulan,
         datasets: [{
           data: total,
-          backgroundColor: '#117139',
+          backgroundColor: '#4CAF50',
           borderRadius: 8
         }]
       },
@@ -161,7 +161,7 @@ $totalJamJSON = json_encode($totalJamArr);
         labels: jamLabels,
         datasets: [{
           data: totalJam,
-          borderColor: '#117139',
+          borderColor: '#4CAF50',
           backgroundColor: 'rgba(17,113,57,0.2)',
           fill: true,
           tension: 0.3
@@ -177,7 +177,7 @@ $totalJamJSON = json_encode($totalJamArr);
           title: {
             display: true,
             text: 'Jumlah Transaksi per Jam (Sepanjang Waktu)',
-            color: '#117139'
+            color: '#4CAF50'
           }
         },
         scales: {

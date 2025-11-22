@@ -439,3 +439,34 @@ h2.title {
     font-size: 13px;
     color: #666;
 }
+
+
+.no-events {
+    text-align: center;
+    padding: 40px 20px;
+    background: #fff3cd; 
+    border-left: 6px solid #ffc107; 
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+    font-size: 1.1em;
+    color: #856404;
+    position: relative;
+    animation: fadeIn 1s ease-in-out;
+}
+
+.no-events::before {
+    content: "⚠️"; 
+    font-size: 2rem;
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.no-events p {
+    margin-left: 40px; 
+    color: #856404;
+    font-size: 1.1em;
+    font-weight: 500;
+}

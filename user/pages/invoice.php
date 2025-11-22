@@ -1,312 +1,318 @@
 <?php
 session_start();
 include '../../includes/koneksi.php';
-
-if (!isset($_SESSION['booking'])) {
-    die("Tidak ada data booking!");
+date_default_timezone_set('Asia/Jakarta');
+if (!isset($_GET['id'])) {
+    echo "ID tidak ditemukan";
+    exit;
 }
-
-$data = $_SESSION['booking'];
-
-$bankQuery = mysqli_query($conn, "SELECT * FROM bank ORDER BY id ASC");
-
-$totalTagihan = $data['total'];
-$dp = $totalTagihan / 2;
+$id = $_GET['id'];
+$conn->query("UPDATE transaksi SET status_pembayaran='expired' WHERE status_pembayaran='pending' AND expire_at <= NOW()");
+$stmt = $conn->prepare("SELECT t.*, td.id_lapangan, td.tanggal, td.jam_mulai, td.jam_selesai, td.durasi, td.harga_jual FROM transaksi t LEFT JOIN transaksi_detail td ON td.id_transaksi = t.id WHERE t.id = ?");
+$stmt->bind_param("s", $id);
+$stmt->execute();
+$res = $stmt->get_result();
+$data = $res->fetch_assoc();
+$stmt->close();
+if (!$data) {
+    echo "Transaksi tidak ditemukan";
+    exit;
+}
+$remaining = strtotime($data['expire_at']) - time();
+$lapangan_id = $data['id_lapangan'];
+$nama_lapangan = '';
+if ($lapangan_id) {
+    $q = $conn->prepare("SELECT nama_lapangan FROM lapangan WHERE id = ?");
+    $q->bind_param("s", $lapangan_id);
+    $q->execute();
+    $r = $q->get_result()->fetch_assoc();
+    $nama_lapangan = $r['nama_lapangan'] ?? '';
+    $q->close();
+}
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Invoice Pembayaran</title>
+    <meta charset="utf-8">
+    <title>Invoice <?= htmlspecialchars($id) ?></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-        }
-
-        html,
-        body {
-            height: 100%;
-            font-family: "Poppins", sans-serif;
-            background: #e8f5e9;
+            font-family: "Poppins", sans-serif
         }
 
         body {
+            background: #e9f7ef;
             display: flex;
             justify-content: center;
-            align-items: center;
+            padding: 32px
         }
 
-        .container {
-            width: 100%;
-            max-width: 1100px;
-            height: 90vh;
-            background: transparent;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .invoice-box {
-            display: flex;
-            width: 100%;
-            height: 100%;
-            max-height: 90vh;
-            background: #f6fff8;
-            border-radius: 16px;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.15);
-            overflow: hidden;
-        }
-
-        .invoice-left {
-            flex: 1;
-            background: #ffffff;
-            padding: 30px;
-            border-right: 3px solid #e8f5e9;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .invoice-right {
-            flex: 2;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            overflow-y: auto;
-        }
+     .box {
+    width: 100vw;
+    background-color: #f4f4f4;
+    padding: 20px;
+    margin-top: -20px;
+}
 
         h2 {
-            color: #2e7d32;
-            margin-bottom: 15px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        td {
-            padding: 6px 4px;
-            border-bottom: 1px solid #eee;
-            color: #333;
-        }
-
-        td:first-child {
-            width: 40%;
-            font-weight: bold;
-            color: #555;
-        }
-
-        .total {
-            margin-top: 20px;
-            background: #e8f5e9;
-            border: 1px solid #c8e6c9;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            color: #1b5e20;
-            text-align: right;
-            font-size: 18px;
-        }
-
-        .bank-section {
-            flex: 1;
-            margin-bottom: 20px;
-        }
-
-        .bank-item {
-            font-size: 14px;
-            margin-bottom: 8px;
-            color: #2e7d32;
-        }
-
-        .bank-item span {
-            display: block;
-            font-weight: normal;
-            color: #555;
-        }
-
-        .payment-option {
-            margin-bottom: 10px;
-        }
-
-        .payment-option label {
-            margin-right: 15px;
-            font-weight: bold;
-            color: #2e7d32;
-        }
-
-        #display-amount {
-            font-weight: bold;
-            color: #1b5e20;
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
-
-        .upload-box {
-            border: 2px dashed #9ccc65;
-            border-radius: 10px;
-            padding: 20px;
-            background: #f9fff9;
             text-align: center;
-            margin-bottom: 15px;
+            font-size: 22px;
+            font-weight: 700;
+            color: #2e7d32;
+            margin-bottom: 20px
         }
 
-        input[type="file"] {
-            margin-top: 8px;
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 12px
+        }
+
+        .card {
+            background: #f8fffa;
+            padding: 16px;
+            border-radius: 10px;
+            border: 1px solid #d8e8d9
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2e7d32
+        }
+
+        .value {
+            margin-top: 4px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #333
+        }
+
+        #timer {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 17px;
+            font-weight: 700;
+            color: #c62828
+        }
+
+        .form-box {
+            margin-top: 26px;
+            padding: 18px;
+            border-radius: 12px;
+            background: #f6fdf7;
+            border: 1px solid #d8e8d9
+        }
+
+        .payment-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px
+        }
+
+        .pay-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid #d8e8d9;
+            font-weight: 600;
+            color: #2e7d32;
+            font-size: 14px;
+            cursor: pointer;
+            transition: .2s
+        }
+
+        .pay-card:hover {
+            border-color: #2e7d32;
+            background: #f1fff1
+        }
+
+        .pay-card.active {
+            background: #2e7d32;
+            color: white;
+            border-color: #256628
+        }
+
+        .pay-card input {
+            width: 16px;
+            height: 16px
         }
 
         button {
+            margin-top: 16px;
             width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
             background: #2e7d32;
             color: white;
-            border: none;
-            padding: 12px;
             font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 10px;
+            font-weight: 600;
+            cursor: pointer
         }
 
         button:hover {
-            background: #1b5e20;
+            background: #256628
         }
 
-        .back-btn {
-            background: #c62828;
+        .upload-box {
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px
         }
 
-        .back-btn:hover {
-            background: #8e0000;
+        #fileLabel {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(46, 125, 50, 0.12);
+            padding: 12px;
+            border-radius: 10px;
+            color: #2e7d32;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: .2s;
+            border: 2px dashed #2e7d32;
         }
 
-        @media (max-width: 900px) {
-            .container {
-                height: auto;
-                padding: 20px;
-                align-items: flex-start;
-            }
+        #fileLabel:hover {
+            background: rgba(46, 125, 50, 0.22);
+        }
 
-            .invoice-box {
-                flex-direction: column;
-                max-height: none;
-                height: auto;
-            }
+        #fileLabel i {
+            font-size: 18px;
+        }
 
-            .invoice-left {
-                border-right: none;
-                border-bottom: 3px solid #e8f5e9;
+        #fileInput {
+            display: none
+        }
+
+        #fileName {
+            font-size: 14px;
+            color: #2e7d32;
+            font-weight: 600;
+            padding-left: 5px
+        }
+
+        #fileLabel i {
+            font-size: 18px
+        }
+
+        @media(max-width:600px) {
+            .grid {
+                grid-template-columns: 1fr
             }
         }
     </style>
 </head>
 
 <body>
+    <div class="box">
+        <h2>Invoice Pembayaran</h2>
 
-    <div class="container">
-        <div class="invoice-box">
-            <div class="invoice-left">
-                <div>
-                    <h2>Detail Booking</h2>
-                    <table>
-                        <tr>
-                            <td>Nama Lapangan</td>
-                            <td><?= htmlspecialchars($data['nama_lapangan']); ?></td>
-                        </tr>
-                        <tr>
-                            <td>Tanggal Booking</td>
-                            <td><?= htmlspecialchars($data['tanggal']); ?></td>
-                        </tr>
-                        <tr>
-                            <td>Jam Mulai</td>
-                            <td><?= htmlspecialchars($data['jam_mulai']); ?></td>
-                        </tr>
-                        <tr>
-                            <td>Durasi</td>
-                            <td><?= htmlspecialchars($data['durasi']); ?> Jam</td>
-                        </tr>
-                        <tr>
-                            <td>Jam Selesai</td>
-                            <td><?= htmlspecialchars($data['jam_selesai']); ?></td>
-                        </tr>
-                        <tr>
-                            <td>Harga per Jam</td>
-                            <td>Rp <?= number_format($data['harga'], 0, ',', '.'); ?></td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="total">
-                    Total Tagihan: Rp <?= number_format($totalTagihan, 0, ',', '.'); ?>
-                </div>
+        <div class="grid">
+            <div class="card">
+                <label>Invoice ID</label>
+                <div class="value"><?= htmlspecialchars($data['id']) ?></div>
             </div>
-
-            <div class="invoice-right">
-                <div class="bank-section">
-                    <h2>Pembayaran</h2>
-
-                    <div class="payment-option">
-                        <label><input type="radio" name="payment_type" value="dp" checked> DP (50%)</label>
-                        <label><input type="radio" name="payment_type" value="lunas"> Lunas</label>
-                    </div>
-
-                    <div id="display-amount">Nominal: Rp <?= number_format($dp, 0, ',', '.'); ?></div>
-
-                    <p>Silakan transfer ke salah satu rekening berikut:</p>
-                    <?php while ($bank = mysqli_fetch_assoc($bankQuery)): ?>
-                        <div class="bank-item">
-                            <strong><?= htmlspecialchars($bank['nama_bank']); ?></strong>
-                            <span>a.n <?= htmlspecialchars($bank['atas_nama']); ?></span>
-                            <span>No. Rek: <?= htmlspecialchars($bank['no_rekening']); ?></span>
-                        </div>
-                    <?php endwhile; ?>
-                    <p><em>Setelah transfer, unggah bukti pembayaran di bawah ini.</em></p>
-                </div>
-
-                <div>
-                    <form action="../includes/booking/upload_bukti.php" method="POST" enctype="multipart/form-data">
-
-                        <input type="hidden" name="lapangan_id" value="<?= $data['lapangan_id']; ?>">
-
-                        <input type="hidden" name="payment_type" id="payment_type_input" value="dp">
-
-                        <div class="upload-box">
-                            <label><strong>Upload Bukti Pembayaran</strong></label><br>
-                            <input type="file" name="bukti" accept="image/*,.pdf" required>
-                        </div>
-
-                        <button type="submit">Kirim Bukti Pembayaran</button>
-                    </form>
-
-
-                    <form action="booking.php?id=<?= $data['lapangan_id']; ?>">
-                        <button class="back-btn" type="submit">Kembali</button>
-                    </form>
-                </div>
+            <div class="card">
+                <label>Lapangan</label>
+                <div class="value"><?= htmlspecialchars($nama_lapangan) ?></div>
             </div>
         </div>
+
+        <div class="grid">
+            <div class="card">
+                <label>Tanggal</label>
+                <div class="value"><?= htmlspecialchars($data['tanggal']) ?></div>
+            </div>
+            <div class="card">
+                <label>Jam</label>
+                <div class="value"><?= htmlspecialchars($data['jam_mulai']) ?> - <?= htmlspecialchars($data['jam_selesai']) ?></div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <label>Durasi</label>
+                <div class="value"><?= htmlspecialchars($data['durasi']) ?> Jam</div>
+            </div>
+            <div class="card">
+                <label>Total Pembayaran</label>
+                <div class="value">Rp <?= number_format($data['subtotal'], 0, ',', '.') ?></div>
+            </div>
+        </div>
+
+        <div id="timer"></div>
+
+        <form action="../includes/booking/upload_bukti.php" method="POST" enctype="multipart/form-data" class="form-box">
+            <input type="hidden" name="id_transaksi" value="<?= htmlspecialchars($data['id']) ?>">
+
+            <label>Pilih Pembayaran</label>
+            <div class="payment-options">
+                <label class="pay-card active" id="card-dp">
+                    <input type="radio" name="payment_type" value="dp" checked> DP (50%)
+                </label>
+                <label class="pay-card" id="card-lunas">
+                    <input type="radio" name="payment_type" value="lunas"> Lunas
+                </label>
+            </div>
+
+            <div class="upload-box">
+                <label for="fileInput" id="fileLabel"><i class="fa-solid fa-cloud-arrow-up"></i> Pilih File Bukti Pembayaran</label>
+                <input type="file" name="bukti" id="fileInput" required accept="image/*,.pdf">
+                <div id="fileName">Belum ada file dipilih</div>
+            </div>
+
+            <button type="submit">Kirim Bukti Pembayaran</button>
+        </form>
     </div>
 
     <script>
-        const dpAmount = <?= $dp ?>;
-        const totalAmount = <?= $totalTagihan ?>;
-        const displayAmount = document.getElementById('display-amount');
-        const paymentTypeInputs = document.querySelectorAll('input[name="payment_type"]');
-        const paymentTypeHidden = document.getElementById('payment_type_input');
+        let sisa = <?= max(0, (int)$remaining) ?>;
 
-        paymentTypeInputs.forEach(input => {
-            input.addEventListener('change', () => {
-                if (input.value === 'dp') {
-                    displayAmount.textContent = 'Nominal: Rp ' + dpAmount.toLocaleString('id-ID');
-                } else {
-                    displayAmount.textContent = 'Nominal: Rp ' + totalAmount.toLocaleString('id-ID');
-                }
-                paymentTypeHidden.value = input.value;
-            });
+        function countdown() {
+            let t = document.getElementById('timer');
+            if (sisa <= 0) {
+                t.innerHTML = "Waktu upload habis. Booking dibatalkan.";
+                setTimeout(() => {
+                    window.location.href = "booking.php?id=<?= $lapangan_id ?>";
+                }, 1500);
+                return;
+            }
+            t.innerHTML = "Sisa waktu upload: " + Math.floor(sisa / 60) + " menit " + (sisa % 60) + " detik";
+            sisa--;
+        }
+        countdown();
+        setInterval(countdown, 1000);
+
+        const cardDP = document.getElementById("card-dp");
+        const cardLunas = document.getElementById("card-lunas");
+        cardDP.onclick = () => {
+            cardDP.classList.add("active");
+            cardLunas.classList.remove("active");
+            cardDP.querySelector("input").checked = true
+        };
+        cardLunas.onclick = () => {
+            cardLunas.classList.add("active");
+            cardDP.classList.remove("active");
+            cardLunas.querySelector("input").checked = true
+        };
+
+        document.getElementById("fileInput").addEventListener("change", function() {
+            const file = this.files[0];
+            document.getElementById("fileName").textContent = file ? file.name : "Belum ada file dipilih";
         });
     </script>
 

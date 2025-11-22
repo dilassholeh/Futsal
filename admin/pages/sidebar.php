@@ -46,9 +46,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <a href="event.php" class="<?php echo ($current_page == 'event.php') ? 'active' : ''; ?>">
                         <i class='bx bx-calendar-event'></i><span>Event</span>
                     </a>
-                    <a href="slider.php" class="<?php echo ($current_page == 'slider.php') ? 'active' : ''; ?>">
-                        <i class='bx bx-slideshow'></i><span>Slider</span>
-                    </a>
                 </div>
             </div>
 

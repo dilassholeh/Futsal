@@ -50,9 +50,9 @@ if (isset($_SESSION['user_id'])) {
 </head>
 
 <body>
-<?php  
-include './pages/header.php'
-?>
+  <?php
+  include './pages/header.php'
+  ?>
   <section class="hero">
     <img src="./assets/image/bakground.png" alt="ZonaFutsal" class="hero-img">
     <div class="hero-overlay">
@@ -100,13 +100,12 @@ include './pages/header.php'
       }
     } else {
       echo "<div class='no-events'>
-                    <p>Tidak ada event yang sedang berlangsung saat ini.</p>
-                  </div>";
+              <p>Tidak ada event yang sedang berlangsung saat ini.</p>
+          </div>";
     }
     ?>
   </div>
 
-  <div class="garis"></div>
 
   <?php
   include './pages/footer.php';
@@ -117,6 +116,7 @@ include './pages/header.php'
     const navMenu = document.querySelector('.nav-menu');
     burger.addEventListener('click', () => {
       navMenu.classList.toggle('active');
+      
     });
   </script>
 </body>

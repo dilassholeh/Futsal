@@ -1,13 +1,13 @@
 <?php
 session_start();
 
-// Cek login
+
 if (!isset($_SESSION['username'])) {
     header("Location: ../auth/login.php");
     exit;
 }
 
-// Amanin session supaya tidak null
+
 $username = $_SESSION['username'] ?? 'User';
 $email = $_SESSION['email'] ?? 'Belum ada email';
 ?>

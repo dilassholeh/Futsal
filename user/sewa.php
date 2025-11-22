@@ -115,7 +115,6 @@ include './pages/header.php'
     </div>
   </section>
 
-  <div class="garis"></div>
   <?php include './pages/footer.php'; ?>
 
   <div id="loginAlertModal" class="modal">

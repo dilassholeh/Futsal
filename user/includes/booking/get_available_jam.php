@@ -1,63 +1,31 @@
 <?php
 include '../../../includes/koneksi.php';
 date_default_timezone_set('Asia/Jakarta');
-
+$conn->query("UPDATE transaksi SET status_pembayaran='expired' WHERE status_pembayaran='pending' AND expire_at <= NOW()");
 $id_lapangan = $_GET['lapangan_id'] ?? '';
 $tanggal = $_GET['tanggal'] ?? '';
-
-if (empty($id_lapangan) || empty($tanggal)) {
-    die(json_encode(['error' => 'Data tidak lengkap']));
-}
-
+if (empty($id_lapangan) || empty($tanggal)) { echo json_encode(['error'=>'Data tidak lengkap']); exit; }
 $all_slots = [];
 $q_all = $conn->query("SELECT jam FROM jam ORDER BY jam ASC");
-while ($row = $q_all->fetch_assoc()) {
-    $all_slots[] = str_pad(substr($row['jam'], 0, 5), 5, '0', STR_PAD_LEFT);
-}
-
-$sql = "
-    SELECT td.jam_mulai, td.jam_selesai 
-    FROM transaksi_detail td
-    JOIN transaksi t ON t.id = td.id_transaksi
-    WHERE td.id_lapangan = ?
-    AND td.tanggal = ?
-    AND t.status_pembayaran IN ('dp', 'lunas')
-";
-
+while ($row = $q_all->fetch_assoc()) { $all_slots[] = substr($row['jam'],0,5); }
+$sql = "SELECT td.jam_mulai, td.jam_selesai FROM transaksi_detail td JOIN transaksi t ON t.id = td.id_transaksi WHERE td.id_lapangan = ? AND td.tanggal = ? AND (t.status_pembayaran IN ('dp','lunas') OR (t.status_pembayaran='pending' AND t.expire_at > NOW()))";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("ss", $id_lapangan, $tanggal);
 $stmt->execute();
 $res = $stmt->get_result();
-
-$booked_slots = [];
-while ($r = $res->fetch_assoc()) {
-    $booked_slots[] = [
-        'jam_mulai' => substr($r['jam_mulai'], 0, 5),
-        'jam_selesai' => substr($r['jam_selesai'], 0, 5)
-    ];
-}
-
-$available_slots = array_filter($all_slots, function($slot) use ($booked_slots) {
-    foreach ($booked_slots as $b) {
-        if ($slot >= $b['jam_mulai'] && $slot < $b['jam_selesai']) {
-            return false;
-        }
+$booked = [];
+while ($r = $res->fetch_assoc()) { $booked[] = ['mulai'=>substr($r['jam_mulai'],0,5),'selesai'=>substr($r['jam_selesai'],0,5)]; }
+$available = array_filter($all_slots, function($slot) use ($booked) {
+    foreach ($booked as $b) {
+        if ($slot >= $b['mulai'] && $slot < $b['selesai']) { return false; }
     }
     return true;
 });
-
 $today = date('Y-m-d');
-$currentHour = date('H:i');
+$now = date('H:i');
 if ($tanggal === $today) {
-    $available_slots = array_filter($available_slots, function($slot) use ($currentHour) {
-        return $slot > $currentHour;
-    });
+    $available = array_filter($available, function($slot) use ($now) { return $slot > $now; });
 }
-
-if (empty($available_slots)) {
-    echo json_encode(['empty' => true]);
-    exit;
-}
-
-echo json_encode(array_values($available_slots));
+if (empty($available)) { echo json_encode(['empty'=>true]); exit; }
+echo json_encode(array_values($available));
 ?>

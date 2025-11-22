@@ -60,27 +60,6 @@ body {
 .bottom{
     padding: 15px;
 }
-.notif {
-    width: 38px;
-    height: 38px;
-    background: #28a745;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: .3s;
-}
-
-
-.notif:hover {
-    background: #218838;
-}
-
-.notif i {
-    color: #fff;
-    font-size: 18px;
-}
 
 .profile-card {
     display: flex;
@@ -168,7 +147,7 @@ body {
 }
 
 .btn-tambah {
-    background: #117139;
+    background: #156732;
     color: #ffff;
     border: none;
     border-radius: 6px;
@@ -182,35 +161,10 @@ body {
 }
 
 .btn-tambah:hover {
-    background: #117139;
+    background: #156732;
 }
 
 
-.table-wrapper {
-    margin-top: 10px;
-    overflow-x: auto;
-}
-
-.table-container {
-    width: 100%;
-    overflow-x: auto;
-    background: #fff;
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.table-wrapper {
-    position: relative;
-    width: 100%;
-}
-
-.table-container {
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
 
 .scroll-btn {
     position: absolute;
@@ -238,20 +192,56 @@ body {
     right: -20px;
 }
 
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 5px;
+    margin-top: 10px;
+    padding: 16px;
+    border: 1px solid #e8e8e8;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    
+}
+
+.table-wrapper {
+    position: relative;
+    width: 100%;
+}
+
 table {
     width: 100%;
-    border-collapse: separate;
+    border-collapse: collapse;
     border-spacing: 0;
     font-size: 14px;
     min-width: 700px;
 }
 
-table th {
-    background: #33333318;
-    color: #333;
-    font-weight: 600;
-    padding: 12px 10px;
+thead {
+    background: #f2fdf6;
+}
+
+th {
+    padding: 14px 12px;
     text-align: left;
+    font-weight: 600;
+    color: var(--primary);
+    border-bottom: 2px solid #d4f1db;
+    font-size: 14px;
+}
+
+td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #ececec;
+    color: #333;
+}
+
+tbody tr {
+    transition: .15s;
+}
+
+tbody tr:hover {
+    background: #f8fdf9;
 }
 
 table th:first-child {
@@ -343,7 +333,7 @@ table img {
 
 .modal-content h3 {
     margin-bottom: 20px;
-    color: #117139;
+    color: #156732;
 }
 
 .modal-content label {
@@ -367,13 +357,13 @@ table img {
 .modal-content input:focus,
 .modal-content select:focus,
 .modal-content textarea:focus {
-    border-color: #117139;
+    border-color: #156732;
     outline: none;
     box-shadow: 0 0 5px rgba(255, 123, 0, 0.3);
 }
 
 .modal-content button {
-    background-color: #117139;
+    background-color: #156732;
     color: #fff;
     border: none;
     cursor: pointer;
@@ -382,7 +372,7 @@ table img {
 }
 
 .modal-content button:hover {
-    background-color: #117139;
+    background-color: #156732;
 }
 
 /* CLOSE BUTTON */
@@ -526,7 +516,7 @@ table img {
 .submit button {
     width: 100%;
     padding: 10px;
-    background: #117139;
+    background: #156732;
     color: white;
     border: none;
     border-radius: 5px;
