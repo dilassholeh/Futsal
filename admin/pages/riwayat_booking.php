@@ -2,13 +2,11 @@
 session_start();
 include '../../includes/koneksi.php';
 
-// Pastikan admin login
 if (!isset($_SESSION['admin_id'])) {
     header("Location: ../login.php");
     exit;
 }
 
-// Ambil semua riwayat booking
 $query = "SELECT 
     t.id,
     t.created_at,
@@ -30,133 +28,331 @@ $result = mysqli_query($conn, $query);
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Riwayat Booking</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Booking</title>
 
-<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f4f4f9;
-    padding: 20px;
-}
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --background: #ffffff;
+            --text: #1a1a1a;
+            --white: #ffffff;
+            --gray-border: #e0e0e0;
+        }
 
-.message-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Poppins, sans-serif;
+        }
 
-.message-card {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
+        body {
+            display: flex;
+            min-height: 100vh;
+            background: #ffffff;
+            color: #1a1a1a;
+        }
 
-.message-title {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 5px;
-}
+        .message-container {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            width: 100%;
+            padding: 15px;
+        }
 
-.message-subtitle {
-    font-size: 14px;
-    color: #666;
-}
+        .message-card {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 22px 25px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            transition: .25s ease;
+            cursor: pointer;
+        }
 
-.message-date {
-    font-size: 12px;
-    color: #999;
-    margin-bottom: 10px;
-}
+        .message-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+            border-color: rgba(40, 167, 69, 0.4);
+        }
 
-.info-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px 0;
-    font-size: 14px;
-}
+        .message-title {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #222;
+        }
 
-.info-label { color: #666; }
-.info-value { font-weight: 600; }
+        .message-subtitle {
+            font-size: 14px;
+            font-weight: 500;
+            color: #4a4a4a;
+            margin-bottom: 8px;
+        }
 
-.status-badge {
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: bold;
-}
+        .message-date {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 15px;
+        }
 
-.status-pending { background:#fff3cd; color:#856404; }
-.status-menunggu_konfirmasi { background:#cfe2ff; color:#084298; }
-.status-lunas { background:#d1e7dd; color:#0f5132; }
-.status-dibatalkan { background:#f8d7da; color:#842029; }
-.status-dp { background:#d3d3f5; color:#3d348b; }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 6px 0;
+            font-size: 14px;
+            border-bottom: 1px dashed #e5e5e5;
+        }
 
-.empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #999;
-}
+        .info-row:last-child {
+            border-bottom: none;
+        }
 
-.empty-state i { font-size: 64px; opacity: .5; }
-</style>
+        .info-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #111;
+        }
+
+        .status-badge {
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .status-pending {
+            background: #fff7d1;
+            color: #8a6d00;
+            border: 1px solid #ffec99;
+        }
+
+        .status-menunggu_konfirmasi {
+            background: #e2e9ff;
+            color: #1d3faf;
+            border: 1px solid #c4d3ff;
+        }
+
+        .status-lunas {
+            background: #d8f3dc;
+            color: #2d6a4f;
+            border: 1px solid #b7e4c7;
+        }
+
+        .status-dibatalkan {
+            background: #ffe2e2;
+            color: #a4161a;
+            border: 1px solid #ffb3b3;
+        }
+
+        .status-dp {
+            background: #ebe4ff;
+            color: #4a36b1;
+            border: 1px solid #d0c8ff;
+        }
+
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            opacity: .5;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #333;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .bottom {
+            padding: 15px;
+        }
+
+        .notif {
+            width: 38px;
+            height: 38px;
+            background: #28a745;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: .3s;
+        }
+
+        .notif:hover {
+            background: #218838;
+        }
+
+        .notif i {
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .profile-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff;
+            padding: 6px 12px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #28a745;
+        }
+
+        .profile-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #111;
+        }
+
+        .profile-role {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            background: #dc3545;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: .3s;
+        }
+
+        .btn-logout:hover {
+            background: #c82333;
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow: auto;
+        }
+    </style>
 </head>
 
 <body>
+    <?php include 'sidebar.php'; ?>
+    <main class="main">
 
-<h2>Riwayat Booking</h2>
 
-<div class="message-container">
-<?php
-if (mysqli_num_rows($result) > 0) {
-    while ($row = mysqli_fetch_assoc($result)) {
-        $statusClass = 'status-' . $row['status_pembayaran'];
-        $statusText = ucwords(str_replace('_', ' ', $row['status_pembayaran']));
-?>
-        <div class="message-card">
-            <div class="message-title">Booking #<?= $row['id']; ?> - <?= $row['nama_user'] ?? '-'; ?></div>
-            <div class="message-subtitle"><?= $row['lapangan'] ?? '-'; ?></div>
-            <div class="message-date"><?= date('d-m-Y H:i', strtotime($row['created_at'])); ?></div>
-
-            <div class="info-row">
-                <span class="info-label">Tanggal Main:</span>
-                <span class="info-value"><?= $row['tanggal_booking'] ?? '-'; ?></span>
+        <div class="header">
+            <h1>Riwayat Booking</h1>
+            <div class="header-right">
+                <div class="profile-card">
+                    <img src="../assets/image/<?php echo htmlspecialchars($_SESSION['admin_foto'] ?? 'profil.png'); ?>" class="profile-img">
+                    <div class="profile-info">
+                        <span class="profile-name"><?php echo htmlspecialchars($_SESSION['admin_nama'] ?? 'Admin'); ?></span>
+                    </div>
+                    <a href="../logout.php" class="btn-logout"><i class='bx bx-log-out'></i></a>
+                </div>
             </div>
-
-            <div class="info-row">
-                <span class="info-label">Jam:</span>
-                <span class="info-value"><?= $row['jam'] ?? '-'; ?></span>
-            </div>
-
-            <div class="info-row">
-                <span class="info-label">No. HP:</span>
-                <span class="info-value"><?= $row['no_hp'] ?? '-'; ?></span>
-            </div>
-
-            <div class="info-row">
-                <span class="info-label">Total Pembayaran:</span>
-                <span class="info-value">Rp <?= number_format($row['subtotal'], 0, ',', '.'); ?></span>
-            </div>
-
-            <br>
-            <span class="status-badge <?= $statusClass; ?>"><?= $statusText; ?></span>
         </div>
-<?php
-    }
-} else {
-?>
-    <div class="empty-state">
-        <i class='bx bx-inbox'></i>
-        <h3>Tidak ada riwayat booking</h3>
-    </div>
-<?php
-}
-?>
-</div>
+
+
+
+
+        <div class="message-container">
+            <?php
+            if (mysqli_num_rows($result) > 0) {
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $statusClass = 'status-' . $row['status_pembayaran'];
+                    $statusText = ucwords(str_replace('_', ' ', $row['status_pembayaran']));
+            ?>
+                    <div class="message-card">
+                        <div class="message-title">Booking #<?= $row['id']; ?> - <?= $row['nama_user'] ?? '-'; ?></div>
+                        <div class="message-subtitle"><?= $row['lapangan'] ?? '-'; ?></div>
+                        <div class="message-date"><?= date('d-m-Y H:i', strtotime($row['created_at'])); ?></div>
+
+                        <div class="info-row">
+                            <span class="info-label">Tanggal Main:</span>
+                            <span class="info-value"><?= $row['tanggal_booking'] ?? '-'; ?></span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Jam:</span>
+                            <span class="info-value"><?= $row['jam'] ?? '-'; ?></span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">No. HP:</span>
+                            <span class="info-value"><?= $row['no_hp'] ?? '-'; ?></span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Total Pembayaran:</span>
+                            <span class="info-value">Rp <?= number_format($row['subtotal'], 0, ',', '.'); ?></span>
+                        </div>
+
+                        <br>
+                        <span class="status-badge <?= $statusClass; ?>"><?= $statusText; ?></span>
+                    </div>
+                <?php
+                }
+            } else {
+                ?>
+                <div class="empty-state">
+                    <i class='bx bx-inbox'></i>
+                    <h3>Tidak ada riwayat booking</h3>
+                </div>
+            <?php
+            }
+            ?>
+        </div>
+    </main>
+
 </body>
+
 </html>

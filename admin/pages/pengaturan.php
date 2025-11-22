@@ -31,22 +31,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $jam_buka = $conn->real_escape_string($_POST['jam_buka']);
     $jam_tutup = $conn->real_escape_string($_POST['jam_tutup']);
     $tentang_kami = $conn->real_escape_string($_POST['tentang_kami']);
-    
+
     $logo = $pengaturan['logo'];
     if (isset($_FILES['logo']) && $_FILES['logo']['error'] == 0) {
         $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/Futsal/uploads/";
-        
+
         if (!file_exists($target_dir)) {
             if (!mkdir($target_dir, 0777, true)) {
                 $error = "Gagal membuat folder uploads! Periksa permission folder.";
             }
         }
-        
+
         if (!isset($error)) {
             $file_extension = strtolower(pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION));
             $new_filename = "logo_" . time() . "." . $file_extension;
             $target_file = $target_dir . $new_filename;
-            
+
             $allowed_types = array('jpg', 'jpeg', 'png', 'gif');
             if (in_array($file_extension, $allowed_types)) {
                 if ($_FILES['logo']['size'] <= 2097152) {
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
     }
-    
+
     if (!isset($error)) {
         $update = "UPDATE pengaturan SET 
                     nama_website = '$nama_website',
@@ -82,10 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     tentang_kami = '$tentang_kami',
                     logo = '$logo'
                     WHERE id = 1";
-        
+
         if ($conn->query($update)) {
             $success = "Pengaturan berhasil diperbarui!";
-            // Refresh data pengaturan setelah update
             $result = $conn->query($query);
             $pengaturan = $result->fetch_assoc();
         } else {
@@ -97,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -108,39 +108,96 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: Poppins, sans-serif;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f5f5f5;
+            max-width: 100%;
+            overflow-x: hidden;
         }
 
-        .content {
-            margin-left: 0;
-            padding: 20px 20px 20px 20px;
-            min-height: 100vh;
-            overflow-y: auto;
-            width: calc(100% - 260px);
-            box-sizing: border-box;
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow: auto;
         }
 
         .header {
-            background: white;
-            padding: 20px 25px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            width: 100%;
-            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .header h1 {
-            margin: 0;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             color: #333;
-            font-size: 28px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .bottom {
+            padding: 15px;
+        }
+
+
+        .profile-card {
             display: flex;
             align-items: center;
             gap: 12px;
+            background: #fff;
+            padding: 6px 12px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #156732;
+        }
+
+        .profile-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #111;
+        }
+
+        .profile-role {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            background: #dc3545;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: .3s;
+        }
+
+        .btn-logout:hover {
+            background: #c82333;
         }
 
         .alert {
@@ -158,6 +215,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 opacity: 0;
                 transform: translateY(-10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -180,7 +238,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background: white;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             width: 100%;
         }
 
@@ -281,7 +339,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             max-height: 250px;
             border-radius: 10px;
             object-fit: contain;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .logo-preview p {
@@ -316,8 +374,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             transition: all 0.3s;
         }
 
+        .file-input-label h5,
+        i {
+            color: #ffff;
+        }
+
         .file-input-label:hover {
-            background: #45a049;
+            background: #156732;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
         }
@@ -331,7 +394,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .btn-submit {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            background: linear-gradient(135deg, #4CAF50 0%, #156732 100%);
             color: white;
             padding: 16px 45px;
             border: none;
@@ -385,7 +448,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             .content {
                 padding: 20px;
             }
-            
+
             .settings-container {
                 padding: 25px;
             }
@@ -417,12 +480,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     </style>
 </head>
+
 <body>
     <?php include 'sidebar.php'; ?>
 
-    <div class="content">
+    <div class="main">
         <div class="header">
-            <h1><i class='bx bx-cog'></i> Pengaturan Website</h1>
+            <h1>Pengaturan</h1>
+            <div class="header-right">
+                <div class="profile-card">
+                    <img src="../assets/image/<?php echo htmlspecialchars($_SESSION['admin_foto'] ?? 'profil.png'); ?>" class="profile-img">
+                    <div class="profile-info">
+                        <span class="profile-name"><?php echo htmlspecialchars($_SESSION['admin_nama'] ?? 'Admin'); ?></span>
+                    </div>
+                    <a href="../logout.php" class="btn-logout"><i class='bx bx-log-out'></i></a>
+                </div>
+            </div>
         </div>
 
         <?php if (isset($success)): ?>
@@ -439,148 +512,151 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
         <?php endif; ?>
 
-        <form method="POST" enctype="multipart/form-data">
-            <div class="settings-container">
-                <div class="form-section">
-                    <div class="section-title">
-                        <i class='bx bx-info-circle'></i>
-                        Informasi Website
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Nama Website *</label>
-                            <input type="text" name="nama_website" value="<?php echo htmlspecialchars($pengaturan['nama_website']); ?>" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Tagline <span>(Slogan Website)</span></label>
-                            <input type="text" name="tagline" value="<?php echo htmlspecialchars($pengaturan['tagline']); ?>" placeholder="Contoh: Tempat Bermain Futsal Terbaik">
-                        </div>
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Email</label>
-                            <div class="input-group">
-                                <i class='bx bx-envelope'></i>
-                                <input type="email" name="email" value="<?php echo htmlspecialchars($pengaturan['email']); ?>" placeholder="info@zonafutsal.com">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Nomor Telepon</label>
-                            <div class="input-group">
-                                <i class='bx bx-phone'></i>
-                                <input type="text" name="telepon" value="<?php echo htmlspecialchars($pengaturan['telepon']); ?>" placeholder="081234567890">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-grid single">
-                        <div class="form-group">
-                            <label>Alamat Lengkap</label>
-                            <textarea name="alamat" rows="3" placeholder="Jl. Contoh No. 123, Kota Anda"><?php echo htmlspecialchars($pengaturan['alamat']); ?></textarea>
-                        </div>
-                    </div>
-                </div>
+        <div class="bottom">
 
-                <div class="form-section">
-                    <div class="section-title">
-                        <i class='bx bx-image'></i>
-                        Logo Website
-                    </div>
-                    <div class="form-group">
-                        <label>Upload Logo Baru <span>(Max 2MB - JPG, PNG, GIF)</span></label>
-                        <div class="file-input-wrapper">
-                            <input type="file" name="logo" id="logo" accept="image/*" onchange="updateFileName(this)">
-                            <label for="logo" class="file-input-label">
-                                <i class='bx bx-upload'></i>
-                                Pilih File
-                            </label>
-                            <span class="file-name" id="file-name">Tidak ada file dipilih</span>
+            <form method="POST" enctype="multipart/form-data">
+                <div class="settings-container">
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class='bx bx-info-circle'></i>
+                            Informasi Website
                         </div>
-                        
-                        <?php if (!empty($pengaturan['logo'])): ?>
-                            <div class="logo-preview">
-                                <p>Logo Saat Ini:</p>
-                                <img src="/Futsal/uploads/<?php echo htmlspecialchars($pengaturan['logo']); ?>" alt="Logo">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Nama Website *</label>
+                                <input type="text" name="nama_website" value="<?php echo htmlspecialchars($pengaturan['nama_website']); ?>" required>
                             </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <div class="section-title">
-                        <i class='bx bx-phone'></i>
-                        Informasi Kontak
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>WhatsApp <span>(Format: 628xxx)</span></label>
-                            <div class="input-group">
-                                <i class='bx bxl-whatsapp'></i>
-                                <input type="text" name="whatsapp" value="<?php echo htmlspecialchars($pengaturan['whatsapp']); ?>" placeholder="6281234567890">
+                            <div class="form-group">
+                                <label>Tagline <span>(Slogan Website)</span></label>
+                                <input type="text" name="tagline" value="<?php echo htmlspecialchars($pengaturan['tagline']); ?>" placeholder="Contoh: Tempat Bermain Futsal Terbaik">
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Email</label>
+                                <div class="input-group">
+                                    <i class='bx bx-envelope'></i>
+                                    <input type="email" name="email" value="<?php echo htmlspecialchars($pengaturan['email']); ?>" placeholder="info@zonafutsal.com">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Nomor Telepon</label>
+                                <div class="input-group">
+                                    <i class='bx bx-phone'></i>
+                                    <input type="text" name="telepon" value="<?php echo htmlspecialchars($pengaturan['telepon']); ?>" placeholder="081234567890">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-grid single">
+                            <div class="form-group">
+                                <label>Alamat Lengkap</label>
+                                <textarea name="alamat" rows="3" placeholder="Jl. Contoh No. 123, Kota Anda"><?php echo htmlspecialchars($pengaturan['alamat']); ?></textarea>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="form-section">
-                    <div class="section-title">
-                        <i class='bx bx-share-alt'></i>
-                        Media Sosial
-                    </div>
-                    <div class="form-grid">
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class='bx bx-image'></i>
+                            Logo Website
+                        </div>
                         <div class="form-group">
-                            <label>Instagram <span>(Username atau URL)</span></label>
-                            <div class="input-group">
-                                <i class='bx bxl-instagram'></i>
-                                <input type="text" name="instagram" value="<?php echo htmlspecialchars($pengaturan['instagram']); ?>" placeholder="zonafutsal">
+                            <label>Upload Logo Baru <span>(Max 2MB - JPG, PNG, GIF)</span></label>
+                            <div class="file-input-wrapper">
+                                <input type="file" name="logo" id="logo" accept="image/*" onchange="updateFileName(this)">
+                                <label for="logo" class="file-input-label">
+                                    <i class='bx bx-upload'></i>
+                                    <h5>Pilih File</h5>
+                                </label>
+                                <span class="file-name" id="file-name">Tidak ada file dipilih</span>
+                            </div>
+
+                            <?php if (!empty($pengaturan['logo'])): ?>
+                                <div class="logo-preview">
+                                    <p>Logo Saat Ini:</p>
+                                    <img src="/Futsal/uploads/<?php echo htmlspecialchars($pengaturan['logo']); ?>" alt="Logo">
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class='bx bx-phone'></i>
+                            Informasi Kontak
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>WhatsApp <span>(Format: 628xxx)</span></label>
+                                <div class="input-group">
+                                    <i class='bx bxl-whatsapp'></i>
+                                    <input type="text" name="whatsapp" value="<?php echo htmlspecialchars($pengaturan['whatsapp']); ?>" placeholder="6281234567890">
+                                </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label>Facebook <span>(Username atau URL)</span></label>
-                            <div class="input-group">
-                                <i class='bx bxl-facebook'></i>
-                                <input type="text" name="facebook" value="<?php echo htmlspecialchars($pengaturan['facebook']); ?>" placeholder="zonafutsal">
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class='bx bx-share-alt'></i>
+                            Media Sosial
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Instagram <span>(Username atau URL)</span></label>
+                                <div class="input-group">
+                                    <i class='bx bxl-instagram'></i>
+                                    <input type="text" name="instagram" value="<?php echo htmlspecialchars($pengaturan['instagram']); ?>" placeholder="zonafutsal">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Facebook <span>(Username atau URL)</span></label>
+                                <div class="input-group">
+                                    <i class='bx bxl-facebook'></i>
+                                    <input type="text" name="facebook" value="<?php echo htmlspecialchars($pengaturan['facebook']); ?>" placeholder="zonafutsal">
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="form-section">
-                    <div class="section-title">
-                        <i class='bx bx-time'></i>
-                        Jam Operasional
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class='bx bx-time'></i>
+                            Jam Operasional
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Jam Buka *</label>
+                                <input type="time" name="jam_buka" value="<?php echo htmlspecialchars($pengaturan['jam_buka']); ?>" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Jam Tutup *</label>
+                                <input type="time" name="jam_tutup" value="<?php echo htmlspecialchars($pengaturan['jam_tutup']); ?>" required>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Jam Buka *</label>
-                            <input type="time" name="jam_buka" value="<?php echo htmlspecialchars($pengaturan['jam_buka']); ?>" required>
+
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class='bx bx-file-blank'></i>
+                            Tentang Kami
                         </div>
                         <div class="form-group">
-                            <label>Jam Tutup *</label>
-                            <input type="time" name="jam_tutup" value="<?php echo htmlspecialchars($pengaturan['jam_tutup']); ?>" required>
+                            <label>Deskripsi Tentang Website/Bisnis Anda</label>
+                            <textarea name="tentang_kami" rows="6" placeholder="Ceritakan tentang bisnis futsal Anda..." id="tentang_kami" oninput="updateCharCount(this, 1000)"><?php echo htmlspecialchars($pengaturan['tentang_kami']); ?></textarea>
+                            <div class="char-count">
+                                <span id="char-count">0</span> / 1000 karakter
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="form-section">
-                    <div class="section-title">
-                        <i class='bx bx-file-blank'></i>
-                        Tentang Kami
-                    </div>
-                    <div class="form-group">
-                        <label>Deskripsi Tentang Website/Bisnis Anda</label>
-                        <textarea name="tentang_kami" rows="6" placeholder="Ceritakan tentang bisnis futsal Anda..." id="tentang_kami" oninput="updateCharCount(this, 1000)"><?php echo htmlspecialchars($pengaturan['tentang_kami']); ?></textarea>
-                        <div class="char-count">
-                            <span id="char-count">0</span> / 1000 karakter
-                        </div>
-                    </div>
+                    <button type="submit" class="btn-submit">
+                        <i class='bx bx-save'></i>
+                        Simpan Pengaturan
+                    </button>
                 </div>
-
-                <button type="submit" class="btn-submit">
-                    <i class='bx bx-save'></i>
-                    Simpan Pengaturan
-                </button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -592,7 +668,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         function updateCharCount(textarea, maxLength) {
             const currentLength = textarea.value.length;
             document.getElementById('char-count').textContent = currentLength;
-            
+
             if (currentLength > maxLength) {
                 textarea.value = textarea.value.substring(0, maxLength);
                 document.getElementById('char-count').textContent = maxLength;
@@ -618,4 +694,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         });
     </script>
 </body>
+
 </html>
