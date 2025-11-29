@@ -2,7 +2,8 @@
 $host = "localhost";
 $user = "root";     
 $pass = "";          
-$db   = "zonafutsal";
+
+$db   = "zofa";
 
 $conn = new mysqli($host, $user, $pass, $db);
 

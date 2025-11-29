@@ -8,114 +8,128 @@ if(!isset($_SESSION['user_id'])){
 }
 
 $user_id = $_SESSION['user_id'];
-
-$query = mysqli_query($conn, "SELECT * FROM pesan WHERE user_id='$user_id' ORDER BY created_at DESC");
-$pesanList = [];
-while($row = mysqli_fetch_assoc($query)){
-    $pesanList[] = $row;
-}
+$query = mysqli_query($conn, "
+    SELECT * FROM pesan 
+    WHERE user_id='$user_id' 
+    ORDER BY created_at DESC
+");
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <title>Pesan Saya</title>
-<link rel="stylesheet" href="../assets/css/pages.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
     font-family: 'Poppins', sans-serif;
-    background: #f9f9f9;
-    color: #333;
-    padding: 20px;
+    background: #eef2f6;
+    padding: 30px 16px;
 }
+
+.container {
+    max-width: 700px;
+    margin: auto;
+}
+
 h2 {
     text-align: center;
-    margin-bottom: 20px;
-    color: #222;
+    margin-bottom: 28px;
+    font-size: 26px;
+    font-weight: 600;
+    color: #1e2a38;
 }
-.pesan-item {
-    background: #fff;
-    padding: 16px;
-    margin-bottom: 12px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    transition: transform 0.2s, box-shadow 0.2s;
+
+.card {
+    background: #ffffff;
+    padding: 18px 20px;
+    border-radius: 14px;
+    margin-bottom: 14px;
+    box-shadow: 0 7px 18px rgba(0,0,0,0.06);
+    transition: 0.25s ease;
+    border-left: 5px solid #2962ff;
 }
-.pesan-item:hover {
+
+.card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.08);
 }
-.pesan-item b {
-    font-size: 18px;
-    display: block;
+
+.card-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #1b1b1b;
     margin-bottom: 6px;
-    color: #111;
 }
-.pesan-item p {
+
+.card-text {
     font-size: 14px;
-    line-height: 1.5;
-    margin-bottom: 8px;
+    color: #4a4a4a;
+    line-height: 1.6;
+    margin-bottom: 10px;
 }
-.pesan-item small {
+
+.card small {
     font-size: 12px;
-    color: #888;
+    color: #8a8a8a;
 }
-.pesan-status {
+
+.btn-bukti {
     display: inline-block;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    color: #fff;
-    margin-top: 6px;
-}
-.pesan-status.baru {
-    background:  #ff5b2dff;
-}
-.pesan-status.dikonfirmasi {
-    background: #22b301ff;
-}
-.pesan-item a {
-    display: inline-block;
-    margin-top: 6px;
+    margin-top: 8px;
     font-size: 13px;
-    color: #3498db;
+    font-weight: 500;
+    color: #2962ff;
+    text-decoration: none;
+}
+
+.btn-bukti:hover {
+    text-decoration: underline;
+}
+
+.no-data {
+    text-align: center;
+    font-size: 16px;
+    margin-top: 50px;
+    color: #777;
 }
 </style>
 </head>
 <body>
 
-<h2>Pesan Saya</h2>
+<div class="container">
+    <h2>Pesan Saya</h2>
 
-<?php if(!empty($pesanList)): ?>
-    <?php foreach($pesanList as $p): ?>
-        <div class="pesan-item">
-            <b><?= htmlspecialchars($p['judul']); ?></b>
-            <p><?= nl2br(htmlspecialchars($p['pesan'])); ?></p>
-            <small><?= date('d-m-Y H:i', strtotime($p['created_at'])); ?></small><br>
-            <span class="pesan-status <?= $p['status']; ?>">
-                <?php
-                echo match($p['status']) {
-                    'baru' => 'Baru',
-                    'dibaca' => 'Dibaca',
-                    'dikonfirmasi' => 'Dikonfirmasi',
-                    'kirim_ulang' => 'Kirim Ulang',
-                    'dibatalkan' => 'Dibatalkan',
-                    default => $p['status']
-                };
-                ?>
-            </span>
+    <?php if(mysqli_num_rows($query) > 0): ?>
+        <?php while($p = mysqli_fetch_assoc($query)): ?>
+        <div class="card">
+            <div class="card-title"><?= htmlspecialchars($p['judul']) ?></div>
+
+            <div class="card-text">
+                <?= nl2br(htmlspecialchars($p['pesan'])) ?>
+            </div>
+
+            <small><?= date('d M Y - H:i', strtotime($p['created_at'])) ?></small>
+
             <?php if(!empty($p['bukti'])): ?>
-                <br><a href="../../uploads/<?= htmlspecialchars($p['bukti']) ?>" target="_blank">Lihat Bukti</a>
+                <br><a class="btn-bukti" href="../../uploads/<?= htmlspecialchars($p['bukti']) ?>" target="_blank">Lihat Bukti Pembayaran</a>
             <?php endif; ?>
+
             <?php if(!empty($p['alasan'])): ?>
-                <br>Alasan: <?= htmlspecialchars($p['alasan']); ?>
+                <br><small><b>Alasan:</b> <?= htmlspecialchars($p['alasan']) ?></small>
             <?php endif; ?>
         </div>
-    <?php endforeach; ?>
-<?php else: ?>
-    <p style="text-align:center; font-size:16px; color:#666;">Belum ada pesan.</p>
-<?php endif; ?>
+        <?php endwhile; ?>
+    <?php else: ?>
+        <p class="no-data">Belum ada pesan untuk ditampilkan.</p>
+    <?php endif; ?>
+</div>
 
 </body>
 </html>
