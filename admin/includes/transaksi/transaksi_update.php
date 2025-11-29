@@ -7,68 +7,77 @@ if (!isset($_SESSION['admin_id'])) {
     exit;
 }
 
-$action = $_GET['action'] ?? null;
+$id = $_POST['id'] ?? $_GET['id'] ?? null;
+$action = $_POST['action'] ?? $_GET['action'] ?? null;
+$alasan_batal = $_POST['alasan'] ?? null;
 
-$id_transaksi = $_GET['id'] ?? $_POST['id'] ?? null;
-
-if (!$id_transaksi) {
-    die("ID transaksi tidak ditemukan!");
-}
-
-$trx = mysqli_fetch_assoc(mysqli_query($conn, "SELECT user_id FROM transaksi WHERE id='$id_transaksi'"));
-$user_id = $trx['user_id'] ?? null;
-if (!$user_id) die("User tidak ditemukan!");
-
-if ($action === 'set_lunas') {
-    $status = 'lunas';
-
-    $stmt = $conn->prepare("UPDATE transaksi SET status_pembayaran=? WHERE id=?");
-    $stmt->bind_param("ss", $status, $id_transaksi);
-    $stmt->execute();
-    $stmt->close();
-
-    $judul = "Transaksi Lunas";
-    $pesan = "Transaksi Anda telah lunas. Terima kasih telah melakukan pembayaran.";
-    $stmt2 = $conn->prepare("
-        INSERT INTO pesan (user_id, id_transaksi, judul, pesan, status, created_at)
-        VALUES (?, ?, ?, ?, 'baru', NOW())
-    ");
-    $stmt2->bind_param("ssss", $user_id, $id_transaksi, $judul, $pesan);
-    $stmt2->execute();
-    $stmt2->close();
-
-    echo "<script>
-        alert('Status transaksi diubah menjadi LUNAS dan user diberi notifikasi.');
-               window.location.href='../../pages/transaksi.php';
-    </script>";
+if (!$id) {
+    echo json_encode(['success' => false, 'message' => 'ID transaksi tidak ditemukan']);
     exit;
 }
 
-if ($action === 'batal' || isset($_POST['alasan_batal'])) {
-    $alasan_batal = $_POST['alasan_batal'] ?? 'Tidak ada alasan';
+$qTrans = mysqli_query($conn, "SELECT user_id, subtotal, jumlah_dibayar FROM transaksi WHERE id='$id'");
+$trans = mysqli_fetch_assoc($qTrans);
 
-    $status = 'dibatalkan';
-
-    $stmt = $conn->prepare("UPDATE transaksi SET status_pembayaran=? WHERE id=?");
-    $stmt->bind_param("ss", $status, $id_transaksi);
-    $stmt->execute();
-    $stmt->close();
-
-    $judul = "Transaksi Dibatalkan";
-    $pesan = "Transaksi Anda dibatalkan. Alasan: $alasan_batal";
-    $stmt2 = $conn->prepare("
-        INSERT INTO pesan (user_id, id_transaksi, judul, pesan, status, created_at)
-        VALUES (?, ?, ?, ?, 'baru', NOW())
-    ");
-    $stmt2->bind_param("ssss", $user_id, $id_transaksi, $judul, $pesan);
-    $stmt2->execute();
-    $stmt2->close();
-
-    echo "<script>
-        alert('Transaksi dibatalkan dan user diberi notifikasi.');
-        window.location.href='../../pages/transaksi.php';
-    </script>";
+if (!$trans) {
+    echo json_encode(['success' => false, 'message' => 'Transaksi tidak ditemukan']);
     exit;
 }
 
-die("Action tidak valid!");
+$user_id = $trans['user_id'];
+$subtotal = $trans['subtotal'];
+$jumlah_dibayar = $trans['jumlah_dibayar'] ?? 0;
+
+if ($action == 'set_lunas') {
+
+    $sisa_bayar = $subtotal - $jumlah_dibayar;
+    $new_jumlah_dibayar = $jumlah_dibayar + $sisa_bayar;
+
+    mysqli_query($conn, "
+        UPDATE transaksi 
+        SET status_pembayaran='lunas', jumlah_dibayar='$new_jumlah_dibayar'
+        WHERE id='$id'
+    ");
+}
+
+elseif ($action == 'batal' && $alasan_batal) {
+
+    $alasan_escape = mysqli_real_escape_string($conn, $alasan_batal);
+
+    mysqli_query($conn, "
+        UPDATE transaksi 
+        SET status_pembayaran='dibatalkan', alasan_batal='$alasan_escape'
+        WHERE id='$id'
+    ");
+
+    $judul = "Pembatalan Transaksi";
+    $pesan = "Transaksi ID $id dibatalkan. Alasan: $alasan_escape";
+
+    mysqli_query($conn, "
+        INSERT INTO pesan (user_id, judul, pesan, status, created_at)
+        VALUES ('$user_id', '$judul', '$pesan', 'baru', NOW())
+    ");
+
+    header("Location: ../../pages/transaksi.php?message=batal-success");
+    exit;
+}
+
+$total_pendapatan = mysqli_fetch_assoc(mysqli_query($conn, "
+    SELECT COALESCE(SUM(jumlah_dibayar),0) AS total 
+    FROM transaksi 
+    WHERE status_pembayaran IN ('dp','lunas')
+"))['total'];
+
+$total_transaksi = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transaksi"));
+$transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transaksi WHERE DATE(created_at)=CURDATE()"));
+
+if ($action !== 'batal') {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => true,
+        'total_pendapatan' => number_format($total_pendapatan, 0, ',', '.'),
+        'total_transaksi' => $total_transaksi,
+        'transaksi_hari_ini' => $transaksi_hari_ini
+    ]);
+}
+?>

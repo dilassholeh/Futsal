@@ -32,143 +32,131 @@ $detail = $d->get_result()->fetch_assoc();
 <meta charset="UTF-8">
 <title>Pembayaran Berhasil</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-    font-family: Arial, sans-serif;
-    background: #e9ecef;
+    font-family: 'Poppins', sans-serif;
+    background: #EEF2F7;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
     padding: 40px 10px;
     min-height: 100vh;
 }
-.card {
+.receipt-card {
     background: #fff;
-    width: 400px;
-    max-width: 95%;
-    padding: 30px;
-    border-radius: 15px;
+    width: 430px;
+    padding: 35px;
+    border-radius: 18px;
     text-align: center;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.10);
+    animation: fadeIn .5s ease-in-out;
 }
-.check-circle {
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px);}
+    to { opacity: 1; transform: translateY(0);}
+}
+.success-icon {
     width: 90px;
     height: 90px;
-    background: #e8f9ee;
+    background: #e6f8ec;
     border-radius: 50%;
-    margin: auto;
     display: flex;
     justify-content: center;
     align-items: center;
+    margin: auto;
 }
-.check-circle i {
+.success-icon i {
     font-size: 45px;
     color: #28a745;
 }
 h2 {
-    margin-top: 15px;
-    font-size: 22px;
-    font-weight: bold;
+    font-size: 24px;
+    font-weight: 700;
+    color: #232323;
+    margin: 18px 0 10px;
 }
 .amount {
     color: #28a745;
-    font-size: 26px;
-    font-weight: bold;
-    margin-top: -5px;
-    margin-bottom: 25px;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 22px;
 }
-.info-table {
-    width: 100%;
-    margin-top: 10px;
-    font-size: 15px;
+.details {
+    margin-top: 20px;
+    text-align: left;
 }
-.info-row {
+.details .row {
     display: flex;
     justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid #f0f0f0;
+    padding: 10px 0;
+    font-size: 15.5px;
+    border-bottom: 1px dashed #ddd;
 }
-.info-row:last-child {
-    border-bottom: none;
+.details .label {
+    font-weight: 600;
+    color: #444;
 }
-.label {
-    font-weight: bold;
-    color: #333;
-}
-.value {
-    color: #555;
+.details .value {
+    font-weight: 500;
+    color: #666;
     text-align: right;
 }
-.btn-main, .btn-print, .back-btn {
-    display: block;
+.btn {
     width: 100%;
-    padding: 12px;
-    border-radius: 8px;
+    padding: 13px;
+    border-radius: 10px;
     text-decoration: none;
-    text-align: center;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 15px;
-    border: none;
+    display: inline-block;
+    margin-top: 17px;
     font-size: 16px;
+    font-weight: 600;
+    transition: .25s;
 }
-.btn-main {
-    background: #28a745;
+.btn-back {
+    background: #117139;
     color: #fff;
+}
+.btn-back:hover {
+    background: #0d5a2d;
 }
 .btn-print {
-    background: #fff;
-    color: #28a745;
-    border: 1px solid #28a745;
+    border: 2px solid #117139;
+    color: #117139;
+    background: transparent;
 }
-.btn-print i {
-    margin-right: 5px;
-}
-.back-btn {
-    background: #6c757d;
+.btn-print:hover {
+    background: #117139;
     color: #fff;
 }
-.back-btn:hover { background: #5a6268; }
-.btn-print:hover { background: #28a745; color: #fff; }
 </style>
 </head>
 <body>
-<div class="card">
-    <div class="check-circle">
+
+<div class="receipt-card">
+    
+    <div class="success-icon">
         <i class="fa fa-check"></i>
     </div>
-    <h2>Pembayaran Berhasil!</h2>
-    <div class="amount">Rp <?= number_format($transaksi['subtotal'], 0, ',', '.'); ?></div>
 
-    <div class="info-table">
-        <div class="info-row">
-            <div class="label">Order ID</div>
-            <div class="value"><?= $transaksi['id'] ?></div>
-        </div>
-        <div class="info-row">
-            <div class="label">Nama Lapangan</div>
-            <div class="value"><?= $detail['lapangan'] ?></div>
-        </div>
-        <div class="info-row">
-            <div class="label">Tanggal</div>
-            <div class="value"><?= $detail['tanggal'] ?></div>
-        </div>
-        <div class="info-row">
-            <div class="label">Jam</div>
-            <div class="value"><?= $detail['jam_mulai'] ?> - <?= $detail['jam_selesai'] ?></div>
-        </div>
-        <div class="info-row">
-            <div class="label">Durasi</div>
-            <div class="value"><?= $detail['durasi'] ?> Jam</div>
-        </div>
-        <div class="info-row">
-            <div class="label">Metode</div>
-            <div class="value">Transfer Bank</div>
-        </div>
+    <h2>Pembayaran Berhasil</h2>
+    <div class="amount">
+        Rp <?= number_format($transaksi['subtotal'], 0, ',', '.'); ?>
     </div>
 
-    <a class="back-btn" href="../../sewa.php">← Kembali</a>
-    <a class="btn-print" href="#" onclick="window.print();return false;"><i class="fa fa-print"></i> Cetak Bukti</a>
+    <div class="details">
+        <div class="row"><span class="label">Order ID</span><span class="value"><?= $transaksi['id'] ?></span></div>
+        <div class="row"><span class="label">Lapangan</span><span class="value"><?= $detail['lapangan'] ?></span></div>
+        <div class="row"><span class="label">Tanggal</span><span class="value"><?= date('d/m/Y', strtotime($detail['tanggal'])) ?></span></div>
+        <div class="row"><span class="label">Waktu</span><span class="value"><?= $detail['jam_mulai'] ?> - <?= $detail['jam_selesai'] ?></span></div>
+        <div class="row"><span class="label">Durasi</span><span class="value"><?= $detail['durasi'] ?> Jam</span></div>
+        <div class="row"><span class="label">Metode</span><span class="value">Transfer Bank</span></div>
+    </div>
+
+    <a class="btn btn-back" href="../../sewa.php">Kembali</a>
+    <a class="btn btn-print" href="#" onclick="window.print();return false;">Cetak Bukti</a>
+
 </div>
+
 </body>
 </html>
