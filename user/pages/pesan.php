@@ -53,7 +53,7 @@ h2 {
     margin-bottom: 14px;
     box-shadow: 0 7px 18px rgba(0,0,0,0.06);
     transition: 0.25s ease;
-    border-left: 5px solid #2962ff;
+    border-left: 5px solid #117139;
 }
 
 .card:hover {

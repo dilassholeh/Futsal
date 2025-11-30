@@ -29,45 +29,22 @@ $subtotal = $trans['subtotal'];
 $jumlah_dibayar = $trans['jumlah_dibayar'] ?? 0;
 
 if ($action == 'set_lunas') {
-
     $sisa_bayar = $subtotal - $jumlah_dibayar;
     $new_jumlah_dibayar = $jumlah_dibayar + $sisa_bayar;
-
-    mysqli_query($conn, "
-        UPDATE transaksi 
-        SET status_pembayaran='lunas', jumlah_dibayar='$new_jumlah_dibayar'
-        WHERE id='$id'
-    ");
+    mysqli_query($conn, "UPDATE transaksi SET status_pembayaran='lunas', jumlah_dibayar='$new_jumlah_dibayar' WHERE id='$id'");
 }
 
-elseif ($action == 'batal' && $alasan_batal) {
-
+if ($action == 'batal' && $alasan_batal) {
     $alasan_escape = mysqli_real_escape_string($conn, $alasan_batal);
-
-    mysqli_query($conn, "
-        UPDATE transaksi 
-        SET status_pembayaran='dibatalkan', alasan_batal='$alasan_escape'
-        WHERE id='$id'
-    ");
-
+    mysqli_query($conn, "UPDATE transaksi SET status_pembayaran='dibatalkan', alasan_batal='$alasan_escape' WHERE id='$id'");
     $judul = "Pembatalan Transaksi";
     $pesan = "Transaksi ID $id dibatalkan. Alasan: $alasan_escape";
-
-    mysqli_query($conn, "
-        INSERT INTO pesan (user_id, judul, pesan, status, created_at)
-        VALUES ('$user_id', '$judul', '$pesan', 'baru', NOW())
-    ");
-
+    mysqli_query($conn, "INSERT INTO pesan (user_id, judul, pesan, status, created_at) VALUES ('$user_id', '$judul', '$pesan', 'baru', NOW())");
     header("Location: ../../pages/transaksi.php?message=batal-success");
     exit;
 }
 
-$total_pendapatan = mysqli_fetch_assoc(mysqli_query($conn, "
-    SELECT COALESCE(SUM(jumlah_dibayar),0) AS total 
-    FROM transaksi 
-    WHERE status_pembayaran IN ('dp','lunas')
-"))['total'];
-
+$total_pendapatan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COALESCE(SUM(jumlah_dibayar),0) AS total FROM transaksi WHERE status_pembayaran IN ('dp','lunas')"))['total'];
 $total_transaksi = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transaksi"));
 $transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transaksi WHERE DATE(created_at)=CURDATE()"));
 
@@ -80,4 +57,3 @@ if ($action !== 'batal') {
         'transaksi_hari_ini' => $transaksi_hari_ini
     ]);
 }
-?>
