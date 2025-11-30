@@ -102,6 +102,46 @@ $transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transa
             opacity: 0.5;
             pointer-events: none;
         }
+.alert {
+    padding: 14px 20px;
+    border-radius: 10px;
+    margin: 0 16px 18px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: .3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    animation: fadeIn .35s ease;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #43a047, #66bb6a);
+}
+
+.alert-error {
+    background: linear-gradient(135deg, #d32f2f, #ef5350);
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.btn-icon.disabled {
+    opacity: 0.35;
+    pointer-events: none;
+    filter: grayscale(80%);
+}
+
     </style>
 </head>
 
@@ -119,6 +159,7 @@ $transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transa
                 </div>
             </div>
         </div>
+        <div id="alertBox" class="alert" style="display:none;"></div>
 
         <div class="bottom">
             <div class="card-container">
@@ -226,6 +267,39 @@ $transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transa
             theme: "green",
             defaultDate: "<?= htmlspecialchars($tanggal); ?>"
         });
+
+            function showAlert(message, type = 'success') {
+                const alertBox = document.getElementById('alertBox');
+                alertBox.textContent = message;
+                alertBox.className = `alert alert-${type}`;
+                alertBox.style.display = 'block';
+                setTimeout(() => {
+                    alertBox.style.display = 'none';
+                }, 1500);
+            }
+
+        document.querySelectorAll('.btn-icon.lunas').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const url = this.getAttribute('href');
+                fetch(url)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            showAlert("Status transaksi berhasil diset menjadi LUNAS!", "success");
+                            document.querySelector(".card-pendapatan p").textContent = "Rp " + data.total_pendapatan;
+                            document.querySelector(".card-transaksi p").textContent = data.total_transaksi + " Transaksi";
+                            document.querySelector(".card-hariini p").textContent = data.transaksi_hari_ini + " Transaksi";
+                            const row = btn.closest("tr");
+                            const statusEl = row.querySelector(".status");
+                            statusEl.textContent = "Lunas";
+                            statusEl.className = "status lunas";
+                            btn.classList.add("disabled");
+                        }
+                    });
+            });
+        });
+
     </script>
 </body>
 
