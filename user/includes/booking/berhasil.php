@@ -17,6 +17,7 @@ if (!$transaksi) {
     die("Transaksi tidak ditemukan di database!");
 }
 
+// ambil detail transaksi
 $d = $conn->prepare("SELECT td.*, l.nama_lapangan AS lapangan 
                      FROM transaksi_detail td
                      LEFT JOIN lapangan l ON l.id = td.id_lapangan
@@ -24,8 +25,10 @@ $d = $conn->prepare("SELECT td.*, l.nama_lapangan AS lapangan
 $d->bind_param("s", $id);
 $d->execute();
 $detail = $d->get_result()->fetch_assoc();
-?>
 
+// ambil jumlah yang sudah dibayar (dp atau lunas)
+$jumlah_dibayar = floatval($transaksi['jumlah_dibayar']);
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -140,8 +143,10 @@ h2 {
     </div>
 
     <h2>Pembayaran Berhasil</h2>
+
+    <!-- === MENAMPILKAN JUMLAH YANG DIBAYAR (DP ATAU LUNAS) === -->
     <div class="amount">
-        Rp <?= number_format($transaksi['subtotal'], 0, ',', '.'); ?>
+        Rp <?= number_format($jumlah_dibayar, 0, ',', '.'); ?>
     </div>
 
     <div class="details">

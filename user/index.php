@@ -1,31 +1,56 @@
 <?php
 session_start();
-include '../includes/koneksi.php';
+if (isset($_SESSION['admin_id'])) {
+    $_SESSION['user_id'] = $_SESSION['admin_id'];
+}
 
+include '../includes/koneksi.php';
+date_default_timezone_set('Asia/Jakarta');
+
+// Jika halaman dibuka dari admin (Lihat Website) dan admin memang login
+if (isset($_GET['admin_view']) && isset($_SESSION['from_admin']) && $_SESSION['from_admin'] === true && isset($_SESSION['admin_id'])) {
+  $_SESSION['user_id'] = $_SESSION['admin_id'];
+  $_SESSION['user_name'] = $_SESSION['admin_nama'] ?? null;
+  $_SESSION['user_nohp'] = $_SESSION['admin_nohp'] ?? null;
+  $_SESSION['user_role'] = 'admin';
+}
+
+// Ambil event yang masih berjalan
 $current_date = date('Y-m-d');
+$esc_date = $conn->real_escape_string($current_date);
 $query = "SELECT e.*, k.nama as kategori_nama 
           FROM event e 
           LEFT JOIN kategori k ON e.kategori_id = k.id 
-          WHERE e.tanggal_berakhir >= '$current_date'
+          WHERE e.tanggal_berakhir >= '$esc_date'
           ORDER BY e.tanggal_mulai ASC";
 $result = $conn->query($query);
 
+// Inisialisasi agar header/footer tidak error jika tidak ada user
 $jumlahKeranjang = 0;
 $notifBaru = 0;
-if (isset($_SESSION['user_id'])) {
-  $user_id = $_SESSION['user_id'];
 
-  $cartData = mysqli_fetch_assoc(mysqli_query(
-    $conn,
-    "SELECT COUNT(*) AS jumlah FROM keranjang WHERE user_id = '$user_id'"
-  ));
-  $jumlahKeranjang = $cartData['jumlah'] ?? 0;
+if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+  $user_id = $conn->real_escape_string($_SESSION['user_id']);
 
-  $notifBaruData = mysqli_fetch_assoc(mysqli_query(
-    $conn,
-    "SELECT COUNT(*) AS jumlah_baru FROM pesan WHERE user_id='$user_id' AND status='baru'"
-  ));
-  $notifBaru = $notifBaruData['jumlah_baru'] ?? 0;
+  // COUNT keranjang
+  $q1 = "SELECT COUNT(*) AS jumlah FROM keranjang WHERE user_id = '$user_id'";
+  $res1 = $conn->query($q1);
+  if ($res1) {
+    $cartData = $res1->fetch_assoc();
+    $jumlahKeranjang = isset($cartData['jumlah']) ? (int)$cartData['jumlah'] : 0;
+  } else {
+    $jumlahKeranjang = 0;
+  }
+
+  // COUNT pesan baru
+  $q2 = "SELECT COUNT(*) AS jumlah_baru FROM pesan WHERE user_id = '$user_id' AND status = 'baru'";
+  $res2 = $conn->query($q2);
+  if ($res2) {
+    $notifBaruData = $res2->fetch_assoc();
+    $notifBaru = isset($notifBaruData['jumlah_baru']) ? (int)$notifBaruData['jumlah_baru'] : 0;
+  } else {
+    $notifBaru = 0;
+  }
 }
 ?>
 <!DOCTYPE html>
@@ -38,7 +63,6 @@ if (isset($_SESSION['user_id'])) {
   <link href="https://unpkg.com/boxicons@latest/css/boxicons.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./assets/css/style.css?v=<?php echo filemtime('./assets/css/style.css'); ?>">
-
   <style>
     :root {
       --green: #2e7d32;
@@ -61,7 +85,6 @@ if (isset($_SESSION['user_id'])) {
       color: #222;
       line-height: 1.6;
     }
-
 
     .hero2 {
       display: grid;
@@ -107,7 +130,6 @@ if (isset($_SESSION['user_id'])) {
       border-radius: 14px;
       box-shadow: 0 12px 30px rgba(46, 125, 50, 0.08);
     }
-
 
     .section {
       padding: 70px 6%;
@@ -304,21 +326,21 @@ if (isset($_SESSION['user_id'])) {
     <div class="fitur-wrapper">
 
       <div class="fitur-card">
-        <img src="./assets/image/futsal.png">
+        <img src="./assets/image/futsal.png" alt="">
         <h3>Lapangan Standar Nasional</h3>
         <p>Lapangan aman, nyaman, dan sesuai standar nasional.</p>
         <button onclick="location.href='./pages/lapangan.php'">Selengkapnya</button>
       </div>
 
       <div class="fitur-card">
-        <img src="./assets/image/futsal.png">
+        <img src="./assets/image/futsal.png" alt="">
         <h3>Booking Online Cepat</h3>
         <p>Pilih waktu dan pesan lapangan dalam hitungan detik.</p>
         <button onclick="location.href='./pages/sewa.php'">Selengkapnya</button>
       </div>
 
       <div class="fitur-card">
-        <img src="./assets/image/futsal.png">
+        <img src="./assets/image/futsal.png" alt="">
         <h3>Harga Terjangkau</h3>
         <p>Kualitas premium dengan harga ramah di kantong.</p>
         <button onclick="location.href='./pages/promo.php'">Selengkapnya</button>
@@ -329,7 +351,7 @@ if (isset($_SESSION['user_id'])) {
 
   <section class="section">
     <div class="about">
-      <img src="./assets/image/futsal.png" class="about-img">
+      <img src="./assets/image/futsal.png" class="about-img" alt="">
       <div>
         <h2>Tentang ZonaFutsal</h2>
         <p>
@@ -407,4 +429,5 @@ if (isset($_SESSION['user_id'])) {
   <?php include './pages/footer.php'; ?>
 
 </body>
+
 </html>

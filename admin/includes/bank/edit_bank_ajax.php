@@ -1,5 +1,5 @@
 <?php
-include '../../includes/koneksi.php';
+include '../../../includes/koneksi.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = $_POST['id'];

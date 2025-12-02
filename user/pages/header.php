@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <style>
     * {
         margin: 0;
@@ -82,7 +83,6 @@
         align-items: center;
     }
 
-    .btn-cart,
     .notif {
         position: relative;
         font-size: 20px;
@@ -90,7 +90,6 @@
         text-decoration: none;
     }
 
-    .cart-count,
     .notif-badge {
         position: absolute;
         top: -5px;
@@ -212,28 +211,32 @@
                     <img src="./assets/image/logo.png" alt="ZonaFutsal Logo"> ZOFA
                 </a>
             </div>
+
             <ul class="nav-menu">
                 <li><a href="index.php">Beranda</a></li>
                 <li><a href="sewa.php" class="active">Penyewaan</a></li>
                 <li><a href="event.php">Event</a></li>
             </ul>
+
             <div class="nav-bottom">
                 <div class="burger"><i class="bx bx-menu"></i></div>
+
                 <div class="user-icons">
                     <?php if (isset($_SESSION['user_id'])): ?>
-                        <a href="./pages/keranjang.php" class="btn-cart">
-                            <i class="bx bx-cart"></i>
-                            <span class="cart-count"><?= $_SESSION['cart_count'] ?? 0 ?></span>
-                        </a>
+
+                        <!-- NOTIFIKASI (TETAP ADA) -->
                         <a href="./pages/pesan.php" class="notif">
                             <i class='bx bxs-bell'></i>
                             <span class="notif-badge"><?= $_SESSION['notif_count'] ?? 0 ?></span>
                         </a>
+
+                        <!-- PROFILE -->
                         <div class="profile-card">
                             <a href="./pages/user.php" class="profile-link">
                                 <img src="./assets/image/<?= $_SESSION['foto'] ?? 'profil.png'; ?>" alt="Profile" class="profile-img">
                             </a>
                         </div>
+
                     <?php else: ?>
                         <a href="login.php" class="btn-login">Login</a>
                         <a href="register.php" class="btn-register">Register</a>

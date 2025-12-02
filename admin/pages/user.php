@@ -8,6 +8,8 @@ if (!isset($_SESSION['admin_id'])) {
   exit;
 }
 
+
+
 ?>
 
 <!DOCTYPE html>
@@ -45,7 +47,7 @@ if (!isset($_SESSION['admin_id'])) {
             <i class='bx bx-search'></i>
           </div>
 
-          <button class="btn-tambah" id="openModal"><i class='bx bx-plus'></i>Tambah</button>
+          
         </div>
 
         <div class="table-container">
@@ -58,18 +60,23 @@ if (!isset($_SESSION['admin_id'])) {
                   <th>Username</th>
                   <th>No HP</th>
                   <th>Group</th>
-                  <th>Aksi</th>
                 </tr>
               </thead>
               <tbody>
 
                 <?php
                 $query = "
-            SELECT u.*, g.nama_grup 
-            FROM user u 
-            LEFT JOIN user_grup g ON u.id_grup = g.id_grup
-            ORDER BY u.id DESC
-          ";
+    SELECT u.*, g.nama_grup 
+    FROM user u 
+    LEFT JOIN user_grup g ON u.id_grup = g.id_grup
+    ORDER BY 
+        CASE 
+            WHEN g.nama_grup = 'Admin' THEN 0 
+            ELSE 1 
+        END,
+        u.id DESC
+";
+
                 $result = $conn->query($query);
 
                 if ($result->num_rows > 0) {
@@ -81,10 +88,6 @@ if (!isset($_SESSION['admin_id'])) {
                 <td>{$row['username']}</td>
                 <td>{$row['no_hp']}</td>
                 <td>{$row['nama_grup']}</td>
-                <td>
-                  <a href='edit_user.php?id={$row['id']}'><i class='bx bx-edit' style='color:#007bff; font-size:18px;'></i></a>
-                  <a href='hapus_user.php?id={$row['id']}' onclick=\"return confirm('Hapus user ini?')\"><i class='bx bx-trash' style='color:#dc3545; font-size:18px;'></i></a>
-                </td>
               </tr>";
                   }
                 } else {

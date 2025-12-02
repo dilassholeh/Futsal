@@ -121,28 +121,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     <link rel="stylesheet" href="../assets/css/lapangan.css?v=<?php echo filemtime('../assets/css/lapangan.css'); ?>">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
-        .status-badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            display: inline-block;
-        }
+      /* === Badge Status === */
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: capitalize;
+    display: inline-block;
+    letter-spacing: .3px;
+}
 
-        .status-tersedia {
-            background-color: #d4edda;
-            color: #155724;
-        }
+/* Status warna */
+.status-active {
+    background: #e6f5e6;
+    color: #1a8f1a;
+    border: 1px solid #b6e3b6;
+}
 
-        .status-rusak {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
+.status-inactive {
+    background: #ffecec;
+    color: #d43b3b;
+    border: 1px solid #ffb7b7;
+}
 
-        .status-perbaikan {
-            background-color: #fff3cd;
-            color: #856404;
-        }
+.status-maintenance {
+    background: #fff6e5;
+    color: #d88a0d;
+    border: 1px solid #ffd79b;
+}
+
+/* === Tombol Edit === */
+.edit-btn {
+    background: #eef5ff;
+    padding: 6px 10px;
+    border-radius: 8px;
+    margin-right: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.edit-btn i {
+    font-size: 20px;
+    color: #1b6fe3 !important;
+}
+
+/* Hover efek */
+.edit-btn:hover {
+    background: #d4e5ff;
+    transform: scale(1.07);
+    box-shadow: 0 3px 7px rgba(27, 111, 227, 0.25);
+}
+
+/* Tombol hapus */
+.delete-btn i {
+    color: #e03131 !important;
+}
+
+.delete-btn:hover {
+    transform: scale(1.07);
+}
+
+        
     </style>
 </head>
 

@@ -253,7 +253,6 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
                 <div class="btn-group">
                     <button type="reset" class="btn btn-danger">Batal</button>
                     <button type="submit" class="btn btn-success">Checkout</button>
-                    <button type="button" class="btn btn-warning" onclick="tambahKeKeranjang()">Keranjang</button>
                 </div>
 
                 <input type="hidden" id="lapangan_id" name="lapangan_id" value="<?= $lapangan['id']; ?>">
