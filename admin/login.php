@@ -17,11 +17,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo "<script>alert('Akses ditolak! Hanya admin yang bisa login di halaman ini.');</script>";
         } else {
             if (password_verify($password, $data['password']) || $password === $data['password']) {
+
                 $_SESSION['admin_id'] = $data['id'];
                 $_SESSION['admin_nama'] = $data['name'];
                 $_SESSION['admin_username'] = $data['username'];
                 $_SESSION['admin_nohp'] = $data['no_hp'];
                 $_SESSION['admin_grup'] = $data['id_grup'];
+
+                // ➤ Tambahan penting agar halaman user/index.php mengenali admin
+                $_SESSION['from_admin'] = true;
 
                 header("Location: ./pages/dashboard.php");
                 exit;
@@ -34,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
