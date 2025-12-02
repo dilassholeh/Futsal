@@ -2,107 +2,252 @@
 include '../../includes/koneksi.php';
 session_start();
 
-$limit = 10;
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$offset = ($page - 1) * $limit;
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['simpan_transaksi'])) {
-    $tanggal = $_POST['tanggal'];
-    $keterangan = mysqli_real_escape_string($conn, $_POST['keterangan']);
-    $tipe = $_POST['tipe'];
-    $jumlah = (float)$_POST['jumlah'];
-    $pemasukan = ($tipe == 'pemasukan') ? $jumlah : 0;
-    $pengeluaran = ($tipe == 'pengeluaran') ? $jumlah : 0;
-    $sql = "INSERT INTO transaksi_keuangan (tanggal, keterangan, pemasukan, pengeluaran) VALUES ('$tanggal', '$keterangan', $pemasukan, $pengeluaran)";
-    mysqli_query($conn, $sql);
+if (!isset($_SESSION['admin_id'])) {
+  header("Location: ../login.php");
+  exit;
 }
 
-$query_transaksi = "SELECT * FROM transaksi_keuangan ORDER BY tanggal DESC, id DESC LIMIT $limit OFFSET $offset";
-$result_transaksi = mysqli_query($conn, $query_transaksi);
 
-$total_query = mysqli_query($conn, "SELECT COUNT(*) as total FROM transaksi_keuangan");
-$total_data = mysqli_fetch_assoc($total_query)['total'];
-$total_pages = ($total_data > 0) ? ceil($total_data / $limit) : 1;
+$page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+$limit = 5;
+$offset = ($page - 1) * $limit;
 
-$query_total = "SELECT SUM(pemasukan) as total_pemasukan, SUM(pengeluaran) as total_pengeluaran FROM transaksi_keuangan";
-$result_total = mysqli_query($conn, $query_total);
-$total_data = mysqli_fetch_assoc($result_total);
-$total_pemasukan = (float)($total_data['total_pemasukan'] ?? 0);
-$total_pengeluaran = (float)($total_data['total_pengeluaran'] ?? 0);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['simpan_transaksi'])) {
+    $tipe = $_POST['tipe'] ?? '';
+    $jumlah = (float)($_POST['jumlah'] ?? 0);
+    $tanggal = mysqli_real_escape_string($conn, $_POST['tanggal'] ?? date('Y-m-d'));
+    $keterangan = mysqli_real_escape_string($conn, $_POST['keterangan'] ?? '');
+
+    if ($tipe === 'pemasukan') {
+        $idtrx = 'TRX' . uniqid();
+        $created_at = date('Y-m-d H:i:s', strtotime($tanggal));
+        $subtotal = $jumlah;
+        $jumlah_dibayar = $jumlah;
+        $status_pembayaran = 'lunas';
+        mysqli_query($conn, "
+            INSERT INTO transaksi (id, user_id, subtotal, jumlah_dibayar, status_pembayaran, created_at)
+            VALUES ('$idtrx', '$user_id', $subtotal, $jumlah_dibayar, '$status_pembayaran', '$created_at')
+        ");
+    } else {
+        $pemasukan = 0;
+        $pengeluaran = $jumlah;
+        mysqli_query($conn, "
+            INSERT INTO transaksi_keuangan (tanggal, pemasukan, pengeluaran, keterangan, created_at)
+            VALUES ('$tanggal', $pemasukan, $pengeluaran, '$keterangan', NOW())
+        ");
+    }
+}
+
+$total_result = mysqli_query($conn, "SELECT COUNT(*) AS total FROM transaksi_keuangan");
+$total_records = intval(mysqli_fetch_assoc($total_result)['total'] ?? 0);
+$total_pages = $total_records > 0 ? ceil($total_records / $limit) : 1;
+
+$query_pagination = mysqli_query($conn,
+    "SELECT * FROM transaksi_keuangan ORDER BY tanggal DESC, id DESC LIMIT $limit OFFSET $offset"
+);
+
+$q1 = mysqli_query($conn, "SELECT SUM(jumlah_dibayar) AS t FROM transaksi WHERE status_pembayaran='lunas'");
+$t1 = (float)(mysqli_fetch_assoc($q1)['t'] ?? 0);
+
+$q2 = mysqli_query($conn, "SELECT SUM(pengeluaran) AS k FROM transaksi_keuangan");
+$r2 = mysqli_fetch_assoc($q2);
+$t2k = (float)($r2['k'] ?? 0);
+
+$total_pemasukan = $t1;
+$total_pengeluaran = $t2k;
 $saldo_akhir = $total_pemasukan - $total_pengeluaran;
 
-$query_bulanan = "SELECT DATE_FORMAT(tanggal,'%Y-%m') as bulan, SUM(pemasukan) as total_pemasukan, SUM(pengeluaran) as total_pengeluaran FROM transaksi_keuangan GROUP BY DATE_FORMAT(tanggal,'%Y-%m') ORDER BY bulan ASC";
+$bulan_indo = ['01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April', '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus', '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'];
+
+$query_bulanan = "
+    SELECT bulan,
+        SUM(pemasukan) AS total_pemasukan,
+        SUM(pengeluaran) AS total_pengeluaran
+    FROM (
+        SELECT DATE_FORMAT(created_at, '%Y-%m') AS bulan, jumlah_dibayar AS pemasukan, 0 AS pengeluaran
+        FROM transaksi
+        WHERE status_pembayaran='lunas'
+        UNION ALL
+        SELECT DATE_FORMAT(tanggal, '%Y-%m') AS bulan, 0 AS pemasukan, pengeluaran
+        FROM transaksi_keuangan
+    ) AS x
+    GROUP BY bulan
+    ORDER BY bulan ASC
+";
 $result_bulanan = mysqli_query($conn, $query_bulanan);
 
 $bulan_labels = [];
+$bulan_labels_readable = [];
 $pemasukan_data = [];
 $pengeluaran_data = [];
 $saldo_cumulative = [];
 $saldo = 0;
-$bulan_indo = ['01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April', '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus', '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'];
-
 while ($row = mysqli_fetch_assoc($result_bulanan)) {
-    list($tahun, $bulan) = explode('-', $row['bulan']);
-    $bulan_labels[] = $bulan_indo[$bulan] . ' ' . $tahun;
-    $pemasukan_data[] = (float)$row['total_pemasukan'];
-    $pengeluaran_data[] = (float)$row['total_pengeluaran'];
-    $saldo += ((float)$row['total_pemasukan'] - (float)$row['total_pengeluaran']);
+    $bulan_labels[] = $row['bulan'];
+    list($y, $m) = explode('-', $row['bulan']);
+    $bulan_labels_readable[] = ($bulan_indo[$m] ?? $m) . ' ' . $y;
+    $pemasukan = (float)($row['total_pemasukan'] ?? 0);
+    $pengeluaran = (float)($row['total_pengeluaran'] ?? 0);
+    $pemasukan_data[] = $pemasukan;
+    $pengeluaran_data[] = $pengeluaran;
+    $saldo += ($pemasukan - $pengeluaran);
     $saldo_cumulative[] = $saldo;
 }
 
-$query_perhari = "SELECT tanggal, SUM(pemasukan) AS total_pemasukan, SUM(pengeluaran) AS total_pengeluaran FROM transaksi_keuangan GROUP BY tanggal ORDER BY tanggal ASC";
+$query_perhari = "
+    SELECT tanggal,
+           SUM(pemasukan) AS total_pemasukan,
+           SUM(pengeluaran) AS total_pengeluaran
+    FROM (
+        SELECT DATE(created_at) AS tanggal, jumlah_dibayar AS pemasukan, 0 AS pengeluaran
+        FROM transaksi
+        WHERE status_pembayaran='lunas'
+        UNION ALL
+        SELECT tanggal, 0 AS pemasukan, pengeluaran
+        FROM transaksi_keuangan
+    ) AS x
+    GROUP BY tanggal
+    ORDER BY tanggal ASC
+";
 $result_perhari = mysqli_query($conn, $query_perhari);
+
 $hari_labels = [];
 $hari_pemasukan = [];
 $hari_pengeluaran = [];
 while ($r = mysqli_fetch_assoc($result_perhari)) {
     $hari_labels[] = date('d-m-Y', strtotime($r['tanggal']));
-    $hari_pemasukan[] = (float)$r['total_pemasukan'];
-    $hari_pengeluaran[] = (float)$r['total_pengeluaran'];
+    $hari_pemasukan[] = (float)($r['total_pemasukan'] ?? 0);
+    $hari_pengeluaran[] = (float)($r['total_pengeluaran'] ?? 0);
 }
 
-$query_perminggu = "SELECT YEAR(tanggal) AS tahun, WEEK(tanggal,1) AS minggu, SUM(pemasukan) AS total_pemasukan, SUM(pengeluaran) AS total_pengeluaran FROM transaksi_keuangan GROUP BY YEAR(tanggal), WEEK(tanggal,1) ORDER BY YEAR(tanggal) ASC, WEEK(tanggal,1) ASC";
+$query_perminggu = "
+    SELECT tahun, minggu,
+           SUM(pemasukan) AS total_pemasukan,
+           SUM(pengeluaran) AS total_pengeluaran
+    FROM (
+        SELECT YEAR(created_at) AS tahun, WEEK(created_at,1) AS minggu, jumlah_dibayar AS pemasukan, 0 AS pengeluaran
+        FROM transaksi
+        WHERE status_pembayaran='lunas'
+        UNION ALL
+        SELECT YEAR(tanggal) AS tahun, WEEK(tanggal,1) AS minggu, 0 AS pemasukan, pengeluaran
+        FROM transaksi_keuangan
+    ) AS x
+    GROUP BY tahun, minggu
+    ORDER BY tahun ASC, minggu ASC
+";
 $result_perminggu = mysqli_query($conn, $query_perminggu);
+
 $minggu_labels = [];
 $minggu_pemasukan = [];
 $minggu_pengeluaran = [];
 while ($r = mysqli_fetch_assoc($result_perminggu)) {
     $label = $r['tahun'] . ' - Minggu ' . sprintf('%02d', $r['minggu']);
     $minggu_labels[] = $label;
-    $minggu_pemasukan[] = (float)$r['total_pemasukan'];
-    $minggu_pengeluaran[] = (float)$r['total_pengeluaran'];
+    $minggu_pemasukan[] = (float)($r['total_pemasukan'] ?? 0);
+    $minggu_pengeluaran[] = (float)($r['total_pengeluaran'] ?? 0);
 }
 
-$query_pertahun = "SELECT YEAR(tanggal) AS tahun, SUM(pemasukan) AS total_pemasukan, SUM(pengeluaran) AS total_pengeluaran FROM transaksi_keuangan GROUP BY YEAR(tanggal) ORDER BY tahun ASC";
+$query_pertahun = "
+    SELECT tahun,
+           SUM(pemasukan) AS total_pemasukan,
+           SUM(pengeluaran) AS total_pengeluaran
+    FROM (
+        SELECT YEAR(created_at) AS tahun, jumlah_dibayar AS pemasukan, 0 AS pengeluaran
+        FROM transaksi
+        WHERE status_pembayaran='lunas'
+        UNION ALL
+        SELECT YEAR(tanggal) AS tahun, 0 AS pemasukan, pengeluaran
+        FROM transaksi_keuangan
+    ) AS x
+    GROUP BY tahun
+    ORDER BY tahun ASC
+";
 $result_pertahun = mysqli_query($conn, $query_pertahun);
+
 $tahun_labels = [];
 $tahun_pemasukan = [];
 $tahun_pengeluaran = [];
 while ($r = mysqli_fetch_assoc($result_pertahun)) {
     $tahun_labels[] = $r['tahun'];
-    $tahun_pemasukan[] = (float)$r['total_pemasukan'];
-    $tahun_pengeluaran[] = (float)$r['total_pengeluaran'];
+    $tahun_pemasukan[] = (float)($r['total_pemasukan'] ?? 0);
+    $tahun_pengeluaran[] = (float)($r['total_pengeluaran'] ?? 0);
 }
 
-$result_perhari_for_table = mysqli_query($conn, "SELECT tanggal, SUM(pemasukan) AS total_pemasukan, SUM(pengeluaran) AS total_pengeluaran FROM transaksi_keuangan GROUP BY tanggal ORDER BY tanggal DESC");
-$result_perminggu_for_table = mysqli_query($conn, "SELECT YEAR(tanggal) AS tahun, WEEK(tanggal,1) AS minggu, SUM(pemasukan) AS total_pemasukan, SUM(pengeluaran) AS total_pengeluaran FROM transaksi_keuangan GROUP BY YEAR(tanggal), WEEK(tanggal,1) ORDER BY tahun DESC, minggu DESC");
-$result_perbulan_for_table = mysqli_query($conn, "SELECT DATE_FORMAT(tanggal,'%Y-%m') AS bulan, SUM(pemasukan) AS total_pemasukan, SUM(pengeluaran) AS total_pengeluaran FROM transaksi_keuangan GROUP BY DATE_FORMAT(tanggal,'%Y-%m') ORDER BY bulan DESC");
-$result_pertahun_for_table = mysqli_query($conn, "SELECT YEAR(tanggal) AS tahun, SUM(pemasukan) AS total_pemasukan, SUM(pengeluaran) AS total_pengeluaran FROM transaksi_keuangan GROUP BY YEAR(tanggal) ORDER BY tahun DESC");
+$result_perhari_for_table = mysqli_query($conn, "
+    SELECT tanggal,
+           SUM(pemasukan) AS total_pemasukan,
+           SUM(pengeluaran) AS total_pengeluaran
+    FROM (
+        SELECT DATE(created_at) AS tanggal, jumlah_dibayar AS pemasukan, 0 AS pengeluaran
+        FROM transaksi
+        WHERE status_pembayaran='lunas'
+        UNION ALL
+        SELECT tanggal, 0 AS pemasukan, pengeluaran
+        FROM transaksi_keuangan
+    ) AS x
+    GROUP BY tanggal
+    ORDER BY tanggal DESC
+");
+
+$result_perminggu_for_table = mysqli_query($conn, "
+    SELECT tahun, minggu,
+           SUM(pemasukan) AS total_pemasukan,
+           SUM(pengeluaran) AS total_pengeluaran
+    FROM (
+        SELECT YEAR(created_at) AS tahun, WEEK(created_at,1) AS minggu, jumlah_dibayar AS pemasukan, 0 AS pengeluaran
+        FROM transaksi
+        WHERE status_pembayaran='lunas'
+        UNION ALL
+        SELECT YEAR(tanggal) AS tahun, WEEK(tanggal,1) AS minggu, 0 AS pemasukan, pengeluaran
+        FROM transaksi_keuangan
+    ) AS x
+    GROUP BY tahun, minggu
+    ORDER BY tahun DESC, minggu DESC
+");
+
+$result_perbulan_for_table = mysqli_query($conn, "
+    SELECT bulan,
+           SUM(pemasukan) AS total_pemasukan,
+           SUM(pengeluaran) AS total_pengeluaran
+    FROM (
+        SELECT DATE_FORMAT(created_at,'%Y-%m') AS bulan, jumlah_dibayar AS pemasukan, 0 AS pengeluaran
+        FROM transaksi
+        WHERE status_pembayaran='lunas'
+        UNION ALL
+        SELECT DATE_FORMAT(tanggal,'%Y-%m') AS bulan, 0 AS pemasukan, pengeluaran
+        FROM transaksi_keuangan
+    ) AS x
+    GROUP BY bulan
+    ORDER BY bulan DESC
+");
+
+$result_pertahun_for_table = mysqli_query($conn, "
+    SELECT tahun,
+           SUM(pemasukan) AS total_pemasukan,
+           SUM(pengeluaran) AS total_pengeluaran
+    FROM (
+        SELECT YEAR(created_at) AS tahun, jumlah_dibayar AS pemasukan, 0 AS pengeluaran
+        FROM transaksi
+        WHERE status_pembayaran='lunas'
+        UNION ALL
+        SELECT YEAR(tanggal) AS tahun, 0 AS pemasukan, pengeluaran
+        FROM transaksi_keuangan
+    ) AS x
+    GROUP BY tahun
+    ORDER BY tahun DESC
+");
 ?>
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Keuangan - Laporan</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="../assets/css/keuangan.css?v=<?php echo filemtime('../assets/css/keuangan.css'); ?>">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 </head>
-
 <body>
     <?php include 'sidebar.php'; ?>
     <main class="main-grid">
@@ -139,14 +284,14 @@ $result_pertahun_for_table = mysqli_query($conn, "SELECT YEAR(tanggal) AS tahun,
                     <div style="display:flex;gap:12px;flex-wrap:wrap">
                         <div style="flex:1;min-width:180px">
                             <label>Tanggal</label>
-                            <input type="text" id="tanggal" name="tanggal" required value="<?= date('Y-m-d'); ?>" style="width:100%;padding:8px;border-radius:6px;border:1px solid #ddd">
+                            <input type="text" id="tanggal" name="tanggal" required value="<?php echo date('Y-m-d'); ?>" style="width:100%;padding:8px;border-radius:6px;border:1px solid #ddd">
                         </div>
                         <div style="flex:1;min-width:160px">
                             <label>Tipe</label>
                             <select name="tipe" required style="width:100%;padding:8px;border-radius:6px;border:1px solid #ddd">
                                 <option value="">-- Pilih --</option>
-                                <option value="pemasukan">Pemasukan</option>
-                                <option value="pengeluaran">Pengeluaran</option>
+                                <option value="pemasukan">Pemasukan (masuk ke transaksi)</option>
+                                <option value="pengeluaran">Pengeluaran (masuk ke transaksi_keuangan)</option>
                             </select>
                         </div>
                         <div style="flex:1;min-width:160px">
@@ -194,11 +339,13 @@ $result_pertahun_for_table = mysqli_query($conn, "SELECT YEAR(tanggal) AS tahun,
                     </thead>
                     <tbody>
                         <?php mysqli_data_seek($result_perhari_for_table, 0);
-                        while ($r = mysqli_fetch_assoc($result_perhari_for_table)): $laba = (float)$r['total_pemasukan'] - (float)$r['total_pengeluaran']; ?>
+                        while ($r = mysqli_fetch_assoc($result_perhari_for_table)):
+                            $laba = (float)($r['total_pemasukan'] ?? 0) - (float)($r['total_pengeluaran'] ?? 0);
+                        ?>
                             <tr>
                                 <td><?php echo date('d-m-Y', strtotime($r['tanggal'])); ?></td>
-                                <td>Rp <?php echo number_format($r['total_pemasukan'], 0, ',', '.'); ?></td>
-                                <td>Rp <?php echo number_format($r['total_pengeluaran'], 0, ',', '.'); ?></td>
+                                <td>Rp <?php echo number_format($r['total_pemasukan'] ?? 0, 0, ',', '.'); ?></td>
+                                <td>Rp <?php echo number_format($r['total_pengeluaran'] ?? 0, 0, ',', '.'); ?></td>
                                 <td style="color:<?php echo $laba >= 0 ? '#16a34a' : '#ef4444'; ?>">Rp <?php echo number_format($laba, 0, ',', '.'); ?></td>
                             </tr>
                         <?php endwhile; ?>
@@ -222,12 +369,14 @@ $result_pertahun_for_table = mysqli_query($conn, "SELECT YEAR(tanggal) AS tahun,
                     </thead>
                     <tbody>
                         <?php mysqli_data_seek($result_perminggu_for_table, 0);
-                        while ($r = mysqli_fetch_assoc($result_perminggu_for_table)): $laba = (float)$r['total_pemasukan'] - (float)$r['total_pengeluaran']; ?>
+                        while ($r = mysqli_fetch_assoc($result_perminggu_for_table)):
+                            $laba = (float)($r['total_pemasukan'] ?? 0) - (float)($r['total_pengeluaran'] ?? 0);
+                        ?>
                             <tr>
                                 <td><?php echo $r['tahun']; ?></td>
                                 <td><?php echo $r['minggu']; ?></td>
-                                <td>Rp <?php echo number_format($r['total_pemasukan'], 0, ',', '.'); ?></td>
-                                <td>Rp <?php echo number_format($r['total_pengeluaran'], 0, ',', '.'); ?></td>
+                                <td>Rp <?php echo number_format($r['total_pemasukan'] ?? 0, 0, ',', '.'); ?></td>
+                                <td>Rp <?php echo number_format($r['total_pengeluaran'] ?? 0, 0, ',', '.'); ?></td>
                                 <td style="color:<?php echo $laba >= 0 ? '#16a34a' : '#ef4444'; ?>">Rp <?php echo number_format($laba, 0, ',', '.'); ?></td>
                             </tr>
                         <?php endwhile; ?>
@@ -250,13 +399,15 @@ $result_pertahun_for_table = mysqli_query($conn, "SELECT YEAR(tanggal) AS tahun,
                     </thead>
                     <tbody>
                         <?php mysqli_data_seek($result_perbulan_for_table, 0);
-                        while ($r = mysqli_fetch_assoc($result_perbulan_for_table)): list($y, $m) = explode('-', $r['bulan']);
-                            $label = $bulan_indo[$m] . ' ' . $y;
-                            $laba = (float)$r['total_pemasukan'] - (float)$r['total_pengeluaran']; ?>
+                        while ($r = mysqli_fetch_assoc($result_perbulan_for_table)):
+                            list($y, $m) = explode('-', $r['bulan']);
+                            $label = ($bulan_indo[$m] ?? $m) . ' ' . $y;
+                            $laba = (float)($r['total_pemasukan'] ?? 0) - (float)($r['total_pengeluaran'] ?? 0);
+                        ?>
                             <tr>
                                 <td><?php echo $label; ?></td>
-                                <td>Rp <?php echo number_format($r['total_pemasukan'], 0, ',', '.'); ?></td>
-                                <td>Rp <?php echo number_format($r['total_pengeluaran'], 0, ',', '.'); ?></td>
+                                <td>Rp <?php echo number_format($r['total_pemasukan'] ?? 0, 0, ',', '.'); ?></td>
+                                <td>Rp <?php echo number_format($r['total_pengeluaran'] ?? 0, 0, ',', '.'); ?></td>
                                 <td style="color:<?php echo $laba >= 0 ? '#16a34a' : '#ef4444'; ?>">Rp <?php echo number_format($laba, 0, ',', '.'); ?></td>
                             </tr>
                         <?php endwhile; ?>
@@ -279,11 +430,13 @@ $result_pertahun_for_table = mysqli_query($conn, "SELECT YEAR(tanggal) AS tahun,
                     </thead>
                     <tbody>
                         <?php mysqli_data_seek($result_pertahun_for_table, 0);
-                        while ($r = mysqli_fetch_assoc($result_pertahun_for_table)): $laba = (float)$r['total_pemasukan'] - (float)$r['total_pengeluaran']; ?>
+                        while ($r = mysqli_fetch_assoc($result_pertahun_for_table)):
+                            $laba = (float)($r['total_pemasukan'] ?? 0) - (float)($r['total_pengeluaran'] ?? 0);
+                        ?>
                             <tr>
                                 <td><?php echo $r['tahun']; ?></td>
-                                <td>Rp <?php echo number_format($r['total_pemasukan'], 0, ',', '.'); ?></td>
-                                <td>Rp <?php echo number_format($r['total_pengeluaran'], 0, ',', '.'); ?></td>
+                                <td>Rp <?php echo number_format($r['total_pemasukan'] ?? 0, 0, ',', '.'); ?></td>
+                                <td>Rp <?php echo number_format($r['total_pengeluaran'] ?? 0, 0, ',', '.'); ?></td>
                                 <td style="color:<?php echo $laba >= 0 ? '#16a34a' : '#ef4444'; ?>">Rp <?php echo number_format($laba, 0, ',', '.'); ?></td>
                             </tr>
                         <?php endwhile; ?>
@@ -338,23 +491,23 @@ $result_pertahun_for_table = mysqli_query($conn, "SELECT YEAR(tanggal) AS tahun,
             allowInput: true
         });
 
-        const hariLabels = <?= json_encode($hari_labels); ?>;
-        const hariPemasukan = <?= json_encode($hari_pemasukan); ?>;
-        const hariPengeluaran = <?= json_encode($hari_pengeluaran); ?>;
+        const hariLabels = <?php echo json_encode($hari_labels); ?>;
+        const hariPemasukan = <?php echo json_encode($hari_pemasukan); ?>;
+        const hariPengeluaran = <?php echo json_encode($hari_pengeluaran); ?>;
 
-        const mingguLabels = <?= json_encode($minggu_labels); ?>;
-        const mingguPemasukan = <?= json_encode($minggu_pemasukan); ?>;
-        const mingguPengeluaran = <?= json_encode($minggu_pengeluaran); ?>;
+        const mingguLabels = <?php echo json_encode($minggu_labels); ?>;
+        const mingguPemasukan = <?php echo json_encode($minggu_pemasukan); ?>;
+        const mingguPengeluaran = <?php echo json_encode($minggu_pengeluaran); ?>;
 
-        const bulanLabels = <?= json_encode($bulan_labels); ?>;
-        const bulanPemasukan = <?= json_encode($pemasukan_data); ?>;
-        const bulanPengeluaran = <?= json_encode($pengeluaran_data); ?>;
+        const bulanLabels = <?php echo json_encode($bulan_labels_readable); ?>;
+        const bulanPemasukan = <?php echo json_encode($pemasukan_data); ?>;
+        const bulanPengeluaran = <?php echo json_encode($pengeluaran_data); ?>;
 
-        const tahunLabels = <?= json_encode($tahun_labels); ?>;
-        const tahunPemasukan = <?= json_encode($tahun_pemasukan); ?>;
-        const tahunPengeluaran = <?= json_encode($tahun_pengeluaran); ?>;
+        const tahunLabels = <?php echo json_encode($tahun_labels); ?>;
+        const tahunPemasukan = <?php echo json_encode($tahun_pemasukan); ?>;
+        const tahunPengeluaran = <?php echo json_encode($tahun_pengeluaran); ?>;
 
-        const saldoCumulative = <?= json_encode($saldo_cumulative); ?>;
+        const saldoCumulative = <?php echo json_encode($saldo_cumulative); ?>;
 
         function createLineChart(ctx, labels, datasets, options = {}) {
             return new Chart(ctx, {
@@ -366,21 +519,9 @@ $result_pertahun_for_table = mysqli_query($conn, "SELECT YEAR(tanggal) AS tahun,
                 options: Object.assign({
                     responsive: true,
                     maintainAspectRatio: false,
-                    animation: {
-                        duration: 1200,
-                        easing: 'easeOutQuart'
-                    },
+                    animation: { duration: 800, easing: 'easeOutQuart' },
                     plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                font: {
-                                    size: 12,
-                                    weight: 500
-                                },
-                                color: '#333'
-                            }
-                        },
+                        legend: { position: 'top', labels: { font: { size: 12, weight: 500 }, color: '#333' } },
                         tooltip: {
                             backgroundColor: '#333',
                             titleColor: '#fff',
@@ -388,36 +529,16 @@ $result_pertahun_for_table = mysqli_query($conn, "SELECT YEAR(tanggal) AS tahun,
                             padding: 10,
                             cornerRadius: 8,
                             callbacks: {
-                                label: ctx => ctx.dataset.label + ': Rp ' + ctx.raw.toLocaleString('id-ID')
+                                label: ctx => ctx.dataset.label + ': Rp ' + Number(ctx.raw).toLocaleString('id-ID')
                             }
                         }
                     },
                     scales: {
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                color: '#555',
-                                font: {
-                                    size: 12,
-                                    weight: 500
-                                }
-                            }
-                        },
+                        x: { grid: { display: false }, ticks: { color: '#555', font: { size: 12 } } },
                         y: {
                             beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0,0,0,0.05)'
-                            },
-                            ticks: {
-                                callback: v => 'Rp ' + v.toLocaleString('id-ID'),
-                                color: '#555',
-                                font: {
-                                    size: 12,
-                                    weight: 500
-                                }
-                            }
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: { callback: v => 'Rp ' + Number(v).toLocaleString('id-ID'), color: '#555' }
                         }
                     }
                 }, options)
@@ -427,28 +548,13 @@ $result_pertahun_for_table = mysqli_query($conn, "SELECT YEAR(tanggal) AS tahun,
         function createBarChart(ctx, labels, datasets, options = {}) {
             return new Chart(ctx, {
                 type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: datasets
-                },
+                data: { labels: labels, datasets: datasets },
                 options: Object.assign({
                     responsive: true,
                     maintainAspectRatio: false,
-                    animation: {
-                        duration: 1200,
-                        easing: 'easeOutQuart'
-                    },
+                    animation: { duration: 800, easing: 'easeOutQuart' },
                     plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                font: {
-                                    size: 12,
-                                    weight: 500
-                                },
-                                color: '#333'
-                            }
-                        },
+                        legend: { position: 'top', labels: { font: { size: 12, weight: 500 }, color: '#333' } },
                         tooltip: {
                             backgroundColor: '#333',
                             titleColor: '#fff',
@@ -456,36 +562,16 @@ $result_pertahun_for_table = mysqli_query($conn, "SELECT YEAR(tanggal) AS tahun,
                             padding: 10,
                             cornerRadius: 8,
                             callbacks: {
-                                label: ctx => ctx.dataset.label + ': Rp ' + ctx.raw.toLocaleString('id-ID')
+                                label: ctx => ctx.dataset.label + ': Rp ' + Number(ctx.raw).toLocaleString('id-ID')
                             }
                         }
                     },
                     scales: {
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                color: '#555',
-                                font: {
-                                    size: 12,
-                                    weight: 500
-                                }
-                            }
-                        },
+                        x: { grid: { display: false }, ticks: { color: '#555' } },
                         y: {
                             beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0,0,0,0.05)'
-                            },
-                            ticks: {
-                                callback: v => 'Rp ' + v.toLocaleString('id-ID'),
-                                color: '#555',
-                                font: {
-                                    size: 12,
-                                    weight: 500
-                                }
-                            }
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: { callback: v => 'Rp ' + Number(v).toLocaleString('id-ID'), color: '#555' }
                         }
                     }
                 }, options)
@@ -493,41 +579,15 @@ $result_pertahun_for_table = mysqli_query($conn, "SELECT YEAR(tanggal) AS tahun,
         }
 
         const ctxHarian = document.getElementById('chartHarian').getContext('2d');
-        createLineChart(ctxHarian, hariLabels, [{
-                label: 'Pemasukan',
-                data: hariPemasukan,
-                borderColor: '#16a34a',
-                backgroundColor: 'rgba(16,163,74,0.15)',
-                tension: 0.3,
-                fill: true
-            },
-            {
-                label: 'Pengeluaran',
-                data: hariPengeluaran,
-                borderColor: '#ef4444',
-                backgroundColor: 'rgba(239,68,68,0.12)',
-                tension: 0.3,
-                fill: true
-            }
+        createLineChart(ctxHarian, hariLabels, [
+            { label: 'Pemasukan', data: hariPemasukan, borderColor: '#16a34a', backgroundColor: 'rgba(16,163,74,0.12)', tension: 0.3, fill: true },
+            { label: 'Pengeluaran', data: hariPengeluaran, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.12)', tension: 0.3, fill: true }
         ]);
 
         const ctxMingguan = document.getElementById('chartMingguan').getContext('2d');
-        createLineChart(ctxMingguan, mingguLabels, [{
-                label: 'Pemasukan',
-                data: mingguPemasukan,
-                borderColor: '#0ea5a4',
-                backgroundColor: 'rgba(14,165,164,0.12)',
-                tension: 0.3,
-                fill: true
-            },
-            {
-                label: 'Pengeluaran',
-                data: mingguPengeluaran,
-                borderColor: '#f97316',
-                backgroundColor: 'rgba(249,115,22,0.12)',
-                tension: 0.3,
-                fill: true
-            }
+        createLineChart(ctxMingguan, mingguLabels, [
+            { label: 'Pemasukan', data: mingguPemasukan, borderColor: '#0ea5a4', backgroundColor: 'rgba(14,165,164,0.12)', tension: 0.3, fill: true },
+            { label: 'Pengeluaran', data: mingguPengeluaran, borderColor: '#f97316', backgroundColor: 'rgba(249,115,22,0.12)', tension: 0.3, fill: true }
         ]);
 
         const ctxBulanan = document.getElementById('chartBulanan').getContext('2d');
@@ -537,66 +597,25 @@ $result_pertahun_for_table = mysqli_query($conn, "SELECT YEAR(tanggal) AS tahun,
         const gradExpense = ctxBulanan.createLinearGradient(0, 0, 0, 400);
         gradExpense.addColorStop(0, 'rgba(239,68,68,0.7)');
         gradExpense.addColorStop(1, 'rgba(239,68,68,0.2)');
-        createBarChart(ctxBulanan, bulanLabels, [{
-                label: 'Pemasukan',
-                data: bulanPemasukan,
-                backgroundColor: gradIncome,
-                borderColor: '#16a34a',
-                borderWidth: 1
-            },
-            {
-                label: 'Pengeluaran',
-                data: bulanPengeluaran,
-                backgroundColor: gradExpense,
-                borderColor: '#ef4444',
-                borderWidth: 1
-            }
+        createBarChart(ctxBulanan, bulanLabels, [
+            { label: 'Pemasukan', data: bulanPemasukan, backgroundColor: gradIncome, borderColor: '#16a34a', borderWidth: 1 },
+            { label: 'Pengeluaran', data: bulanPengeluaran, backgroundColor: gradExpense, borderColor: '#ef4444', borderWidth: 1 }
         ]);
 
         const ctxTahunan = document.getElementById('chartTahunan').getContext('2d');
-        createBarChart(ctxTahunan, tahunLabels, [{
-                label: 'Pemasukan',
-                data: tahunPemasukan,
-                backgroundColor: 'rgba(59,130,246,0.7)',
-                borderColor: '#3b82f6',
-                borderWidth: 1
-            },
-            {
-                label: 'Pengeluaran',
-                data: tahunPengeluaran,
-                backgroundColor: 'rgba(234,88,12,0.7)',
-                borderColor: '#ea580c',
-                borderWidth: 1
-            }
+        createBarChart(ctxTahunan, tahunLabels, [
+            { label: 'Pemasukan', data: tahunPemasukan, backgroundColor: 'rgba(59,130,246,0.7)', borderColor: '#3b82f6', borderWidth: 1 },
+            { label: 'Pengeluaran', data: tahunPengeluaran, backgroundColor: 'rgba(234,88,12,0.7)', borderColor: '#ea580c', borderWidth: 1 }
         ]);
 
         const ctxSaldo = document.getElementById('chartSaldo').getContext('2d');
-        createLineChart(ctxSaldo, bulanLabels, [{
-            label: 'Saldo Kumulatif',
-            data: saldoCumulative,
-            borderColor: '#0f172a',
-            backgroundColor: 'rgba(15,23,42,0.08)',
-            tension: 0.3,
-            fill: true
-        }], {
+        createLineChart(ctxSaldo, <?php echo json_encode($bulan_labels_readable); ?>, [
+            { label: 'Saldo Kumulatif', data: saldoCumulative, borderColor: '#0f172a', backgroundColor: 'rgba(15,23,42,0.08)', tension: 0.3, fill: true }
+        ], {
             scales: {
-                y: {
-                    beginAtZero: false,
-                    ticks: {
-                        callback: v => 'Rp ' + v.toLocaleString('id-ID'),
-                        color: '#555',
-                        font: {
-                            size: 12,
-                            weight: 500
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(0,0,0,0.05)'
-                    }
-                }
+                y: { beginAtZero: false, ticks: { callback: v => 'Rp ' + Number(v).toLocaleString('id-ID') } }
             }
         });
     </script>
 </body>
-
 </html>
