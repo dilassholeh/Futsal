@@ -5,29 +5,6 @@ date_default_timezone_set('Asia/Jakarta');
 
 if (!isset($_GET['id'])) die("ID lapangan tidak ditemukan");
 
-$pendingWarning = null;
-
-if (isset($_SESSION['user_id'])) {
-    $user_id = $_SESSION['user_id'];
-    $cekPending = $conn->query("
-        SELECT id FROM transaksi
-        WHERE user_id = '$user_id'
-        AND status_pembayaran = 'pending'
-        AND expire_at > NOW()
-        LIMIT 1
-    ");
-    if ($cekPending->num_rows > 0) {
-        $pendingWarning = "Anda masih memiliki pesanan yang belum dibayar.";
-    }
-}
-
-$conn->query("
-    UPDATE transaksi 
-    SET status_pembayaran='expired'
-    WHERE status_pembayaran IN ('pending','cart')
-    AND expire_at <= NOW()
-");
-
 $id = mysqli_real_escape_string($conn, $_GET['id']);
 $query = mysqli_query($conn, "SELECT * FROM lapangan WHERE id='$id'");
 if (mysqli_num_rows($query) == 0) die("Lapangan tidak ditemukan");
@@ -40,13 +17,10 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
 
 <head>
     <meta charset="UTF-8">
-    <title>Booking Lapangan - <?= htmlspecialchars($lapangan['nama_lapangan']); ?></title>
+    <title>Booking Lapangan</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/green.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-
     <style>
         * {
             box-sizing: border-box;
@@ -200,8 +174,8 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
 
     <div id="popupAlert">
         <div class="box">
-            <p id="popupMessage" style="margin-bottom:20px;font-weight:500;"></p>
-            <button onclick="closePopup()" style="padding:8px 20px;border:none;background:#4CAF50;color:#fff;border-radius:8px;cursor:pointer;">OK</button>
+            <p id="popupMessage" style="font-weight:600;margin-bottom:15px"></p>
+            <button onclick="closePopup()" class="btn btn-success" style="border-radius:10px">OK</button>
         </div>
     </div>
 
@@ -211,13 +185,14 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
         </div>
 
         <div class="right">
-            <h2>Booking Lapangan: <?= htmlspecialchars($lapangan['nama_lapangan']); ?></h2>
+            <h2><?= htmlspecialchars($lapangan['nama_lapangan']); ?></h2>
 
             <form action="../includes/booking/invoice_redirect.php" method="POST" id="bookingForm">
 
                 <div class="form-group">
                     <label>Tanggal</label>
-                    <input type="text" id="tanggal" name="tanggal" required>
+                    <input type="text" id="tanggal" name="tanggal" required placeholder="Pilih Tanggal Booking">
+
                 </div>
 
                 <div class="form-group">
@@ -231,7 +206,7 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
                 </div>
 
                 <div class="form-group">
-                    <label>Durasi (jam)</label>
+                    <label>Durasi (Jam)</label>
                     <input type="number" id="durasi" name="durasi" min="1" max="12" required>
                 </div>
 
@@ -241,22 +216,18 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
                 </div>
 
                 <div class="summary">
-                    <div><span>Harga/Jam</span><span id="harga">Rp 0</span></div>
+                    <div><span>Harga / Jam</span><span id="harga">Rp 0</span></div>
                     <div><span>Total</span><span id="total">Rp 0</span></div>
                 </div>
 
                 <div class="form-group">
                     <label>Catatan</label>
-                    <textarea id="catatan" name="catatan"></textarea>
+                    <textarea name="catatan"></textarea>
                 </div>
 
-                <div class="btn-group">
-                    <button type="reset" class="btn btn-danger">Batal</button>
-                    <button type="submit" class="btn btn-success">Checkout</button>
-                </div>
+                <button type="submit" id="checkoutBtn" class="btn btn-success">Checkout</button>
 
-                <input type="hidden" id="lapangan_id" name="lapangan_id" value="<?= $lapangan['id']; ?>">
-                <input type="hidden" name="nama_lapangan" value="<?= $lapangan['nama_lapangan']; ?>">
+                <input type="hidden" name="lapangan_id" value="<?= $lapangan['id']; ?>">
                 <input type="hidden" id="hargaValue" name="harga">
                 <input type="hidden" id="jamMulaiValue" name="jam_mulai">
                 <input type="hidden" id="durasiValue" name="durasi">
@@ -267,136 +238,73 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
     </div>
 
     <script>
-        function showPopup(msg, redirect = null) {
+        function showPopup(msg) {
             document.getElementById("popupMessage").innerText = msg;
-            const p = document.getElementById("popupAlert");
-            p.dataset.redirect = redirect;
-            p.style.display = "flex";
+            document.getElementById("popupAlert").style.display = "flex";
         }
 
         function closePopup() {
-            const p = document.getElementById("popupAlert");
-            p.style.display = "none";
-            if (p.dataset.redirect) window.location.href = p.dataset.redirect;
+            document.getElementById("popupAlert").style.display = "none";
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener("DOMContentLoaded", () => {
             const hargaPagi = <?= (int)$lapangan['harga_pagi']; ?>;
             const hargaMalam = <?= (int)$lapangan['harga_malam']; ?>;
-            const hargaDisplay = document.getElementById('harga');
-            const totalDisplay = document.getElementById('total');
-            const hargaValue = document.getElementById('hargaValue');
-            const totalValue = document.getElementById('totalValue');
-            const jamMulai = document.getElementById('jamMulai');
-            const durasi = document.getElementById('durasi');
-            const jamSelesai = document.getElementById('jamSelesai');
-            const jamMulaiValue = document.getElementById('jamMulaiValue');
-            const durasiValue = document.getElementById('durasiValue');
-            const jamSelesaiValue = document.getElementById('jamSelesaiValue');
+
+            const jm = document.getElementById("jamMulai");
+            const dr = document.getElementById("durasi");
+            const js = document.getElementById("jamSelesai");
+            const harga = document.getElementById("harga");
+            const total = document.getElementById("total");
 
             function hitung() {
-                const jm = jamMulai.value;
-                const dr = parseInt(durasi.value);
-                if (!jm || isNaN(dr)) return;
+                if (!jm.value || !dr.value) return;
 
-                const startHour = parseInt(jm.split(':')[0]);
-                const endHour = startHour + dr;
-                jamSelesai.value = `${String(endHour).padStart(2,'0')}:00`;
-                jamSelesaiValue.value = jamSelesai.value;
+                const sH = parseInt(jm.value.split(":")[0]);
+                const dur = parseInt(dr.value);
+                const end = sH + dur;
 
-                let total = 0;
-                for (let i = 0; i < dr; i++) {
-                    let current = startHour + i;
-                    if (current < 18) {
-                        total += hargaPagi;
-                    } else {
-                        total += hargaMalam;
-                    }
+                const displayHour = (end % 24).toString().padStart(2, "0") + ":00";
+                js.value = end >= 24 ? displayHour + " (Besok)" : displayHour;
+                document.getElementById("jamSelesaiValue").value = js.value;
+
+                let totalHarga = 0;
+                for (let i = 0; i < dur; i++) {
+                    let t = sH + i;
+                    totalHarga += t < 18 ? hargaPagi : hargaMalam;
                 }
+                harga.textContent = "Rp " + (sH < 18 ? hargaPagi : hargaMalam).toLocaleString('id-ID');
+                total.textContent = "Rp " + totalHarga.toLocaleString('id-ID');
 
-                const hargaPerJam = startHour < 18 ? hargaPagi : hargaMalam;
-                hargaDisplay.textContent = 'Rp ' + hargaPerJam.toLocaleString('id-ID');
-                hargaValue.value = hargaPerJam;
-
-                totalDisplay.textContent = 'Rp ' + total.toLocaleString('id-ID');
-                totalValue.value = total;
-
-                jamMulaiValue.value = jm;
-                durasiValue.value = dr;
+                document.getElementById("hargaValue").value = (sH < 18 ? hargaPagi : hargaMalam);
+                document.getElementById("jamMulaiValue").value = jm.value;
+                document.getElementById("durasiValue").value = dur;
+                document.getElementById("totalValue").value = totalHarga;
             }
 
-            jamMulai.addEventListener('change', hitung);
-            durasi.addEventListener('input', hitung);
+            jm.addEventListener("change", hitung);
+            dr.addEventListener("input", hitung);
+
+            document.getElementById("checkoutBtn").addEventListener("click", function(e) {
+                if (!jm.value || !dr.value || !js.value) {
+                    e.preventDefault();
+                    showPopup("Jam mulai dan durasi wajib diisi.");
+                    return;
+                }
+                const sH = parseInt(jm.value.split(":")[0]);
+                const dur = parseInt(dr.value);
+                if (sH + dur > 24) {
+                    e.preventDefault();
+                    showPopup("Durasi melebihi batas jam operasional.\nMax sampai 24:00.");
+                }
+            });
         });
-
-        function loadAvailableHours() {
-            const lap = document.getElementById("lapangan_id").value;
-            const tgl = document.getElementById("tanggal").value;
-            if (!lap || !tgl) return;
-
-            fetch("../includes/booking/get_available_jam.php?lapangan_id=" + lap + "&tanggal=" + tgl)
-                .then(res => res.json())
-                .then(data => {
-                    const select = document.getElementById("jamMulai");
-                    const prev = select.value;
-                    select.innerHTML = "<option value='' disabled selected>- Pilih Jam -</option>";
-                    if (data.empty) {
-                        select.innerHTML = "<option value=''>Tidak ada jam tersedia</option>";
-                        return;
-                    }
-                    data.forEach(j => {
-                        const opt = document.createElement("option");
-                        opt.value = j;
-                        opt.textContent = j;
-                        select.appendChild(opt);
-                    });
-                    if (Array.from(select.options).map(o => o.value).includes(prev)) {
-                        select.value = prev;
-                    }
-                });
-        }
-
-        function tambahKeKeranjang() {
-            const form = document.getElementById("bookingForm");
-            const formData = new FormData(form);
-            fetch('../includes/booking/add_to_cart.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        showPopup('Berhasil ditambahkan ke keranjang');
-                        form.reset();
-                        document.getElementById('harga').textContent = 'Rp 0';
-                        document.getElementById('total').textContent = 'Rp 0';
-                        document.getElementById('jamSelesai').value = '';
-                    } else {
-                        showPopup('Gagal menambahkan ke keranjang');
-                    }
-                });
-        }
 
         flatpickr("#tanggal", {
             dateFormat: "Y-m-d",
-            altInput: true,
-            altFormat: "d F Y",
-            minDate: "today",
-            onChange: () => loadAvailableHours()
-        });
-
-        document.addEventListener("DOMContentLoaded", () => {
-            if (document.getElementById("tanggal").value !== "") loadAvailableHours();
+            minDate: "today"
         });
     </script>
-
-    <?php if ($pendingWarning): ?>
-        <script>
-            window.onload = function() {
-                showPopup("<?= $pendingWarning ?>", "../sewa.php");
-            };
-        </script>
-    <?php endif; ?>
 
 </body>
 

@@ -1,7 +1,6 @@
 <?php
 include '../includes/koneksi.php';
 
-// Ambil filter dari frontend
 $type = $_GET['type'] ?? 'hari';
 
 if ($type == "hari") {
@@ -23,10 +22,8 @@ if ($type == "hari") {
 $result = mysqli_fetch_assoc(mysqli_query($conn, $query));
 $total = $result['total'] ?? 0;
 
-// Format ke Rupiah untuk frontend
 $totalFormatted = number_format($total, 0, ',', '.');
 
-// Output JSON
 echo json_encode([
     "total" => $totalFormatted
 ]);

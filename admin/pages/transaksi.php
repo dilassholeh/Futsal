@@ -102,46 +102,62 @@ $transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transa
             opacity: 0.5;
             pointer-events: none;
         }
-.alert {
-    padding: 14px 20px;
-    border-radius: 10px;
-    margin: 0 16px 18px 16px;
-    font-size: 15px;
-    font-weight: 600;
-    color: #fff;
-    letter-spacing: .3px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    animation: fadeIn .35s ease;
-}
 
-.alert-success {
-    background: linear-gradient(135deg, #43a047, #66bb6a);
-}
+        .alert {
+            padding: 14px 20px;
+            border-radius: 10px;
+            margin: 0 16px 18px 16px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: .3px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            animation: fadeIn .35s ease;
+        }
 
-.alert-error {
-    background: linear-gradient(135deg, #d32f2f, #ef5350);
-}
+        .alert-success {
+            background: linear-gradient(135deg, #43a047, #66bb6a);
+        }
 
-@keyframes fadeIn {
-    0% {
-        opacity: 0;
-        transform: translateY(-6px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+        .alert-error {
+            background: linear-gradient(135deg, #d32f2f, #ef5350);
+        }
 
-.btn-icon.disabled {
-    opacity: 0.35;
-    pointer-events: none;
-    filter: grayscale(80%);
-}
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
 
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn-icon.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+            filter: grayscale(80%);
+        }
+
+        .btn-export {
+            background: #43a047;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: .2s ease;
+        }
+
+      
     </style>
 </head>
 
@@ -194,6 +210,10 @@ $transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transa
                     </select>
                     <input type="text" id="tanggalFilter" name="tanggal" placeholder="Pilih tanggal..." value="<?= htmlspecialchars($tanggal); ?>">
                     <button type="submit">Filter</button>
+                    <a href="../includes/transaksi/export_transaksi_excel.php?search=<?= urlencode($search); ?>&status=<?= urlencode($status); ?>&tanggal=<?= urlencode($tanggal); ?>"
+                        class="btn-export">
+                        Export Excel
+                    </a>
                 </form>
             </div>
 
@@ -230,10 +250,20 @@ $transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transa
                                     <td><span class="status <?= statusClass($row['status_pembayaran']); ?>"><?= statusLabel($row['status_pembayaran']); ?></span></td>
                                     <td><?= !empty($row['bukti_pembayaran']) ? "<a href='../../uploads/booking/{$row['bukti_pembayaran']}' target='_blank'>Lihat</a>" : "-"; ?></td>
                                     <td class="aksi">
-                                        <a class="btn-icon edit" href="../includes/transaksi/edit.php?id=<?= $row['id']; ?>"><i class="bx bx-edit-alt"></i></a>
-                                        <a class="btn-icon lunas" href="../includes/transaksi/transaksi_update.php?action=set_lunas&id=<?= $row['id']; ?>"><i class='bx bx-check-circle'></i></a>
-                                        <a class="btn-icon detail" href="../includes/transaksi/transaksi_detail.php?id=<?= $row['id']; ?>"><i class='bx bx-detail'></i></a>
+                                        <?php
+                                        $statusNow = strtolower(trim($row['status_pembayaran']));
+                                        if ($statusNow === 'dp'): ?>
+                                            <a class="btn-icon lunas" href="../includes/transaksi/transaksi_update.php?action=set_lunas&id=<?= $row['id']; ?>">
+                                                <i class='bx bx-check-circle'></i>
+                                            </a>
+                                        <?php endif; ?>
+
+                                        <a class="btn-icon detail" href="../includes/transaksi/transaksi_detail.php?id=<?= $row['id']; ?>">
+                                            <i class='bx bx-detail'></i>
+                                        </a>
                                     </td>
+
+
                                 </tr>
                             <?php $no++;
                             endwhile;
@@ -268,15 +298,15 @@ $transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transa
             defaultDate: "<?= htmlspecialchars($tanggal); ?>"
         });
 
-            function showAlert(message, type = 'success') {
-                const alertBox = document.getElementById('alertBox');
-                alertBox.textContent = message;
-                alertBox.className = `alert alert-${type}`;
-                alertBox.style.display = 'block';
-                setTimeout(() => {
-                    alertBox.style.display = 'none';
-                }, 1500);
-            }
+        function showAlert(message, type = 'success') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type}`;
+            alertBox.style.display = 'block';
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 1500);
+        }
 
         document.querySelectorAll('.btn-icon.lunas').forEach(btn => {
             btn.addEventListener('click', function(e) {
@@ -287,19 +317,21 @@ $transaksi_hari_ini = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM transa
                     .then(data => {
                         if (data.success) {
                             showAlert("Status transaksi berhasil diset menjadi LUNAS!", "success");
+
                             document.querySelector(".card-pendapatan p").textContent = "Rp " + data.total_pendapatan;
                             document.querySelector(".card-transaksi p").textContent = data.total_transaksi + " Transaksi";
                             document.querySelector(".card-hariini p").textContent = data.transaksi_hari_ini + " Transaksi";
+
                             const row = btn.closest("tr");
                             const statusEl = row.querySelector(".status");
                             statusEl.textContent = "Lunas";
                             statusEl.className = "status lunas";
-                            btn.classList.add("disabled");
+
+                            btn.remove();
                         }
                     });
             });
         });
-
     </script>
 </body>
 

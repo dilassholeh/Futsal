@@ -4,27 +4,27 @@ session_start();
 
 $result = mysqli_query($conn, "SELECT * FROM lapangan ORDER BY id ASC");
 
-$jumlahKeranjang = 0;
+$notifBaru = 0;
 $user_id = $_SESSION['user_id'] ?? null;
+
 if ($user_id) {
-  $queryCart = mysqli_query($conn, "SELECT COUNT(*) AS jumlah FROM keranjang WHERE user_id = '$user_id'");
-  $cartData = mysqli_fetch_assoc($queryCart);
-  $jumlahKeranjang = $cartData['jumlah'];
 
   $notifQuery = mysqli_query($conn, "
-        SELECT * FROM pesan 
-        WHERE user_id = '$user_id' 
-        ORDER BY created_at DESC
-    ");
+      SELECT * FROM pesan 
+      WHERE user_id = '$user_id' 
+      ORDER BY created_at DESC
+  ");
+
   $notifBaruResult = mysqli_query($conn, "
-        SELECT COUNT(*) AS jumlah_baru 
-        FROM pesan 
-        WHERE user_id = '$user_id' AND status='baru'
-    ");
+      SELECT COUNT(*) AS jumlah_baru 
+      FROM pesan 
+      WHERE user_id = '$user_id' AND status='baru'
+  ");
   $notifBaruData = mysqli_fetch_assoc($notifBaruResult);
-  $notifBaru = $notifBaruData['jumlah_baru'];
+  $notifBaru = $notifBaruData['jumlah_baru'] ?? 0;
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -180,6 +180,7 @@ include './pages/header.php'
     burger.addEventListener('click', () => {
       navMenu.classList.toggle('active');
     });
+    
   </script>
 
 </body>
