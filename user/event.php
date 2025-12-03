@@ -2,7 +2,6 @@
 session_start();
 include '../includes/koneksi.php';
 
-
 $current_date = date('Y-m-d');
 $query = "SELECT e.*, k.nama as kategori_nama 
           FROM event e 
@@ -11,30 +10,26 @@ $query = "SELECT e.*, k.nama as kategori_nama
           ORDER BY e.tanggal_mulai ASC";
 $result = $conn->query($query);
 
-$jumlahKeranjang = 0;
+$notifBaru = 0;
 if (isset($_SESSION['user_id'])) {
-  $user_id = $_SESSION['user_id'];
-  $queryCart = mysqli_query($conn, "SELECT COUNT(*) AS jumlah FROM keranjang WHERE user_id = '$user_id'");
-  $cartData = mysqli_fetch_assoc($queryCart);
-  $jumlahKeranjang = $cartData['jumlah'];
+    $user_id = $_SESSION['user_id'];
 
-
-
-  $notifQuery = mysqli_query($conn, "
+    $notifQuery = mysqli_query($conn, "
         SELECT * FROM pesan 
         WHERE user_id = '$user_id' 
         ORDER BY created_at DESC
     ");
-  $notifBaruResult = mysqli_query($conn, "
+
+    $notifBaruResult = mysqli_query($conn, "
         SELECT COUNT(*) AS jumlah_baru 
         FROM pesan 
         WHERE user_id = '$user_id' AND status='baru'
     ");
-  $notifBaruData = mysqli_fetch_assoc($notifBaruResult);
-  $notifBaru = $notifBaruData['jumlah_baru'];
+    $notifBaruData = mysqli_fetch_assoc($notifBaruResult);
+    $notifBaru = $notifBaruData['jumlah_baru'] ?? 0;
 }
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="id">

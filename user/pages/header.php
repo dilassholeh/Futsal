@@ -1,3 +1,20 @@
+<?php
+
+session_start();
+include __DIR__ . '/../../includes/koneksi.php';
+
+$q = mysqli_query($conn, "SELECT nama_website, logo FROM pengaturan WHERE id = 1");
+$pengaturan = mysqli_fetch_assoc($q);
+
+$namaWeb = !empty($pengaturan['nama_website']) ? $pengaturan['nama_website'] : "Nama Website";
+
+if (!empty($pengaturan['logo'])) {
+    $logoPath = "/Futsal/uploads/" . $pengaturan['logo'];
+} else {
+    $logoPath = "/Futsal/assets/image/logo.png";
+}
+$current_page = basename($_SERVER['PHP_SELF']);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -213,9 +230,9 @@
             </div>
 
             <ul class="nav-menu">
-                <li><a href="index.php">Beranda</a></li>
-                <li><a href="sewa.php" class="active">Penyewaan</a></li>
-                <li><a href="event.php">Event</a></li>
+                <li><a href="index.php" class="<?= ($current_page == 'index.php') ? 'active' : '' ?>">Beranda</a></li>
+                <li><a href="sewa.php" class="<?= ($current_page == 'sewa.php') ? 'active' : '' ?>">Penyewaan</a></li>
+                <li><a href="event.php" class="<?= ($current_page == 'event.php') ? 'active' : '' ?>">Event</a></li>
             </ul>
 
             <div class="nav-bottom">
@@ -224,13 +241,14 @@
                 <div class="user-icons">
                     <?php if (isset($_SESSION['user_id'])): ?>
 
-                        <!-- NOTIFIKASI (TETAP ADA) -->
                         <a href="./pages/pesan.php" class="notif">
                             <i class='bx bxs-bell'></i>
-                            <span class="notif-badge"><?= $_SESSION['notif_count'] ?? 0 ?></span>
+                            <?php if ($notifBaru > 0): ?>
+                                <span class="notif-badge"><?= $notifBaru ?></span>
+                            <?php endif; ?>
+
                         </a>
 
-                        <!-- PROFILE -->
                         <div class="profile-card">
                             <a href="./pages/user.php" class="profile-link">
                                 <img src="./assets/image/<?= $_SESSION['foto'] ?? 'profil.png'; ?>" alt="Profile" class="profile-img">

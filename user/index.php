@@ -1,13 +1,12 @@
 <?php
 session_start();
 if (isset($_SESSION['admin_id'])) {
-    $_SESSION['user_id'] = $_SESSION['admin_id'];
+  $_SESSION['user_id'] = $_SESSION['admin_id'];
 }
 
 include '../includes/koneksi.php';
 date_default_timezone_set('Asia/Jakarta');
 
-// Jika halaman dibuka dari admin (Lihat Website) dan admin memang login
 if (isset($_GET['admin_view']) && isset($_SESSION['from_admin']) && $_SESSION['from_admin'] === true && isset($_SESSION['admin_id'])) {
   $_SESSION['user_id'] = $_SESSION['admin_id'];
   $_SESSION['user_name'] = $_SESSION['admin_nama'] ?? null;
@@ -15,7 +14,6 @@ if (isset($_GET['admin_view']) && isset($_SESSION['from_admin']) && $_SESSION['f
   $_SESSION['user_role'] = 'admin';
 }
 
-// Ambil event yang masih berjalan
 $current_date = date('Y-m-d');
 $esc_date = $conn->real_escape_string($current_date);
 $query = "SELECT e.*, k.nama as kategori_nama 
@@ -25,34 +23,20 @@ $query = "SELECT e.*, k.nama as kategori_nama
           ORDER BY e.tanggal_mulai ASC";
 $result = $conn->query($query);
 
-// Inisialisasi agar header/footer tidak error jika tidak ada user
-$jumlahKeranjang = 0;
 $notifBaru = 0;
 
 if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
   $user_id = $conn->real_escape_string($_SESSION['user_id']);
 
-  // COUNT keranjang
-  $q1 = "SELECT COUNT(*) AS jumlah FROM keranjang WHERE user_id = '$user_id'";
-  $res1 = $conn->query($q1);
-  if ($res1) {
-    $cartData = $res1->fetch_assoc();
-    $jumlahKeranjang = isset($cartData['jumlah']) ? (int)$cartData['jumlah'] : 0;
-  } else {
-    $jumlahKeranjang = 0;
-  }
-
-  // COUNT pesan baru
   $q2 = "SELECT COUNT(*) AS jumlah_baru FROM pesan WHERE user_id = '$user_id' AND status = 'baru'";
   $res2 = $conn->query($q2);
   if ($res2) {
     $notifBaruData = $res2->fetch_assoc();
-    $notifBaru = isset($notifBaruData['jumlah_baru']) ? (int)$notifBaruData['jumlah_baru'] : 0;
-  } else {
-    $notifBaru = 0;
+    $notifBaru = $notifBaruData['jumlah_baru'] ?? 0;
   }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -152,7 +136,6 @@ if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
     }
 
     .fitur-card:hover {
-      transform: translateY(-4px);
       box-shadow: 0 12px 26px rgba(0, 0, 0, 0.06);
     }
 
@@ -174,22 +157,6 @@ if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
       font-size: 14px;
       color: var(--muted);
       margin-bottom: 18px;
-    }
-
-    .fitur-card button {
-      border: 1px solid var(--green);
-      background: transparent;
-      padding: 8px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      color: var(--green);
-      transition: .2s;
-    }
-
-    .fitur-card button:hover {
-      background: var(--green);
-      color: #fff;
     }
 
     .about {
@@ -256,51 +223,64 @@ if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
       font-weight: 600;
     }
 
-    .blog-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 26px;
-    }
-
-    .blog-item {
-      background: #f9f9f9;
-      padding: 20px;
-      border-radius: 12px;
-      border: 1px solid #eee;
-    }
-
-    .blog-item h3 {
-      margin: 0 0 8px;
-      font-size: 18px;
-      color: #222;
-    }
-
-    .blog-item p {
-      font-size: 14px;
-      color: #666;
-    }
-
-    .bottom-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-    }
-
-    .bottom-box {
-      background: #fafafa;
-      padding: 24px;
-      border-radius: 12px;
-      border: 1px solid #eaeaea;
-    }
-
-    .bottom-box h3 {
-      margin: 0 0 10px;
-      color: var(--green);
-    }
-
     @media(max-width: 900px) {
       .about {
         grid-template-columns: 1fr;
+      }
+    }
+
+    .lokasi-section {
+      padding: 70px 6% 20px;
+      background: #fff;
+      text-align: center;
+    }
+
+    .lokasi-info {
+      max-width: 900px;
+      margin: 0 auto 40px;
+    }
+
+    .lokasi-info h2 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: #2e7d32;
+    }
+
+
+    .lokasi-detail {
+      display: inline-flex;
+      gap: 12px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .lokasi-detail i {
+      font-size: 30px;
+      color: #2e7d32;
+    }
+
+    .lokasi-map-full {
+      width: 100%;
+      margin-top: 30px;
+    }
+
+    .lokasi-map-full iframe {
+      width: 100%;
+      height: 420px;
+      border: 0;
+    }
+
+    @media (max-width: 768px) {
+      .lokasi-section {
+        padding: 60px 20px 10px;
+      }
+
+      .lokasi-map-full iframe {
+        height: 350px;
+      }
+
+      .lokasi-detail {
+        flex-direction: column;
       }
     }
   </style>
@@ -329,21 +309,18 @@ if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
         <img src="./assets/image/futsal.png" alt="">
         <h3>Lapangan Standar Nasional</h3>
         <p>Lapangan aman, nyaman, dan sesuai standar nasional.</p>
-        <button onclick="location.href='./pages/lapangan.php'">Selengkapnya</button>
       </div>
 
       <div class="fitur-card">
         <img src="./assets/image/futsal.png" alt="">
         <h3>Booking Online Cepat</h3>
         <p>Pilih waktu dan pesan lapangan dalam hitungan detik.</p>
-        <button onclick="location.href='./pages/sewa.php'">Selengkapnya</button>
       </div>
 
       <div class="fitur-card">
         <img src="./assets/image/futsal.png" alt="">
         <h3>Harga Terjangkau</h3>
         <p>Kualitas premium dengan harga ramah di kantong.</p>
-        <button onclick="location.href='./pages/promo.php'">Selengkapnya</button>
       </div>
 
     </div>
@@ -362,7 +339,6 @@ if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
           Kami hadir untuk memberikan pengalaman futsal terbaik — cocok untuk hiburan, latihan,
           maupun turnamen.
         </p>
-        <a class="btn-primary" href="./pages/about.php">Pelajari Lebih Lanjut</a>
       </div>
     </div>
   </section>
@@ -384,47 +360,28 @@ if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
     </div>
   </section>
 
-  <section class="section">
-    <div class="blog-grid">
-
-      <div class="blog-item">
-        <h3>Cara Memilih Sepatu Futsal</h3>
-        <p>Rekomendasi sepatu untuk performa maksimal.</p>
+  <section class="lokasi-section" id="lokasi">
+    <div class="lokasi-info">
+      <h2>Lokasi ZonaFutsal</h2>
+      <div class="lokasi-detail">
+        <i class='bx bxs-map'></i>
+        <div>
+          <p>Jl. Contoh No. 123, Kota Anda, Indonesia 12345</p>
+        </div>
       </div>
+    </div>
 
-      <div class="blog-item">
-        <h3>Latihan Dasar Pemula</h3>
-        <p>Panduan latihan rutin untuk meningkatkan skill.</p>
-      </div>
-
-      <div class="blog-item">
-        <h3>Teknik Shooting Akurat</h3>
-        <p>Cara menendang bola dengan tenaga & presisi.</p>
-      </div>
-
-      <div class="blog-item">
-        <h3>Peraturan Futsal Resmi</h3>
-        <p>Pahami aturan dasar permainan futsal.</p>
-      </div>
-
+    <div class="lokasi-map-full">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.3266638733494!2d113.72363987432873!3d-8.169807481874903!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd695cfe9894601%3A0xc9639ab1c93a874a!2sZona%20Futsal!5e0!3m2!1sid!2sid!4v1764759792532!5m2!1sid!2sid"
+        allowfullscreen="" loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
     </div>
   </section>
 
-  <section class="section">
-    <div class="bottom-grid">
 
-      <div class="bottom-box">
-        <h3>Promo & Diskon</h3>
-        <p>Dapatkan promo menarik setiap minggu.</p>
-      </div>
 
-      <div class="bottom-box">
-        <h3>Event & Turnamen</h3>
-        <p>Ikuti turnamen futsal seru setiap bulan.</p>
-      </div>
-
-    </div>
-  </section>
 
   <?php include './pages/footer.php'; ?>
 

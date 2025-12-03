@@ -7,13 +7,24 @@ if(!isset($_SESSION['user_id'])){
     exit;
 }
 
-$user_id = $_SESSION['user_id'];
+$user_id = $conn->real_escape_string($_SESSION['user_id']);
+
+mysqli_query($conn, "
+    UPDATE pesan 
+    SET status='dibaca' 
+    WHERE user_id='$user_id' AND status='baru'
+");
+
+$_SESSION['notif_count'] = 0;
+
 $query = mysqli_query($conn, "
     SELECT * FROM pesan 
     WHERE user_id='$user_id' 
     ORDER BY created_at DESC
 ");
 ?>
+
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -44,6 +55,23 @@ h2 {
     font-size: 26px;
     font-weight: 600;
     color: #1e2a38;
+}
+
+.back-btn {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background: #117139;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: .25s ease;
+}
+
+.back-btn:hover {
+    background: #0c5a2d;
+    transform: translateY(-2px);
 }
 
 .card {
@@ -105,6 +133,8 @@ h2 {
 
 <div class="container">
     <h2>Pesan Saya</h2>
+
+    <a href="../sewa.php" class="back-btn">← Kembali</a>
 
     <?php if(mysqli_num_rows($query) > 0): ?>
         <?php while($p = mysqli_fetch_assoc($query)): ?>
