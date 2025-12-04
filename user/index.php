@@ -343,30 +343,13 @@ if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
     </div>
   </section>
 
-  <section class="testi-section">
-    <h2>Kata Mereka Tentang ZonaFutsal</h2>
-    <div class="testi-grid">
-
-      <div class="testi-card">
-        <p>“Lapangannya terawat, lantai empuk, dan booking super gampang!”</p>
-        <span>— Andi, Tim Harimau</span>
-      </div>
-
-      <div class="testi-card">
-        <p>“Fasilitas lengkap, cocok untuk latihan intens atau fun match.”</p>
-        <span>— Rina, Pelatih Futsal</span>
-      </div>
-
-    </div>
-  </section>
-
   <section class="lokasi-section" id="lokasi">
     <div class="lokasi-info">
       <h2>Lokasi ZonaFutsal</h2>
       <div class="lokasi-detail">
         <i class='bx bxs-map'></i>
         <div>
-          <p>Jl. Contoh No. 123, Kota Anda, Indonesia 12345</p>
+          <p>Jl. Contoh</p>
         </div>
       </div>
     </div>

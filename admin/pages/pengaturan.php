@@ -20,17 +20,18 @@ if (!$pengaturan) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nama_website = $conn->real_escape_string($_POST['nama_website']);
-    $tagline = $conn->real_escape_string($_POST['tagline']);
-    $alamat = $conn->real_escape_string($_POST['alamat']);
-    $telepon = $conn->real_escape_string($_POST['telepon']);
-    $email = $conn->real_escape_string($_POST['email']);
-    $whatsapp = $conn->real_escape_string($_POST['whatsapp']);
-    $instagram = $conn->real_escape_string($_POST['instagram']);
-    $facebook = $conn->real_escape_string($_POST['facebook']);
-    $jam_buka = $conn->real_escape_string($_POST['jam_buka']);
-    $jam_tutup = $conn->real_escape_string($_POST['jam_tutup']);
-    $tentang_kami = $conn->real_escape_string($_POST['tentang_kami']);
+    $nama_website = $conn->real_escape_string($_POST['nama_website'] ?? '');
+    $tagline      = $conn->real_escape_string($_POST['tagline'] ?? '');
+    $alamat       = $conn->real_escape_string($_POST['alamat'] ?? '');
+    $telepon      = $conn->real_escape_string($_POST['telepon'] ?? '');
+    $email        = $conn->real_escape_string($_POST['email'] ?? '');
+    $whatsapp     = $conn->real_escape_string($_POST['whatsapp'] ?? '');
+    $instagram    = $conn->real_escape_string($_POST['instagram'] ?? $pengaturan['instagram'] ?? '');
+    $facebook     = $conn->real_escape_string($_POST['facebook'] ?? $pengaturan['facebook'] ?? '');
+    $jam_buka     = $conn->real_escape_string($_POST['jam_buka'] ?? $pengaturan['jam_buka'] ?? '');
+    $jam_tutup    = $conn->real_escape_string($_POST['jam_tutup'] ?? $pengaturan['jam_tutup'] ?? '');
+    $tentang_kami = $conn->real_escape_string($_POST['tentang_kami'] ?? '');
+
 
     $logo = $pengaturan['logo'];
     if (isset($_FILES['logo']) && $_FILES['logo']['error'] == 0) {
@@ -596,45 +597,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
 
-                    <div class="form-section">
-                        <div class="section-title">
-                            <i class='bx bx-share-alt'></i>
-                            Media Sosial
-                        </div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Instagram <span>(Username atau URL)</span></label>
-                                <div class="input-group">
-                                    <i class='bx bxl-instagram'></i>
-                                    <input type="text" name="instagram" value="<?php echo htmlspecialchars($pengaturan['instagram']); ?>" placeholder="zonafutsal">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Facebook <span>(Username atau URL)</span></label>
-                                <div class="input-group">
-                                    <i class='bx bxl-facebook'></i>
-                                    <input type="text" name="facebook" value="<?php echo htmlspecialchars($pengaturan['facebook']); ?>" placeholder="zonafutsal">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <div class="section-title">
-                            <i class='bx bx-time'></i>
-                            Jam Operasional
-                        </div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Jam Buka *</label>
-                                <input type="time" name="jam_buka" value="<?php echo htmlspecialchars($pengaturan['jam_buka']); ?>" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Jam Tutup *</label>
-                                <input type="time" name="jam_tutup" value="<?php echo htmlspecialchars($pengaturan['jam_tutup']); ?>" required>
-                            </div>
-                        </div>
-                    </div>
 
                     <div class="form-section">
                         <div class="section-title">
@@ -655,8 +617,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         Simpan Pengaturan
                     </button>
                 </div>
-            </form>
         </div>
+
+        </form>
+    </div>
     </div>
 
     <script>

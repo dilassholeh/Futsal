@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 include __DIR__ . '/../../includes/koneksi.php';
 
@@ -14,14 +13,17 @@ if (!empty($pengaturan['logo'])) {
     $logoPath = "/Futsal/assets/image/logo.png";
 }
 $current_page = basename($_SERVER['PHP_SELF']);
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title><?= htmlspecialchars($namaWeb) ?></title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 
 <style>
@@ -225,7 +227,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <div class="nav-inner">
             <div class="logo-container">
                 <a href="index.php" class="logo-text">
-                    <img src="./assets/image/logo.png" alt="ZonaFutsal Logo"> ZOFA
+                    <img src="<?= $logoPath ?>" alt="<?= htmlspecialchars($namaWeb) ?> Logo">
+                    <span><?= htmlspecialchars($namaWeb) ?></span>
                 </a>
             </div>
 
@@ -237,24 +240,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
             <div class="nav-bottom">
                 <div class="burger"><i class="bx bx-menu"></i></div>
-
                 <div class="user-icons">
                     <?php if (isset($_SESSION['user_id'])): ?>
-
                         <a href="./pages/pesan.php" class="notif">
                             <i class='bx bxs-bell'></i>
-                            <?php if ($notifBaru > 0): ?>
-                                <span class="notif-badge"><?= $notifBaru ?></span>
-                            <?php endif; ?>
-
+                            <span class="notif-badge"><?= $_SESSION['notif_count'] ?? 0 ?></span>
                         </a>
-
                         <div class="profile-card">
                             <a href="./pages/user.php" class="profile-link">
                                 <img src="./assets/image/<?= $_SESSION['foto'] ?? 'profil.png'; ?>" alt="Profile" class="profile-img">
                             </a>
                         </div>
-
                     <?php else: ?>
                         <a href="login.php" class="btn-login">Login</a>
                         <a href="register.php" class="btn-register">Register</a>
