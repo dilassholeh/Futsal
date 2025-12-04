@@ -9,7 +9,6 @@ $id = mysqli_real_escape_string($conn, $_GET['id']);
 $query = mysqli_query($conn, "SELECT * FROM lapangan WHERE id='$id'");
 if (mysqli_num_rows($query) == 0) die("Lapangan tidak ditemukan");
 $lapangan = mysqli_fetch_assoc($query);
-
 $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
 ?>
 <!DOCTYPE html>
@@ -171,7 +170,6 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
 </head>
 
 <body>
-
     <div id="popupAlert">
         <div class="box">
             <p id="popupMessage" style="font-weight:600;margin-bottom:15px"></p>
@@ -192,7 +190,6 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
                 <div class="form-group">
                     <label>Tanggal</label>
                     <input type="text" id="tanggal" name="tanggal" required placeholder="Pilih Tanggal Booking">
-
                 </div>
 
                 <div class="form-group">
@@ -227,10 +224,10 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
 
                 <button type="submit" id="checkoutBtn" class="btn btn-success">Checkout</button>
 
-                <input type="hidden" name="lapangan_id" value="<?= $lapangan['id']; ?>">
+                <input type="hidden" name="lapangan_id" id="lapangan_id" value="<?= $lapangan['id']; ?>">
                 <input type="hidden" id="hargaValue" name="harga">
-                <input type="hidden" id="jamMulaiValue" name="jam_mulai">
-                <input type="hidden" id="durasiValue" name="durasi">
+                <input type="hidden" id="jamMulaiValue" name="jam_mulai_hidden">
+                <input type="hidden" id="durasiValue" name="durasi_hidden">
                 <input type="hidden" id="jamSelesaiValue" name="jam_selesai">
                 <input type="hidden" id="totalValue" name="total">
             </form>
@@ -250,7 +247,6 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
         document.addEventListener("DOMContentLoaded", () => {
             const hargaPagi = <?= (int)$lapangan['harga_pagi']; ?>;
             const hargaMalam = <?= (int)$lapangan['harga_malam']; ?>;
-
             const jm = document.getElementById("jamMulai");
             const dr = document.getElementById("durasi");
             const js = document.getElementById("jamSelesai");
@@ -259,15 +255,12 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
 
             function hitung() {
                 if (!jm.value || !dr.value) return;
-
                 const sH = parseInt(jm.value.split(":")[0]);
                 const dur = parseInt(dr.value);
                 const end = sH + dur;
-
                 const displayHour = (end % 24).toString().padStart(2, "0") + ":00";
                 js.value = end >= 24 ? displayHour + " (Besok)" : displayHour;
                 document.getElementById("jamSelesaiValue").value = js.value;
-
                 let totalHarga = 0;
                 for (let i = 0; i < dur; i++) {
                     let t = sH + i;
@@ -275,7 +268,6 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
                 }
                 harga.textContent = "Rp " + (sH < 18 ? hargaPagi : hargaMalam).toLocaleString('id-ID');
                 total.textContent = "Rp " + totalHarga.toLocaleString('id-ID');
-
                 document.getElementById("hargaValue").value = (sH < 18 ? hargaPagi : hargaMalam);
                 document.getElementById("jamMulaiValue").value = jm.value;
                 document.getElementById("durasiValue").value = dur;
@@ -298,14 +290,42 @@ $resultJam = mysqli_query($conn, "SELECT jam FROM jam ORDER BY jam ASC");
                     showPopup("Durasi melebihi batas jam operasional.\nMax sampai 24:00.");
                 }
             });
-        });
 
-        flatpickr("#tanggal", {
-            dateFormat: "Y-m-d",
-            minDate: "today"
+            flatpickr("#tanggal", {
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                onChange: function() {
+                    loadAvailableHours();
+                }
+            });
+
+            function loadAvailableHours() {
+                const lap = document.getElementById("lapangan_id").value;
+                const tgl = document.getElementById("tanggal").value;
+                if (!lap || !tgl) return;
+                fetch("../includes/booking/get_available_jam.php?lapangan_id=" + lap + "&tanggal=" + tgl)
+                    .then(res => res.json())
+                    .then(data => {
+                        const select = document.getElementById("jamMulai");
+                        const prev = select.value;
+                        select.innerHTML = "<option value='' disabled selected>- Pilih Jam -</option>";
+                        if (data.empty) {
+                            select.innerHTML = "<option value=''>Tidak ada jam tersedia</option>";
+                            return;
+                        }
+                        data.forEach(j => {
+                            const opt = document.createElement("option");
+                            opt.value = j;
+                            opt.textContent = j;
+                            select.appendChild(opt);
+                        });
+                        if (Array.from(select.options).map(o => o.value).includes(prev)) {
+                            select.value = prev;
+                        }
+                    });
+            }
         });
     </script>
-
 </body>
 
 </html>
