@@ -7,16 +7,28 @@ if (!isset($_SESSION['admin_id'])) {
   exit;
 }
 
-
+$user_id = $_SESSION['admin_id'];
 $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $limit = 5;
 $offset = ($page - 1) * $limit;
+
+$pesan = '';
+$tipe_pesan = ''; 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['simpan_transaksi'])) {
     $tipe = $_POST['tipe'] ?? '';
     $jumlah = (float)($_POST['jumlah'] ?? 0);
     $tanggal = mysqli_real_escape_string($conn, $_POST['tanggal'] ?? date('Y-m-d'));
     $keterangan = mysqli_real_escape_string($conn, $_POST['keterangan'] ?? '');
+
+    $q1 = mysqli_query($conn, "SELECT SUM(jumlah_dibayar) AS t FROM transaksi WHERE status_pembayaran='lunas'");
+    $t1 = (float)(mysqli_fetch_assoc($q1)['t'] ?? 0);
+    
+    $q2 = mysqli_query($conn, "SELECT SUM(pengeluaran) AS k FROM transaksi_keuangan");
+    $r2 = mysqli_fetch_assoc($q2);
+    $t2k = (float)($r2['k'] ?? 0);
+    
+    $saldo_sekarang = $t1 - $t2k;
 
     if ($tipe === 'pemasukan') {
         $idtrx = 'TRX' . uniqid();
@@ -28,13 +40,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['simpan_transaksi'])) 
             INSERT INTO transaksi (id, user_id, subtotal, jumlah_dibayar, status_pembayaran, created_at)
             VALUES ('$idtrx', '$user_id', $subtotal, $jumlah_dibayar, '$status_pembayaran', '$created_at')
         ");
+        $pesan = 'Pemasukan berhasil ditambahkan sebesar Rp ' . number_format($jumlah, 0, ',', '.');
+        $tipe_pesan = 'sukses';
     } else {
-        $pemasukan = 0;
-        $pengeluaran = $jumlah;
-        mysqli_query($conn, "
-            INSERT INTO transaksi_keuangan (tanggal, pemasukan, pengeluaran, keterangan, created_at)
-            VALUES ('$tanggal', $pemasukan, $pengeluaran, '$keterangan', NOW())
-        ");
+       
+        if ($jumlah > $saldo_sekarang) {
+            $pesan = 'Saldo tidak mencukupi! Saldo saat ini: Rp ' . number_format($saldo_sekarang, 0, ',', '.') . 
+                     ', Pengeluaran yang diminta: Rp ' . number_format($jumlah, 0, ',', '.');
+            $tipe_pesan = 'gagal';
+        } else {
+            $pemasukan = 0;
+            $pengeluaran = $jumlah;
+            mysqli_query($conn, "
+                INSERT INTO transaksi_keuangan (tanggal, pemasukan, pengeluaran, keterangan, created_at)
+                VALUES ('$tanggal', $pemasukan, $pengeluaran, '$keterangan', NOW())
+            ");
+            $pesan = 'Pengeluaran berhasil ditambahkan sebesar Rp ' . number_format($jumlah, 0, ',', '.') . 
+                     '. Sisa saldo: Rp ' . number_format($saldo_sekarang - $jumlah, 0, ',', '.');
+            $tipe_pesan = 'sukses';
+        }
     }
 }
 
@@ -247,6 +271,120 @@ $result_pertahun_for_table = mysqli_query($conn, "
     <link rel="stylesheet" href="../assets/css/keuangan.css?v=<?php echo filemtime('../assets/css/keuangan.css'); ?>">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const tabs = document.querySelectorAll(".tab-content");
+
+    tabButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            const target = button.getAttribute("data-tab");
+
+            tabButtons.forEach(btn => btn.classList.remove("active"));
+            tabs.forEach(tab => tab.classList.remove("active"));
+
+            button.classList.add("active");
+            document.getElementById(target).classList.add("active");
+        });
+    });
+});
+</script>
+    <style>
+        .alert {
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            animation: slideIn 0.3s ease-out;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .alert-sukses {
+            background-color: #d1fae5;
+            border-left: 4px solid #10b981;
+            color: #065f46;
+        }
+        
+        .alert-gagal {
+            background-color: #fee2e2;
+            border-left: 4px solid #ef4444;
+            color: #7f1d1d;
+        }
+        
+        .alert i {
+            font-size: 24px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .alert-sukses i {
+            color: #10b981;
+        }
+        
+        .alert-gagal i {
+            color: #ef4444;
+        }
+        
+        .alert-content {
+            flex: 1;
+        }
+        
+        .alert-content strong {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 4px;
+            font-size: 15px;
+        }
+        
+        .alert-close {
+            margin-left: auto;
+            cursor: pointer;
+            font-size: 20px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+        
+        .alert-close:hover {
+            opacity: 1;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .saldo-warning {
+            color: #ef4444;
+            font-weight: 700;
+        }
+        
+        .saldo-safe {
+            color: #16a34a;
+            font-weight: 700;
+        }
+
+        .tab-content {
+       display: none;
+   }
+   .tab-content.active {
+       display: block;
+   }
+   .tab-btn.active {
+       background: #4CAF50;
+       color: white;
+   }
+    </style>
 </head>
 <body>
     <?php include 'sidebar.php'; ?>
@@ -255,7 +393,9 @@ $result_pertahun_for_table = mysqli_query($conn, "
             <h1>Data Keuangan</h1>
             <div style="display:flex;gap:10px;align-items:center">
                 <div style="display:flex;flex-direction:column;text-align:right">
-                    <span style="font-weight:700">Rp <?php echo number_format($saldo_akhir, 0, ',', '.'); ?></span>
+                    <span class="<?php echo $saldo_akhir < 0 ? 'saldo-warning' : 'saldo-safe'; ?>">
+                        Rp <?php echo number_format($saldo_akhir, 0, ',', '.'); ?>
+                    </span>
                     <small>Saldo Akhir</small>
                 </div>
                 <div class="profile-card" style="display:flex;align-items:center;gap:8px">
@@ -279,8 +419,20 @@ $result_pertahun_for_table = mysqli_query($conn, "
 
         <div class="tab-content active" id="input">
             <h2><i class="bx bx-wallet"></i> Input Transaksi</h2>
+            
+            <?php if (!empty($pesan)): ?>
+                <div class="alert alert-<?php echo $tipe_pesan; ?>" id="alertBox">
+                    <i class='bx <?php echo $tipe_pesan === 'sukses' ? 'bx-check-circle' : 'bx-error-circle'; ?>'></i>
+                    <div class="alert-content">
+                        <strong><?php echo $tipe_pesan === 'sukses' ? 'Berhasil!' : 'Gagal!'; ?></strong>
+                        <div><?php echo $pesan; ?></div>
+                    </div>
+                    <span class="alert-close" onclick="this.parentElement.style.display='none'">×</span>
+                </div>
+            <?php endif; ?>
+            
             <div class="form-container">
-                <form method="POST">
+                <form method="POST" id="formTransaksi">
                     <div style="display:flex;gap:12px;flex-wrap:wrap">
                         <div style="flex:1;min-width:180px">
                             <label>Tanggal</label>
@@ -288,7 +440,7 @@ $result_pertahun_for_table = mysqli_query($conn, "
                         </div>
                         <div style="flex:1;min-width:160px">
                             <label>Tipe</label>
-                            <select name="tipe" required style="width:100%;padding:8px;border-radius:6px;border:1px solid #ddd">
+                            <select name="tipe" id="tipe" required style="width:100%;padding:8px;border-radius:6px;border:1px solid #ddd">
                                 <option value="">-- Pilih --</option>
                                 <option value="pemasukan">Pemasukan (masuk ke transaksi)</option>
                                 <option value="pengeluaran">Pengeluaran (masuk ke transaksi_keuangan)</option>
@@ -296,15 +448,19 @@ $result_pertahun_for_table = mysqli_query($conn, "
                         </div>
                         <div style="flex:1;min-width:160px">
                             <label>Jumlah (Rp)</label>
-                            <input type="number" name="jumlah" required min="0" style="width:100%;padding:8px;border-radius:6px;border:1px solid #ddd">
+                            <input type="number" name="jumlah" id="jumlah" required min="0" style="width:100%;padding:8px;border-radius:6px;border:1px solid #ddd">
                         </div>
                     </div>
                     <div style="margin-top:8px">
                         <label>Keterangan</label>
                         <textarea name="keterangan" required style="width:100%;padding:8px;border-radius:6px;border:1px solid #ddd"></textarea>
                     </div>
+                    <div id="warningBox" style="display:none;margin-top:10px;padding:12px;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:6px;color:#92400e;font-size:14px">
+                        <i class='bx bx-error' style="font-size:20px;vertical-align:middle;margin-right:8px"></i>
+                        <strong>Peringatan:</strong> <span id="warningText"></span>
+                    </div>
                     <div style="margin-top:10px">
-                        <button type="submit" name="simpan_transaksi" class="tab-btn" style="background:#4CAF50;color:#fff;border:none">Simpan</button>
+                        <button type="submit" name="simpan_transaksi" id="btnSimpan" class="tab-btn" style="background:#4CAF50;color:#fff;border:none">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -320,7 +476,9 @@ $result_pertahun_for_table = mysqli_query($conn, "
                 </div>
                 <div class="summary-card">
                     <div style="font-size:0.9rem;color:#6b7280">Saldo Akhir</div>
-                    <div class="amount">Rp <?php echo number_format($saldo_akhir, 0, ',', '.'); ?></div>
+                    <div class="amount <?php echo $saldo_akhir < 0 ? 'saldo-warning' : ''; ?>">
+                        Rp <?php echo number_format($saldo_akhir, 0, ',', '.'); ?>
+                    </div>
                 </div>
             </div>
         </div>
@@ -445,7 +603,7 @@ $result_pertahun_for_table = mysqli_query($conn, "
             </div>
         </div>
 
-        <div class="tab-content" id="grafik">
+            <div class="tab-content" id="grafik">
             <h2><i class="bx bx-line-chart"></i> Grafik Keuangan</h2>
             <div class="chart-grid">
                 <div>
