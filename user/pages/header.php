@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 include __DIR__ . '/../../includes/koneksi.php';
 
 $q = mysqli_query($conn, "SELECT nama_website, logo FROM pengaturan WHERE id = 1");
@@ -7,13 +9,26 @@ $pengaturan = mysqli_fetch_assoc($q);
 
 $namaWeb = !empty($pengaturan['nama_website']) ? $pengaturan['nama_website'] : "Nama Website";
 
-if (!empty($pengaturan['logo'])) {
-    $logoPath = "/Futsal/uploads/" . $pengaturan['logo'];
-} else {
-    $logoPath = "/Futsal/assets/image/logo.png";
-}
-$current_page = basename($_SERVER['PHP_SELF']);
+$logoPath = !empty($pengaturan['logo'])
+    ? "/Futsal/uploads/" . $pengaturan['logo']
+    : "/Futsal/assets/image/logo.png";
 
+if (isset($_SESSION['user_id'])) {
+    $uid = $_SESSION['user_id'];
+
+    $qNotif = mysqli_query($conn, "
+        SELECT COUNT(*) AS total 
+        FROM pesan 
+        WHERE user_id = '$uid' 
+        AND status = 'baru'
+    ");
+
+    $rNotif = mysqli_fetch_assoc($qNotif);
+    $_SESSION['notif_count'] = $rNotif['total'] ?? 0;
+}
+
+
+$current_page = basename($_SERVER['PHP_SELF']);
 ?>
 
 <!DOCTYPE html>
@@ -23,7 +38,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($namaWeb) ?></title>
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 </head>
 
 <style>
@@ -244,11 +259,14 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <a href="./pages/pesan.php" class="notif">
                             <i class='bx bxs-bell'></i>
-                            <span class="notif-badge"><?= $_SESSION['notif_count'] ?? 0 ?></span>
+                            <?php if ($_SESSION['notif_count'] > 0): ?>
+                                <span class="notif-badge"><?= $_SESSION['notif_count'] ?></span>
+                            <?php endif; ?>
                         </a>
+
                         <div class="profile-card">
                             <a href="./pages/user.php" class="profile-link">
-                                <img src="./assets/image/<?= $_SESSION['foto'] ?? 'profil.png'; ?>" alt="Profile" class="profile-img">
+                                <img src="./assets/image/<?= $_SESSION['foto'] ?? 'profil.png'; ?>" class="profile-img">
                             </a>
                         </div>
                     <?php else: ?>
