@@ -298,7 +298,7 @@ if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
       <a href="./pages/sewa.php" class="btn-primary">Booking Sekarang</a>
     </div>
     <div class="hero-right">
-      <img src="./assets/image/futsal.png" alt="">
+      <img src="./assets/image/Utama.jpg" alt="">
     </div>
   </section>
 
@@ -306,19 +306,19 @@ if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
     <div class="fitur-wrapper">
 
       <div class="fitur-card">
-        <img src="./assets/image/futsal.png" alt="">
+        <img src="./assets/image/Lapangan1.jpg" alt="">
         <h3>Lapangan Standar Nasional</h3>
         <p>Lapangan aman, nyaman, dan sesuai standar nasional.</p>
       </div>
 
       <div class="fitur-card">
-        <img src="./assets/image/futsal.png" alt="">
+        <img src="./assets/image/Lapangan2.jpg" alt="">
         <h3>Booking Online Cepat</h3>
         <p>Pilih waktu dan pesan lapangan dalam hitungan detik.</p>
       </div>
 
       <div class="fitur-card">
-        <img src="./assets/image/futsal.png" alt="">
+        <img src="./assets/image/Lapangan3.jpg" alt="">
         <h3>Harga Terjangkau</h3>
         <p>Kualitas premium dengan harga ramah di kantong.</p>
       </div>
@@ -328,7 +328,7 @@ if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
 
   <section class="section">
     <div class="about">
-      <img src="./assets/image/futsal.png" class="about-img" alt="">
+      <img src="./assets/image/Second.jpg" class="about-img" alt="">
       <div>
         <h2>Tentang ZonaFutsal</h2>
         <p>
@@ -349,7 +349,7 @@ if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
       <div class="lokasi-detail">
         <i class='bx bxs-map'></i>
         <div>
-          <p>Jl. Contoh</p>
+          <p>Jl. Tidar No.17, Kloncing, Karangrejo, Kec. Sumbersari, Kabupaten Jember, Jawa Timur 68124</p>
         </div>
       </div>
     </div>
